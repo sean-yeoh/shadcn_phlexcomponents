@@ -39,7 +39,6 @@ class BaseComponent < Phlex::HTML
   def initialize(**attributes)
     @attributes = mix(default_attributes, attributes)
     @attributes[:class] = TAILWIND_MERGER.merge("#{default_styles} #{@attributes[:class]}")
-    super
   end
 
   if Rails.env.development?
