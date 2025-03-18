@@ -1,8 +1,5 @@
-AllCops:
-  TargetRubyVersion: 3.1
+plugins:
+  - rubocop-minitest
 
-Style/StringLiterals:
-  EnforcedStyle: double_quotes
-
-Style/StringLiteralsInInterpolation:
-  EnforcedStyle: double_quotes
+inherit_gem:
+  rubocop-shopify: rubocop.yml

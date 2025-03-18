@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 components_path = File.expand_path("../components", __dir__)
 components_install_path = Rails.root.join("vendor/shadcn_phlexcomponents/components")
 stimulus_controllers_path = File.expand_path("../../app/javascript/controllers", __dir__)

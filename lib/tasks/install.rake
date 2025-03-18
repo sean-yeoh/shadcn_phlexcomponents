@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :shadcn_phlexcomponents do
   desc "Install shadcn_phlexcomponents"
   task :install do
