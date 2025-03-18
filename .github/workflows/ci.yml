@@ -37,3 +37,18 @@ jobs:
           bundler-cache: true
       - name: Run tests
         run: bundle exec rake test
+
+  user-install:
+    strategy:
+      fail-fast: false
+      matrix:
+        plat: ['ubuntu', 'windows', 'macos']
+    runs-on: ${{matrix.plat}}-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler: latest
+      - run: test/integration/user_install_test.sh
+        shell: bash
