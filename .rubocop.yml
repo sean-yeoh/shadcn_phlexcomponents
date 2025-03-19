@@ -3,3 +3,6 @@ plugins:
 
 inherit_gem:
   rubocop-shopify: rubocop.yml
+
+Lint/MissingSuper:
+  Enabled: false

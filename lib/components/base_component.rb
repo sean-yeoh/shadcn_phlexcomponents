@@ -39,7 +39,6 @@ class BaseComponent < Phlex::HTML
   def initialize(**attributes)
     @attributes = mix(default_attributes, attributes)
     @attributes[:class] = TAILWIND_MERGER.merge("#{default_styles} #{@attributes[:class]}")
-    super
   end
 
   if Rails.env.development?
@@ -73,5 +72,19 @@ class BaseComponent < Phlex::HTML
       tags: SANITIZER_ALLOWED_TAGS,
       attributes: SANITIZER_ALLOWED_ATTRIBUTES,
     )
+  end
+
+  def find_as_child(rendered_element)
+    fragment = Nokogiri::HTML.fragment(rendered_element)
+
+    element = fragment.children.find do |c|
+      if c.is_a?(Nokogiri::XML::Comment)
+        false
+      else
+        (c.is_a?(Nokogiri::XML::Text) && c.text.strip.present?) || !c.is_a?(Nokogiri::XML::Text)
+      end
+    end
+
+    element
   end
 end

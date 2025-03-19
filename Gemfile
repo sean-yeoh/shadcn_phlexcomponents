@@ -11,3 +11,9 @@ gem "rake", "~> 13.0"
 gem "rubocop", "~> 1.21"
 gem "rubocop-minitest", "~> 0.37.0", require: false
 gem "rubocop-shopify", "~> 2.16", require: false
+gem "debug", platforms: [:mri, :windows]
+gem "phlex-rails", "~> 2.1"
+gem "rails", "~> 8.0"
+gem "lucide-rails", "~> 0.5.1"
+gem "tailwind_merge", "~> 1.0"
+gem "nokogiri", "~> 1.18"

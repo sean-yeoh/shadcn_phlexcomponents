@@ -30,7 +30,8 @@ class Button < BaseComponent
 
   def initialize(variant: :primary, size: :default, type: :button, **attributes)
     @type = type
-    @default_styles = self.class.default_styles(variant: variant, size: size)
+    @variant = variant
+    @size = size
     super(**attributes)
   end
 
@@ -38,7 +39,9 @@ class Button < BaseComponent
     { type: @type }
   end
 
-  attr_reader :default_styles
+  def default_styles
+    self.class.default_styles(variant: @variant, size: @size)
+  end
 
   def view_template(&)
     button(**@attributes, &)
