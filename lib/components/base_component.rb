@@ -2,11 +2,11 @@
 
 class BaseComponent < Phlex::HTML
   # Include any helpers you want to be available across all components
-  include Phlex::Rails::Helpers::Routes
   include PhlexKit
   include LucideRails::RailsHelper
   include Phlex::Rails::Helpers::ContentTag
   include Phlex::Rails::Helpers::Sanitize
+  include Phlex::Rails::Helpers::LinkTo
 
   TAILWIND_MERGER = ::TailwindMerge::Merger.new.freeze
   STYLES = ""
