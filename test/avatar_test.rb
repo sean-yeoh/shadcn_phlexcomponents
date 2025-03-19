@@ -3,7 +3,7 @@
 require "test_helper"
 
 class AvatarTest < ComponentTest
-  def test_it_should_render_an_avatar
+  def test_it_should_render_avatar
     output = render(Avatar.new)
     assert_match(%r{<span.+</span>}, output)
     assert_match(/data-controller="shadcn-phlexcomponents--avatar"/, output)
@@ -29,7 +29,7 @@ class AvatarTest < ComponentTest
     end
 
     output = render(avatar)
-    assert_includes(output, "Fallback text")
+    assert_match(/Fallback text/, output)
   end
 
   def test_it_should_accept_custom_attributes

@@ -6,3 +6,6 @@ inherit_gem:
 
 Lint/MissingSuper:
   Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false

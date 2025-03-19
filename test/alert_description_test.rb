@@ -3,10 +3,10 @@
 require "test_helper"
 
 class AlertDescriptionTest < ComponentTest
-  def test_it_should_render_an_alert_title
+  def test_it_should_render_alert_description
     output = render(AlertDescription.new { "Alert description" })
     assert_match(%r{<div.+</div>}, output)
-    assert_includes(output, "Alert description")
+    assert_match("Alert description", output)
   end
 
   def test_it_should_render_base_styles

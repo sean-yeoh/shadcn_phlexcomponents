@@ -3,11 +3,11 @@
 require "test_helper"
 
 class BadgeTest < ComponentTest
-  def test_it_should_render_a_primary_badge
+  def test_it_should_render_badge
     output = render(Badge.new { "Primary badge" })
     assert_match(%r{<div.+</div>}, output)
     assert_includes(output, Badge::VARIANTS[:primary])
-    assert_includes(output, "Primary badge")
+    assert_match(/Primary badge/, output)
   end
 
   def test_it_should_render_base_styles

@@ -3,7 +3,7 @@
 require "test_helper"
 
 class ButtonTest < ComponentTest
-  def test_it_should_render_a_primary_button
+  def test_it_should_render_button
     output = render(Button.new)
     assert_match(%r{<button.+</button>}, output)
     assert_includes(output, Button::VARIANTS[:primary])

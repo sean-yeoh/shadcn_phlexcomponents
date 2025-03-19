@@ -3,7 +3,7 @@
 require "test_helper"
 
 class AspectRatioTest < ComponentTest
-  def test_it_should_render_an_aspect_ratio
+  def test_it_should_render_aspect_ratio
     output = render(AspectRatio.new)
     assert_match(%r{<div.+</div>}, output)
     assert_match(/position: relative/, output)

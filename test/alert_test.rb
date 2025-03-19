@@ -3,7 +3,7 @@
 require "test_helper"
 
 class AlertTest < ComponentTest
-  def test_it_should_render_a_default_alert
+  def test_it_should_render_alert
     output = render(Alert.new)
     assert_match(%r{<div.+</div>}, output)
     assert_includes(output, Alert::VARIANTS[:default])
@@ -28,7 +28,7 @@ class AlertTest < ComponentTest
     end
 
     output = render(alert)
-    assert_includes(output, "Alert title")
+    assert_match(/Alert title/, output)
   end
 
   def test_it_should_render_description
@@ -37,7 +37,7 @@ class AlertTest < ComponentTest
     end
 
     output = render(alert)
-    assert_includes(output, "Alert description")
+    assert_match(/Alert description/, output)
   end
 
   def test_it_should_accept_custom_attributes

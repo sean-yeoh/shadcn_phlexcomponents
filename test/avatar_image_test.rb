@@ -3,7 +3,7 @@
 require "test_helper"
 
 class AvatarImageTest < ComponentTest
-  def test_it_should_render_an_avatar_fallback
+  def test_it_should_render_avatar_fallback
     output = render(AvatarImage.new(src: "https://github.com/shadcn.png"))
     assert_match(/<img.+>/, output)
     assert_includes(output, "https://github.com/shadcn.png")
