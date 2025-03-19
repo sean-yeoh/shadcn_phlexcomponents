@@ -2,7 +2,10 @@ PATH
   remote: .
   specs:
     shadcn_phlexcomponents (0.1.0)
+      lucide-rails (~> 0.5.1)
+      phlex-rails (~> 2.1)
       railties (~> 8.0)
+      tailwind_merge (~> 1.0)
 
 GEM
   remote: https://rubygems.org/
