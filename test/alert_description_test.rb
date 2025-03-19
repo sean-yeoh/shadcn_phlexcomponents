@@ -16,10 +16,10 @@ class AlertDescriptionTest < ComponentTest
 
   def test_it_should_accept_custom_attributes
     output = render(AlertDescription.new(
-      class: "bg-red-100 text-red-500",
-      data: { action: "click->controller#onClick" },
+      class: "test-class",
+      data: { action: "test-action" },
     ))
-    assert_match(/bg-red-100 text-red-500/, output)
-    assert_match(/data-action="click->controller#onClick"/, output)
+    assert_match(/test-class/, output)
+    assert_match(/data-action="test-action"/, output)
   end
 end
