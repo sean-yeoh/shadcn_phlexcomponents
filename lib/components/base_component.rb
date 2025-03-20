@@ -76,12 +76,11 @@ class BaseComponent < Phlex::HTML
 
   def find_as_child(rendered_element)
     fragment = Nokogiri::HTML.fragment(rendered_element)
-
-    element = fragment.children.find do |c|
-      if c.is_a?(Nokogiri::XML::Comment)
+    element = fragment.children.find do |child|
+      if child.is_a?(Nokogiri::XML::Comment)
         false
       else
-        (c.is_a?(Nokogiri::XML::Text) && c.text.strip.present?) || !c.is_a?(Nokogiri::XML::Text)
+        (child.is_a?(Nokogiri::XML::Text) && child.text.strip.present?) || !child.is_a?(Nokogiri::XML::Text)
       end
     end
 

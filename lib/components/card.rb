@@ -3,10 +3,6 @@
 class Card < BaseComponent
   STYLES = "rounded-xl border bg-card text-card-foreground shadow"
 
-  def view_template(&)
-    div(**@attributes, &)
-  end
-
   def header(**attributes, &)
     render(CardHeader.new(**attributes, &))
   end
@@ -25,5 +21,9 @@ class Card < BaseComponent
 
   def footer(**attributes, &)
     render(CardFooter.new(**attributes, &))
+  end
+
+  def view_template(&)
+    div(**@attributes, &)
   end
 end

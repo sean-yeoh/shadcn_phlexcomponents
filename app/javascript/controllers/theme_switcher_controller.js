@@ -19,4 +19,14 @@ export default class extends Controller {
       document.documentElement.classList.add('dark')
     }
   }
+
+  setLightMode() {
+    localStorage.theme = 'light'
+    document.documentElement.classList.remove('dark')
+  }
+
+  setDarkMode() {
+    localStorage.theme = 'dark'
+    document.documentElement.classList.add('dark')
+  }
 }

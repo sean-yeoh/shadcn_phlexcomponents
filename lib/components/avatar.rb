@@ -17,15 +17,15 @@ class Avatar < BaseComponent
     render(AvatarFallback.new(**attributes, &))
   end
 
-  def view_template(&)
-    span(**@attributes, &)
-  end
-
   def default_attributes
     {
       data: {
         controller: "shadcn-phlexcomponents--avatar",
       },
     }
+  end
+
+  def view_template(&)
+    span(**@attributes, &)
   end
 end

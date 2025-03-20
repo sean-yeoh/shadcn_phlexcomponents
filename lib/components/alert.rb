@@ -18,7 +18,7 @@ class Alert < BaseComponent
   end
 
   def initialize(variant: :default, **attributes)
-    @default_styles = self.class.default_styles(variant)
+    @variant = variant
     super(**attributes)
   end
 
@@ -34,7 +34,9 @@ class Alert < BaseComponent
     { role: "alert" }
   end
 
-  attr_reader :default_styles
+  def default_styles
+    self.class.default_styles(@variant)
+  end
 
   def view_template(&)
     div(**@attributes, &)

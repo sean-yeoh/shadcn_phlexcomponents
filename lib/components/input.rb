@@ -16,14 +16,14 @@ class Input < BaseComponent
     super(**attributes)
   end
 
-  def view_template(&)
-    input(**@attributes, &)
-  end
-
   def default_attributes
     {
       type: @type,
       id: @id,
     }
+  end
+
+  def view_template(&)
+    input(**@attributes, &)
   end
 end
