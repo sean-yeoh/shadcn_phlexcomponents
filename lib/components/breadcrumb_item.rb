@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-class BreadcrumbItem < BaseComponent
-  STYLES = "inline-flex items-center gap-1.5"
+module ShadcnPhlexcomponents
+  class BreadcrumbItem < Base
+    STYLES = "inline-flex items-center gap-1.5"
 
-  def view_template(&)
-    li(**@attributes, &)
+    def view_template(&)
+      li(**@attributes, &)
+    end
   end
 end

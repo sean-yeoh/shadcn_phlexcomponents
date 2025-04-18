@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
-class AvatarImage < BaseComponent
-  STYLES = "aspect-square h-full w-full"
+module ShadcnPhlexcomponents
 
-  def default_attributes
-    {
-      data: {
-        "shadcn-phlexcomponents--avatar-target": "image",
-      },
-    }
-  end
+  class AvatarImage < Base
+    STYLES = "aspect-square h-full w-full"
 
-  def view_template(&)
-    img(**@attributes, &)
+    def default_attributes
+      {
+        data: {
+          "shadcn-phlexcomponents--avatar-target": "image",
+        },
+      }
+    end
+
+    def view_template(&)
+      img(**@attributes, &)
+    end
   end
 end

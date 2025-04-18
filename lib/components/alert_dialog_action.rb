@@ -1,7 +1,22 @@
 # frozen_string_literal: true
 
-class AlertDialogAction < BaseComponent
-  def view_template(&)
-    render(Button.new(**@attributes, &))
+module ShadcnPhlexcomponents
+  class AlertDialogAction < Base
+    def initialize(variant: :primary, **attributes)
+      @variant = variant
+      super(**attributes)
+    end
+
+    def default_attributes
+      {
+        data: {
+          action: "click->shadcn-phlexcomponents--alert-dialog#close",
+        },
+      }
+    end
+    
+    def view_template(&)
+      Button(variant: @variant, **@attributes, &)
+    end
   end
 end

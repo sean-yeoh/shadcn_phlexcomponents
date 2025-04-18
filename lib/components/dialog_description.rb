@@ -1,20 +1,22 @@
 # frozen_string_literal: true
 
-class DialogDescription < BaseComponent
-  STYLES = "text-sm text-muted-foreground"
+module ShadcnPhlexcomponents
+  class DialogDescription < Base
+    STYLES = "text-sm text-muted-foreground"
 
-  def initialize(aria_id:, **attributes)
-    @aria_id = aria_id
-    super(**attributes)
-  end
+    def initialize(aria_id: nil, **attributes)
+      @aria_id = aria_id
+      super(**attributes)
+    end
 
-  def default_attributes
-    {
-      id: "#{@aria_id}-description",
-    }
-  end
+    def default_attributes
+      {
+        id: "#{@aria_id}-description",
+      }
+    end
 
-  def view_template(&)
-    p(**@attributes, &)
+    def view_template(&)
+      p(**@attributes, &)
+    end
   end
 end

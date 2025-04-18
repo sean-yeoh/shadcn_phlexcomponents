@@ -1,54 +1,60 @@
 # frozen_string_literal: true
 
-class AlertDialog < BaseComponent
-  STYLES = "inline-block"
+module ShadcnPhlexcomponents
+  class AlertDialog < Base
+    STYLES = "inline-block"
 
-  def initialize(aria_id: "alert-dialog-#{SecureRandom.hex(5)}", **attributes)
-    @aria_id = aria_id
-    super(**attributes)
-  end
+    def initialize(aria_id: "alert-dialog-#{SecureRandom.hex(5)}", **attributes)
+      @aria_id = aria_id
+      super(**attributes)
+    end
 
-  def trigger(**attributes, &)
-    render(AlertDialogTrigger.new(aria_id: @aria_id, **attributes, &))
-  end
+    def trigger(**attributes, &)
+      AlertDialogTrigger(aria_id: @aria_id, **attributes, &)
+    end
 
-  def content(**attributes, &)
-    render(AlertDialogContent.new(aria_id: @aria_id, **attributes, &))
-  end
+    def content(**attributes, &)
+      AlertDialogContent(aria_id: @aria_id, **attributes, &)
+    end
 
-  def header(**attributes, &)
-    render(AlertDialogHeader.new(**attributes, &))
-  end
+    def header(**attributes, &)
+      AlertDialogHeader(**attributes, &)
+    end
 
-  def title(**attributes, &)
-    render(AlertDialogTitle.new(aria_id: @aria_id, **attributes, &))
-  end
+    def title(**attributes, &)
+      AlertDialogTitle(aria_id: @aria_id, **attributes, &)
+    end
 
-  def description(**attributes, &)
-    render(AlertDialogDescription.new(aria_id: @aria_id, **attributes, &))
-  end
+    def description(**attributes, &)
+      AlertDialogDescription(aria_id: @aria_id, **attributes, &)
+    end
 
-  def footer(**attributes, &)
-    render(AlertDialogFooter.new(**attributes, &))
-  end
+    def footer(**attributes, &)
+      AlertDialogFooter(**attributes, &)
+    end
 
-  def cancel(**attributes, &)
-    render(AlertDialogCancel.new(**attributes, &))
-  end
+    def cancel(**attributes, &)
+      AlertDialogCancel(**attributes, &)
+    end
+    
+    def action(**attributes, &)
+      AlertDialogAction(**attributes, &)
+    end
 
-  def action(**attributes, &)
-    render(AlertDialogAction.new(**attributes, &))
-  end
+    def action_to(name = nil, options = nil, html_options = nil, &block)
+      AlertDialogActionTo(name, options, html_options, &block)
+    end
 
-  def default_attributes
-    {
-      data: {
-        controller: "shadcn-phlexcomponents--alert-dialog",
-      },
-    }
-  end
+    def default_attributes
+      {
+        data: {
+          controller: "shadcn-phlexcomponents--alert-dialog",
+        },
+      }
+    end
 
-  def view_template(&)
-    div(**@attributes, &)
+    def view_template(&)
+      div(**@attributes, &)
+    end
   end
 end

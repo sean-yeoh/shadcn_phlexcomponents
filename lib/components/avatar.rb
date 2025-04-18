@@ -1,31 +1,31 @@
 # frozen_string_literal: true
 
-class Avatar < BaseComponent
-  STYLES = <<~HEREDOC
-    relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full
-  HEREDOC
+module ShadcnPhlexcomponents
+  class Avatar < Base
+    STYLES = "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"
 
-  def initialize(**attributes)
-    super(**attributes)
-  end
+    def initialize(**attributes)
+      super(**attributes)
+    end
 
-  def image(**attributes, &)
-    render(AvatarImage.new(**attributes, &))
-  end
+    def image(**attributes, &)
+      AvatarImage(**attributes, &)
+    end
 
-  def fallback(**attributes, &)
-    render(AvatarFallback.new(**attributes, &))
-  end
+    def fallback(**attributes, &)
+      AvatarFallback(**attributes, &)
+    end
 
-  def default_attributes
-    {
-      data: {
-        controller: "shadcn-phlexcomponents--avatar",
-      },
-    }
-  end
+    def default_attributes
+      {
+        data: {
+          controller: "shadcn-phlexcomponents--avatar",
+        },
+      }
+    end
 
-  def view_template(&)
-    span(**@attributes, &)
+    def view_template(&)
+      span(**@attributes, &)
+    end
   end
 end

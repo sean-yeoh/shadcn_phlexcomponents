@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-class CardDescription < BaseComponent
-  STYLES = "text-sm text-muted-foreground"
+module ShadcnPhlexcomponents
+  class CardDescription < Base
+    STYLES = "text-sm text-muted-foreground"
 
-  def view_template(&)
-    div(**@attributes, &)
+    def view_template(&)
+      div(**@attributes, &)
+    end
   end
 end

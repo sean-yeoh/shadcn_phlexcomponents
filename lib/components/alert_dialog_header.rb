@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-class AlertDialogHeader < BaseComponent
-  STYLES = "flex flex-col space-y-1.5 text-center sm:text-left"
+module ShadcnPhlexcomponents
+  class AlertDialogHeader < Base
+    STYLES = "flex flex-col space-y-2 text-center sm:text-left"
 
-  def view_template(&)
-    div(**@attributes, &)
+    def view_template(&)
+      div(**@attributes, &)
+    end
   end
 end

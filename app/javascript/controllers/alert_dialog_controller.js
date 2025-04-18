@@ -1,12 +1,11 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['trigger', 'content', 'close']
+  static targets = ['trigger', 'content']
 
   connect() {
-    this.contentTarget.dataset.state = this.isOpen() ? 'open' : 'closed'
-    this.clickListener = this.onClick.bind(this)
-    this.keydownListener = this.onKeydown.bind(this)
+    this.DOMClickListener = this.onDOMClick.bind(this)
+    this.DOMKeydownListener = this.onDOMKeydown.bind(this)
 
     this.focusableElements = this.contentTarget.querySelectorAll(
       'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
@@ -22,17 +21,22 @@ export default class extends Controller {
     this.contentElement.classList.remove('hidden')
     this.contentElement.dataset.state = 'open'
     this.triggerTarget.ariaExpanded = true
-    document.body.dataset.scrollLocked = 1
     this.setupEventListeners()
-
-    document.body.appendChild(this.contentElement)
-    this.firstElement.focus()
     this.addInert()
+
+    if (window.innerHeight < document.documentElement.scrollHeight) {
+      document.body.dataset.scrollLocked = 1
+    }
+    document.body.appendChild(this.contentElement)
+    this.firstElement.focus() // must be after appendChild
   }
 
   close() {
     this.contentElement.dataset.state = 'closed'
     this.triggerTarget.ariaExpanded = false
+    this.cleanupEventListeners()
+    this.removeInert()
+    this.element.appendChild(this.contentElement)
 
     setTimeout(() => {
       this.contentElement.classList.add('hidden')
@@ -43,23 +47,14 @@ export default class extends Controller {
       this.removeOverlay()
     }, 150)
 
-    this.cleanupEventListeners()
+    this.focusTrigger()
+  }
 
-    this.removeInert()
-    this.element.appendChild(this.contentElement)
-
-    if (this.triggerTarget.nodeName === 'DIV') {
+  focusTrigger() {
+    if (this.triggerTarget.dataset.asChild === 'false') {
       this.triggerTarget.firstElementChild.focus()
     } else {
       this.triggerTarget.focus()
-    }
-  }
-
-  toggle() {
-    if (this.isOpen()) {
-      this.close()
-    } else {
-      this.open()
     }
   }
 
@@ -87,36 +82,37 @@ export default class extends Controller {
   }
 
   removeOverlay() {
-    document.querySelector('[data-overlay]').remove()
+    if (document.querySelector('[data-overlay]')) {
+      document.querySelector('[data-overlay]').remove()
+    }
   }
 
   // Global listeners
-  onClick(event) {
+  onDOMClick(event) {
     if (!this.isOpen()) return
 
-    if (
-      event.target.dataset.action &&
-      event.target.dataset.action.includes(
-        'shadcn-phlexcomponents--alert-dialog#toggle',
-      )
+    const target = event.target
+    const trigger = event.target.closest(
+      '[data-shadcn-phlexcomponents--alert-dialog-target="trigger"]',
     )
-      return
 
-    const close = event.target.closest(
+    if (trigger) return
+
+    const close = target.closest(
       '[data-action*="shadcn-phlexcomponents--alert-dialog#close"]',
     )
 
     if (
       close ||
-      (event.target.dataset.action &&
-        event.target.dataset.action.includes(
+      (target.dataset.action &&
+        target.dataset.action.includes(
           'shadcn-phlexcomponents--alert-dialog#close',
         ))
     )
       this.close()
   }
 
-  onKeydown(event) {
+  onDOMKeydown(event) {
     if (!this.isOpen()) return
 
     const key = event.key
@@ -138,13 +134,13 @@ export default class extends Controller {
   }
 
   setupEventListeners() {
-    document.addEventListener('click', this.clickListener)
-    document.addEventListener('keydown', this.keydownListener)
+    document.addEventListener('click', this.DOMClickListener)
+    document.addEventListener('keydown', this.DOMKeydownListener)
   }
 
   cleanupEventListeners() {
-    document.removeEventListener('click', this.clickListener)
-    document.removeEventListener('keydown', this.keydownListener)
+    document.removeEventListener('click', this.DOMClickListener)
+    document.removeEventListener('keydown', this.DOMKeydownListener)
   }
 
   addInert() {
