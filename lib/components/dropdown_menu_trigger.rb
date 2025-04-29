@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module ShadcnPhlexcomponents
-
   class DropdownMenuTrigger < Base
     def initialize(as_child: false, aria_id: nil, **attributes)
       @as_child = as_child
@@ -24,7 +23,7 @@ module ShadcnPhlexcomponents
           merged_attributes.delete(:role)
         end
 
-        send(element.name, **merged_attributes) do        
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else
@@ -39,19 +38,19 @@ module ShadcnPhlexcomponents
         aria: {
           haspopup: "menu",
           expanded: false,
-          controls: "#{@aria_id}-content"
+          controls: "#{@aria_id}-content",
         },
         data: {
           state: "closed",
           as_child: @as_child.to_s,
           action: <<~HEREDOC,
-          click->shadcn-phlexcomponents--dropdown-menu#toggle
-          keydown.space->shadcn-phlexcomponents--dropdown-menu#toggle
-          keydown.enter->shadcn-phlexcomponents--dropdown-menu#toggle
-          keydown.down->shadcn-phlexcomponents--dropdown-menu#toggle:prevent
+            click->shadcn-phlexcomponents--dropdown-menu#toggle
+            keydown.space->shadcn-phlexcomponents--dropdown-menu#toggle
+            keydown.enter->shadcn-phlexcomponents--dropdown-menu#toggle
+            keydown.down->shadcn-phlexcomponents--dropdown-menu#toggle:prevent
           HEREDOC
-          "shadcn-phlexcomponents--dropdown-menu-target": "trigger"
-        }
+          "shadcn-phlexcomponents--dropdown-menu-target": "trigger",
+        },
       }
     end
   end

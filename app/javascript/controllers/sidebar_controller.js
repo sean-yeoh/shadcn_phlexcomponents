@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ['panel', 'panelOffset']
 
   connect() {
-    console.log('sidebar coonnected')
     this.width = this.element.offsetWidth
   }
 

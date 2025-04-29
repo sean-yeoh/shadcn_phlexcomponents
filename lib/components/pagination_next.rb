@@ -3,7 +3,7 @@
 module ShadcnPhlexcomponents
   class PaginationNext < Base
     def initialize(href: nil, **attributes)
-      @href = href  
+      @href = href
       super(**attributes)
     end
 
@@ -15,9 +15,9 @@ module ShadcnPhlexcomponents
       {
         href: @href,
         aria: {
-          label: "Go to next page"
-        }
-      }  
+          label: "Go to next page",
+        },
+      }
     end
 
     def view_template(&)

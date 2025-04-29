@@ -36,7 +36,7 @@ module ShadcnPhlexcomponents
     def cancel(**attributes, &)
       AlertDialogCancel(**attributes, &)
     end
-    
+
     def action(**attributes, &)
       AlertDialogAction(**attributes, &)
     end

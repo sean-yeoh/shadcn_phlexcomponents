@@ -2,29 +2,29 @@
 
 module ShadcnPhlexcomponents
   class Select < Base
-    STYLES = "w-full".freeze
-    
-    NATIVE_STYLES = <<~HEREDOC.freeze
+    STYLES = "w-full"
+
+    NATIVE_STYLES = <<~HEREDOC
       flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 pr-8
       text-base shadow-sm transition-colors placeholder:text-muted-foreground
       focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
       disabled:cursor-not-allowed disabled:opacity-50 md:text-sm appearance-none
-      relative 
+      relative#{" "}
     HEREDOC
-    
-    NATIVE_OPTION_STYLES = "bg-popover text-popover-foreground".freeze
+
+    NATIVE_OPTION_STYLES = "bg-popover text-popover-foreground"
 
     def initialize(id: nil,
-                  name: nil,
-                  value: nil,
-                  placeholder: nil,
-                  side: :bottom,
-                  native: false, 
-                  dir: 'ltr', 
-                  include_blank: false,
-                  disabled: false,
-                  aria_id: "select-#{SecureRandom.hex(5)}", 
-                  **attributes)
+      name: nil,
+      value: nil,
+      placeholder: nil,
+      side: :bottom,
+      native: false,
+      dir: "ltr",
+      include_blank: false,
+      disabled: false,
+      aria_id: "select-#{SecureRandom.hex(5)}",
+      **attributes)
       @id = id || name
       @name = name
       @value = value
@@ -37,43 +37,47 @@ module ShadcnPhlexcomponents
       @aria_id = aria_id
       super(**attributes)
     end
-  
+
     def trigger(**attributes)
       SelectTrigger(
-        id: @id, 
-        aria_id: @aria_id, 
-        dir: @dir, 
-        value: @value, 
-        placeholder: @placeholder, 
+        id: @id,
+        aria_id: @aria_id,
+        dir: @dir,
+        value: @value,
+        placeholder: @placeholder,
         disabled: @disabled,
-        **attributes)
-    end  
+        **attributes,
+      )
+    end
 
     def content(**attributes, &)
-      SelectContent(side: @side, aria_id: @aria_id, dir: @dir, include_blank: @include_blank, native: @native, **attributes, &)
-    end    
+      SelectContent(
+        side: @side, aria_id: @aria_id, dir: @dir, include_blank: @include_blank, native: @native, **attributes, &
+      )
+    end
 
     def item(**attributes, &)
       SelectItem(aria_id: @aria_id, **attributes, &)
-    end 
+    end
 
     def label(**attributes, &)
       SelectLabel(aria_id: @aria_id, **attributes, &)
-    end 
+    end
 
     def group(**attributes, &)
       SelectGroup(aria_id: @aria_id, **attributes, &)
-    end   
-    
+    end
+
     def items(collection)
       SelectTrigger(
-        id: @id, 
-        aria_id: @aria_id, 
-        dir: @dir, 
-        value: @value, 
-        placeholder: @placeholder, 
-        disabled: @disabled)
-      
+        id: @id,
+        aria_id: @aria_id,
+        dir: @dir,
+        value: @value,
+        placeholder: @placeholder,
+        disabled: @disabled,
+      )
+
       SelectContent(aria_id: @aria_id, dir: @dir, include_blank: @include_blank, native: @native) do
         collection.each do |option|
           SelectItem(value: option[:value], aria_id: @aria_id, disabled: option[:disabled]) { option[:name] }
@@ -85,7 +89,7 @@ module ShadcnPhlexcomponents
       content = capture(&)
       element = Nokogiri::HTML.fragment(content.to_s)
       content_element = element.css('[data-shadcn-phlexcomponents--select-target="content"]')
-      
+
       if @native
         div(class: "relative") do
           select(**@attributes) do
@@ -105,21 +109,10 @@ module ShadcnPhlexcomponents
           select(
             name: @name,
             disabled: @disabled,
-            style: { 
-              position: 'absolute',
-              border: '0px',
-              width: '1px',
-              height: '1px',
-              padding: '0px',
-              margin: '-1px',
-              overflow: 'hidden',
-              clip: 'rect(0px, 0px, 0px, 0px)',
-              'white-space': 'nowrap',
-              'overflow-wrap': 'normal'
-            },
+            class: "sr-only",
             data: {
-              "shadcn-phlexcomponents--select-target": "select"
-            }
+              "shadcn-phlexcomponents--select-target": "select",
+            },
           ) do
             option(value: "")
             build_native_options(content_element)
@@ -136,13 +129,12 @@ module ShadcnPhlexcomponents
       end
     end
 
-
     def default_attributes
-      if @native 
-        { 
-          id: @id, 
-          name:@name,
-          disabled: @disabled
+      if @native
+        {
+          id: @id,
+          name: @name,
+          disabled: @disabled,
         }
       else
         {
@@ -150,8 +142,8 @@ module ShadcnPhlexcomponents
             side: @side,
             aria_id: @aria_id,
             controller: "shadcn-phlexcomponents--select",
-            "shadcn-phlexcomponents--select-selected-value": @value
-          }
+            "shadcn-phlexcomponents--select-selected-value": @value,
+          },
         }
       end
     end
@@ -160,26 +152,29 @@ module ShadcnPhlexcomponents
       content_element.children.each do |content_child|
         next if content_child.is_a?(Nokogiri::XML::Text) || content_child.is_a?(Nokogiri::XML::Comment)
 
-        if content_child.attributes['data-shadcn-phlexcomponents--select-target']&.value == 'group'
+        if content_child.attributes["data-shadcn-phlexcomponents--select-target"]&.value == "group"
           group_label = content_child.at_css('[data-shadcn-phlexcomponents--select-target="label"]')&.text
 
-          optgroup(label: group_label, class: NATIVE_OPTION_STYLES) do              
+          optgroup(label: group_label, class: NATIVE_OPTION_STYLES) do
             content_child.css('[data-shadcn-phlexcomponents--select-target="item"]').each do |i|
               option(
-                value: i.attributes['data-value'].value,
+                value: i.attributes["data-value"].value,
                 class: NATIVE_OPTION_STYLES,
-                selected: i.attributes['data-value'].value === @value,
-                disabled: i.attributes['data-disabled']&.value === '') do 
-                  i.text
+                selected: i.attributes["data-value"].value == @value,
+                disabled: i.attributes["data-disabled"]&.value == "",
+              ) do
+                i.text
               end
             end
           end
-        elsif content_child.attributes['data-shadcn-phlexcomponents--select-target']&.value == 'item'
+        elsif content_child.attributes["data-shadcn-phlexcomponents--select-target"]&.value == "item"
 
-          option(value: content_child.attributes['data-value'].value, 
-                class: NATIVE_OPTION_STYLES,
-                selected: content_child.attributes['data-value'].value === @value,
-                disabled: content_child.attributes['data-disabled']&.value === '') do 
+          option(
+            value: content_child.attributes["data-value"].value,
+            class: NATIVE_OPTION_STYLES,
+            selected: content_child.attributes["data-value"].value == @value,
+            disabled: content_child.attributes["data-disabled"]&.value == "",
+          ) do
             content_child.text
           end
         end

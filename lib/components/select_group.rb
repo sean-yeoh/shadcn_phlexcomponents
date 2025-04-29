@@ -15,8 +15,8 @@ module ShadcnPhlexcomponents
       {
         role: "group",
         data: {
-          "shadcn-phlexcomponents--select-target": "group"
-        }
+          "shadcn-phlexcomponents--select-target": "group",
+        },
       }
     end
   end

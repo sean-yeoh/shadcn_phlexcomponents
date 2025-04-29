@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 module ShadcnPhlexcomponents
-
   class Popover < Base
-    STYLES = "inline-block".freeze
+    STYLES = "inline-block"
 
     def initialize(side: :bottom, aria_id: "popover-#{SecureRandom.hex(5)}", **attributes)
       @side = side
@@ -13,7 +12,7 @@ module ShadcnPhlexcomponents
 
     def content(**attributes, &)
       PopoverContent(side: @side, aria_id: @aria_id, **attributes, &)
-    end 
+    end
 
     def trigger(**attributes, &)
       PopoverTrigger(aria_id: @aria_id, **attributes, &)
@@ -23,9 +22,9 @@ module ShadcnPhlexcomponents
       {
         data: {
           controller: "shadcn-phlexcomponents--popover",
-          side: @side
-        }
-      }  
+          side: @side,
+        },
+      }
     end
 
     def view_template(&)

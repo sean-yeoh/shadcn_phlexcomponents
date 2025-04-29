@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 module ShadcnPhlexcomponents
-
   class DropdownMenuItem < Base
-    STYLES = <<~HEREDOC.freeze
+    STYLES = <<~HEREDOC
       relative flex cursor-default select-none items-center gap-2 rounded-sm px-2
       py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground
       data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0
@@ -26,7 +25,7 @@ module ShadcnPhlexcomponents
         merged_attributes = mix(@attributes, element_attributes)
         merged_attributes[:class] = styles
 
-        send(element.name, **merged_attributes) do        
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else
@@ -49,8 +48,8 @@ module ShadcnPhlexcomponents
             mouseover->shadcn-phlexcomponents--dropdown-menu#focusItem
             mouseout->shadcn-phlexcomponents--dropdown-menu#focusContent
           HEREDOC
-          "shadcn-phlexcomponents--dropdown-menu-target": "item"
-        }
+          "shadcn-phlexcomponents--dropdown-menu-target": "item",
+        },
       }
     end
   end

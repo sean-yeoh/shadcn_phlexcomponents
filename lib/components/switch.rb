@@ -2,15 +2,16 @@
 
 module ShadcnPhlexcomponents
   class Switch < Base
-    STYLES = <<~HEREDOC.freeze
+    STYLES = <<~HEREDOC
       peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full
-      border-2 border-transparent transition-colors focus-visible:outline-none 
+      border-2 border-transparent transition-colors focus-visible:outline-none#{" "}
       focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
       focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50
       data-[checked=true]:bg-primary data-[checked=false]:bg-input group/switch
     HEREDOC
 
-    def initialize(name: nil, value: "1", unchecked_value: "0", checked: false, id: nil, include_hidden: true, **attributes)
+    def initialize(name: nil, value: "1", unchecked_value: "0", checked: false, id: nil, include_hidden: true,
+      **attributes)
       @name = name
       @value = value
       @unchecked_value = unchecked_value
@@ -31,7 +32,7 @@ module ShadcnPhlexcomponents
         end
 
         input(
-          type: "checkbox", 
+          type: "checkbox",
           value: @value,
           class: "-translate-x-full pointer-events-none absolute top-0 left-0 size-4 opacity-0",
           name: @name,
@@ -39,14 +40,14 @@ module ShadcnPhlexcomponents
           checked: @checked,
           aria: { hidden: true },
           data: {
-            "shadcn-phlexcomponents--switch-target": "input"
-          }
+            "shadcn-phlexcomponents--switch-target": "input",
+          },
         )
       end
     end
 
     def default_attributes
-      { 
+      {
         id: @id,
         type: "button",
         role: "switch",
@@ -58,7 +59,7 @@ module ShadcnPhlexcomponents
           controller: "shadcn-phlexcomponents--switch",
           action: "click->shadcn-phlexcomponents--switch#toggle",
           "shadcn-phlexcomponents--switch-checked-value": @checked,
-        }
+        },
       }
     end
   end

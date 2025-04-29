@@ -22,8 +22,8 @@ module ShadcnPhlexcomponents
         if element.name == "button"
           merged_attributes.delete(:role)
         end
-        
-        send(element.name, **merged_attributes) do        
+
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else
@@ -37,13 +37,13 @@ module ShadcnPhlexcomponents
         aria: {
           haspopup: "dialog",
           expanded: false,
-          controls: "#{@aria_id}-content"
+          controls: "#{@aria_id}-content",
         },
         data: {
           as_child: @as_child.to_s,
           action: "click->shadcn-phlexcomponents--sheet#open",
-          "shadcn-phlexcomponents--sheet-target": "trigger"
-        }
+          "shadcn-phlexcomponents--sheet-target": "trigger",
+        },
       }
     end
   end

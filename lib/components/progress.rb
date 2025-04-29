@@ -6,7 +6,7 @@ module ShadcnPhlexcomponents
 
     def initialize(value: 0, **attributes)
       @value = value
-      super(**attributes)    
+      super(**attributes)
     end
 
     def default_attributes
@@ -19,17 +19,17 @@ module ShadcnPhlexcomponents
         },
         data: {
           controller: "shadcn-phlexcomponents--progress",
-          "shadcn-phlexcomponents--progress-progress-value": @value
-        }
+          "shadcn-phlexcomponents--progress-progress-value": @value,
+        },
       }
     end
 
     def view_template
       div(**@attributes) do
         div(
-          class: "h-full w-full flex-1 bg-primary transition-all", 
-          style: "transform: translateX(-#{100-@value}%)", 
-          data: { "shadcn-phlexcomponents--progress-target": "bar"}
+          class: "h-full w-full flex-1 bg-primary transition-all",
+          style: "transform: translateX(-#{100 - @value}%)",
+          data: { "shadcn-phlexcomponents--progress-target": "bar" },
         )
       end
     end

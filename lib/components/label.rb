@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module ShadcnPhlexcomponents
-
   class Label < Base
     STYLES = <<~HEREDOC
       text-sm font-medium leading-none peer-disabled:cursor-not-allowed

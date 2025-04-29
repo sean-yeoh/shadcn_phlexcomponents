@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module ShadcnPhlexcomponents
-
   class PopoverTrigger < Base
     def initialize(as_child: false, aria_id: nil, **attributes)
       @as_child = as_child
@@ -24,7 +23,7 @@ module ShadcnPhlexcomponents
           merged_attributes.delete(:role)
         end
 
-        send(element.name, **merged_attributes) do        
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else
@@ -39,13 +38,13 @@ module ShadcnPhlexcomponents
         aria: {
           haspopup: "dialog",
           expanded: false,
-          controls: "#{@aria_id}-content"
+          controls: "#{@aria_id}-content",
         },
         data: {
           as_child: @as_child.to_s,
           action: "click->shadcn-phlexcomponents--popover#toggle",
-          "shadcn-phlexcomponents--popover-target": "trigger"
-        }
+          "shadcn-phlexcomponents--popover-target": "trigger",
+        },
       }
     end
   end

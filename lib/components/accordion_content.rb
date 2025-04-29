@@ -10,17 +10,19 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      div(class: "overflow-hidden text-sm data-[state=closed]:animate-accordion-up
+      div(
+        class: "overflow-hidden text-sm data-[state=closed]:animate-accordion-up
                   data-[state=open]:animate-accordion-down hidden",
-          id: "#{@aria_id}-content",
-          role: "region",
-          aria: {
-            labelledby: "#{@aria_id}-trigger"
-          },
-          data: {
-            state: "closed",
-            "shadcn-phlexcomponents--accordion-target": "content"
-          }) do
+        id: "#{@aria_id}-content",
+        role: "region",
+        aria: {
+          labelledby: "#{@aria_id}-trigger",
+        },
+        data: {
+          state: "closed",
+          "shadcn-phlexcomponents--accordion-target": "content",
+        },
+      ) do
         div(**@attributes, &)
       end
     end

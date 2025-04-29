@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class SheetTitle < Base
-    STYLES = "text-lg font-semibold text-foreground".freeze
+    STYLES = "text-lg font-semibold text-foreground"
 
     def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
@@ -11,7 +11,7 @@ module ShadcnPhlexcomponents
 
     def default_attributes
       {
-        id: "#{@aria_id}-title"
+        id: "#{@aria_id}-title",
       }
     end
 

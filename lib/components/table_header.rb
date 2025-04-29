@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class TableHeader < Base
-    STYLES = "[&_tr]:border-b".freeze
+    STYLES = "[&_tr]:border-b"
 
     def view_template(&)
       thead(**@attributes, &)

@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class TabsContent < Base
-    STYLES = <<~HEREDOC.freeze
+    STYLES = <<~HEREDOC
       mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2
       focus-visible:ring-ring focus-visible:ring-offset-2 hidden
     HEREDOC
@@ -23,12 +23,12 @@ module ShadcnPhlexcomponents
         role: "tabpanel",
         tabindex: "0",
         aria: {
-          labelledby: "#{@aria_id}-trigger-#{@value}"
+          labelledby: "#{@aria_id}-trigger-#{@value}",
         },
         data: {
           value: @value,
-          "shadcn-phlexcomponents--tabs-target": "content"
-        }
+          "shadcn-phlexcomponents--tabs-target": "content",
+        },
       }
     end
   end

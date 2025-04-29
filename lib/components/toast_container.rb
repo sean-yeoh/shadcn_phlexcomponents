@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ShadcnPhlexcomponents  
+module ShadcnPhlexcomponents
   class ToastContainer < Base
     STYLES = <<~HEREDOC
       fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4
@@ -12,17 +12,17 @@ module ShadcnPhlexcomponents
         tabindex: -1,
         data: {
           controller: "shadcn-phlexcomponents--toast-container",
-        }
+        },
       }
     end
-    
+
     def view_template(&)
       div(
         role: "region",
         tabindex: -1,
         aria: {
           label: "Notifications",
-        }
+        },
       ) do
         ol(**@attributes) do
           template(data: { variant: "default" }) { toast(:default) }

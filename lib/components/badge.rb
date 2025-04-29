@@ -14,19 +14,13 @@ module ShadcnPhlexcomponents
       outline: "text-foreground",
     }.freeze
 
-    class << self
-      def default_styles(variant)
-        "#{STYLES} #{VARIANTS[variant]}"
-      end
-    end
-
     def initialize(variant: :primary, **attributes)
       @variant = variant
       super(**attributes)
     end
 
     def default_styles
-      self.class.default_styles(@variant)
+      "#{STYLES} #{VARIANTS[@variant]}"
     end
 
     def view_template(&)

@@ -4,7 +4,7 @@ module ShadcnPhlexcomponents
   class Accordion < Base
     def initialize(value: nil, multiple: false, aria_id: "accordion-#{SecureRandom.hex(5)}", **attributes)
       @multiple = multiple
-      @value = value && value.is_a?(String) ? [ value ] : value
+      @value = value&.is_a?(String) ? [value] : value
       @aria_id = aria_id
       super(**attributes)
     end
@@ -26,8 +26,8 @@ module ShadcnPhlexcomponents
         data: {
           value: (@value || []).to_json,
           multiple: @multiple.to_s,
-          controller: "shadcn-phlexcomponents--accordion"
-        }
+          controller: "shadcn-phlexcomponents--accordion",
+        },
       }
     end
 

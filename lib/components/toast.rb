@@ -5,7 +5,7 @@ module ShadcnPhlexcomponents
     STYLES = <<~HEREDOC
       group pointer-events-auto relative flex w-full items-center justify-between
       space-x-2 overflow-hidden rounded-md border p-4 pr-6 shadow-lg transition-all
-      data-[state=open]:animate-in data-[state=closed]:animate-out 
+      data-[state=open]:animate-in data-[state=closed]:animate-out#{" "}
       data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full
       data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full
     HEREDOC
@@ -29,11 +29,11 @@ module ShadcnPhlexcomponents
     end
 
     def title(**attributes, &)
-      ToastTitle(data: { title: ""}, **attributes, &)
+      ToastTitle(data: { title: "" }, **attributes, &)
     end
 
     def description(**attributes, &)
-      ToastDescription(data: { description: ""},**attributes, &)
+      ToastDescription(data: { description: "" }, **attributes, &)
     end
 
     def content(**attributes, &)
@@ -52,7 +52,7 @@ module ShadcnPhlexcomponents
         html_options ||= {}
         html_options[:variant] = @variant
       end
-      
+
       ToastActionTo(name, options, html_options, &block)
     end
 
@@ -72,26 +72,27 @@ module ShadcnPhlexcomponents
           duration: @duration,
           state: "open",
           controller: "shadcn-phlexcomponents--toast",
-          action: <<~HEREDOC
+          action: <<~HEREDOC,
             focus->shadcn-phlexcomponents--toast#cancelDismiss
             blur->shadcn-phlexcomponents--toast#dismiss
             mouseover->shadcn-phlexcomponents--toast#cancelDismiss
             mouseout->shadcn-phlexcomponents--toast#dismiss
             keydown.esc->shadcn-phlexcomponents--toast#close
           HEREDOC
-        }
-      }  
+        },
+      }
     end
 
     def view_template(&)
       li(**@attributes) do
         yield
-        button(type: "button", 
-              class: CLOSE_BUTTON_STYLES, 
-              data: { 
-                action: "shadcn-phlexcomponents--toast#close",
-              }) do
-          
+        button(
+          type: "button",
+          class: CLOSE_BUTTON_STYLES,
+          data: {
+            action: "shadcn-phlexcomponents--toast#close",
+          },
+        ) do
           icon("x", class: "size-4")
         end
       end

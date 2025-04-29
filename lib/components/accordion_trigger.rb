@@ -18,17 +18,17 @@ module ShadcnPhlexcomponents
         id: "#{@aria_id}-trigger",
         aria: {
           controls: "#{@aria_id}-content",
-          expanded: "false"
+          expanded: "false",
         },
         data: {
           state: "closed",
           "shadcn-phlexcomponents--accordion-target": "trigger",
-          action: <<~HEREDOC
+          action: <<~HEREDOC,
             click->shadcn-phlexcomponents--accordion#toggleItem
             keydown.up->shadcn-phlexcomponents--accordion#focusPrev:prevent
             keydown.down->shadcn-phlexcomponents--accordion#focusNext:prevent
           HEREDOC
-        }
+        },
       }
     end
 

@@ -30,9 +30,9 @@ module ShadcnPhlexcomponents
     def default_attributes
       {
         data: {
-          active: @active.to_s
-        }
-      }  
+          active: @active.to_s,
+        },
+      }
     end
 
     def default_styles
@@ -50,7 +50,7 @@ module ShadcnPhlexcomponents
         merged_attributes = mix(@attributes, element_attributes)
         merged_attributes[:class] = styles
 
-        send(element.name, **merged_attributes) do        
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else

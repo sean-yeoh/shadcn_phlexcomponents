@@ -19,7 +19,7 @@ module ShadcnPhlexcomponents
         data: {
           action: "click->shadcn-phlexcomponents--dialog#open",
           "shadcn-phlexcomponents--dialog-target": "trigger",
-          as_child: @as_child.to_s
+          as_child: @as_child.to_s,
         },
       }
     end

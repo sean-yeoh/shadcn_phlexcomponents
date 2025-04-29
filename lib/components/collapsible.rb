@@ -2,7 +2,6 @@
 
 module ShadcnPhlexcomponents
   class Collapsible < Base
-
     def initialize(open: false, aria_id: "collapsible-#{SecureRandom.hex(5)}", **attributes)
       @open = open
       @aria_id = aria_id
@@ -20,8 +19,8 @@ module ShadcnPhlexcomponents
     def default_attributes
       {
         data: {
-          controller: "shadcn-phlexcomponents--collapsible"
-        }
+          controller: "shadcn-phlexcomponents--collapsible",
+        },
       }
     end
 

@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Sheet < Base
-    STYLES = "inline-block".freeze
+    STYLES = "inline-block"
 
     def initialize(side: :right, aria_id: "sheet-#{SecureRandom.hex(5)}", **attributes)
       @side = side
@@ -15,7 +15,7 @@ module ShadcnPhlexcomponents
     end
 
     def content(**attributes, &)
-       SheetContent(side: @side, aria_id: @aria_id, **attributes, &)
+      SheetContent(side: @side, aria_id: @aria_id, **attributes, &)
     end
 
     def header(**attributes, &)
@@ -23,19 +23,19 @@ module ShadcnPhlexcomponents
     end
 
     def title(**attributes, &)
-       SheetTitle(aria_id: @aria_id, **attributes, &)
+      SheetTitle(aria_id: @aria_id, **attributes, &)
     end
 
     def description(**attributes, &)
-       SheetDescription(aria_id: @aria_id, **attributes, &)
+      SheetDescription(aria_id: @aria_id, **attributes, &)
     end
 
     def footer(**attributes, &)
-       SheetFooter(**attributes, &)
+      SheetFooter(**attributes, &)
     end
 
     def close(**attributes, &)
-       SheetClose(**attributes, &)
+      SheetClose(**attributes, &)
     end
 
     def view_template(&)
@@ -45,8 +45,8 @@ module ShadcnPhlexcomponents
     def default_attributes
       {
         data: {
-          controller: "shadcn-phlexcomponents--sheet"
-        }
+          controller: "shadcn-phlexcomponents--sheet",
+        },
       }
     end
   end

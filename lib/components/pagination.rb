@@ -7,7 +7,7 @@ module ShadcnPhlexcomponents
     def link(**attributes, &)
       PaginationLink(**attributes, &)
     end
-    
+
     def previous(**attributes, &)
       PaginationPrevious(**attributes, &)
     end
@@ -15,7 +15,7 @@ module ShadcnPhlexcomponents
     def next(**attributes, &)
       PaginationNext(**attributes, &)
     end
-    
+
     def ellipsis(**attributes, &)
       PaginationEllipsis(**attributes, &)
     end
@@ -25,7 +25,7 @@ module ShadcnPhlexcomponents
         role: "navigation",
         aria: {
           label: "navigation",
-        }
+        },
       }
     end
 

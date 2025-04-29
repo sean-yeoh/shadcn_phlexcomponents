@@ -21,8 +21,8 @@ module ShadcnPhlexcomponents
         if element.name == "button"
           merged_attributes.delete(:role)
         end
-        
-        send(element.name, **merged_attributes) do        
+
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else
@@ -35,15 +35,9 @@ module ShadcnPhlexcomponents
         id: @id,
         role: "button",
         data: {
-          state: "closed",
           as_child: @as_child.to_s,
-          action: <<~HEREDOC,
-            click->shadcn-phlexcomponents--hover-card#toggle
-            mouseover->shadcn-phlexcomponents--hover-card#openWithDelay
-            mouseout->shadcn-phlexcomponents--hover-card#closeWithDelay
-          HEREDOC
-          "shadcn-phlexcomponents--hover-card-target": "trigger"
-        }
+          "shadcn-phlexcomponents--hover-card-target": "trigger",
+        },
       }
     end
   end

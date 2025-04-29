@@ -9,12 +9,15 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      @html_options, @options = @options, @name if block_given?
+      if block_given?
+        @html_options = @options
+        @options = @name
+      end
       @html_options ||= {}
       @disabled = @html_options[:disabled]
       @html_options = mix(default_attributes, @html_options)
       @html_options[:class] = TAILWIND_MERGER.merge("w-full #{default_styles} #{@html_options[:class]}")
-      
+
       if block_given?
         button_to(@options, @html_options, &)
       else

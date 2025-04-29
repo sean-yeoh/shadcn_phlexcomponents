@@ -2,9 +2,9 @@
 
 module ShadcnPhlexcomponents
   class Table < Base
-    STYLES = "w-full caption-bottom text-sm".freeze
+    STYLES = "w-full caption-bottom text-sm"
 
-    def initialize( **attributes)
+    def initialize(**attributes)
       @columns = []
       super(**attributes)
     end
@@ -15,7 +15,7 @@ module ShadcnPhlexcomponents
 
     def header(**attributes, &)
       TableHeader(**attributes, &)
-    end 
+    end
 
     def caption(**attributes, &)
       TableCaption(**attributes, &)
@@ -58,7 +58,9 @@ module ShadcnPhlexcomponents
         @rows.each do |row|
           tr(class: TableRow::STYLES) do
             @columns.each do |column|
-              td(class: TAILWIND_MERGER.merge("#{TableCell::STYLES} #{column[:cell_class]}")) { column[:content].call(row) }
+              td(class: TAILWIND_MERGER.merge("#{TableCell::STYLES} #{column[:cell_class]}")) do
+                column[:content].call(row)
+              end
             end
           end
         end

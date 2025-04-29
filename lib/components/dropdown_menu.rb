@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class DropdownMenu < Base
-    STYLES = "inline-block".freeze
+    STYLES = "inline-block"
 
     def initialize(side: :bottom, aria_id: "dropdown-menu-#{SecureRandom.hex(5)}", **attributes)
       @side = side
@@ -16,7 +16,7 @@ module ShadcnPhlexcomponents
 
     def content(**attributes, &)
       DropdownMenuContent(aria_id: @aria_id, side: @side, **attributes, &)
-    end 
+    end
 
     def label(**attributes, &)
       DropdownMenuLabel(**attributes, &)
@@ -38,8 +38,8 @@ module ShadcnPhlexcomponents
       {
         data: {
           controller: "shadcn-phlexcomponents--dropdown-menu",
-          side: @side
-        }
+          side: @side,
+        },
       }
     end
 

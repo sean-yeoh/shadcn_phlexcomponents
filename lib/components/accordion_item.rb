@@ -4,7 +4,7 @@ module ShadcnPhlexcomponents
   class AccordionItem < Base
     STYLES = "border-b"
 
-    def initialize(value:,  **attributes)
+    def initialize(value:, **attributes)
       @value = value
       super(**attributes)
     end
@@ -14,8 +14,8 @@ module ShadcnPhlexcomponents
         data: {
           state: "closed",
           value: @value,
-          "shadcn-phlexcomponents--accordion-target": "item"
-        }
+          "shadcn-phlexcomponents--accordion-target": "item",
+        },
       }
     end
 

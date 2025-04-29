@@ -2,10 +2,10 @@
 
 module ShadcnPhlexcomponents
   class SelectItem < Base
-    STYLES = <<~HEREDOC.freeze
+    STYLES = <<~HEREDOC
       group/item relative flex w-full cursor-default select-none items-center
       rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent
-      focus:text-accent-foreground data-[disabled]:pointer-events-none 
+      focus:text-accent-foreground data-[disabled]:pointer-events-none#{" "}
       data-[disabled]:opacity-50
     HEREDOC
 
@@ -21,9 +21,10 @@ module ShadcnPhlexcomponents
     def view_template(&)
       div(**@attributes) do
         span(id: @aria_labelledby, &)
-        
+
         unless @hide_icon
-          span(class: "absolute right-2 h-3.5 w-3.5 items-center hidden justify-center group-aria-[selected=true]/item:flex") do
+          span(class: "absolute right-2 h-3.5 w-3.5 items-center hidden justify-center
+                      group-aria-[selected=true]/item:flex") do
             icon("check", class: "size-4")
           end
         end
@@ -36,7 +37,7 @@ module ShadcnPhlexcomponents
         tabindex: -1,
         aria: {
           selected: false,
-          labelledby: @aria_labelledby
+          labelledby: @aria_labelledby,
         },
         data: {
           disabled: @disabled,
@@ -50,8 +51,8 @@ module ShadcnPhlexcomponents
             mouseover->shadcn-phlexcomponents--select#focusItem
             mouseout->shadcn-phlexcomponents--select#focusContent
           HEREDOC
-          "shadcn-phlexcomponents--select-target": "item"
-        }
+          "shadcn-phlexcomponents--select-target": "item",
+        },
       }
     end
   end

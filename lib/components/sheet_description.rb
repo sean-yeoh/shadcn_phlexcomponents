@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class SheetDescription < Base
-    STYLES = "text-sm text-muted-foreground".freeze
+    STYLES = "text-sm text-muted-foreground"
 
     def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
@@ -11,7 +11,7 @@ module ShadcnPhlexcomponents
 
     def default_attributes
       {
-        id: "#{@aria_id}-description"
+        id: "#{@aria_id}-description",
       }
     end
 

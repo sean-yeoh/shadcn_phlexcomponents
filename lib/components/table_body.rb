@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class TableBody < Base
-    STYLES = "[&_tr:last-child]:border-0".freeze
+    STYLES = "[&_tr:last-child]:border-0"
 
     def view_template(&)
       tbody(**@attributes, &)

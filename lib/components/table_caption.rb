@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class TableCaption < Base
-    STYLES = "mt-4 text-sm text-muted-foreground".freeze
+    STYLES = "mt-4 text-sm text-muted-foreground"
 
     def view_template(&)
       caption(**@attributes, &)

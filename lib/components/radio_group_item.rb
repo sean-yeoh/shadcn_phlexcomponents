@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class RadioGroupItem < Base
-    STYLES = <<~HEREDOC.freeze
+    STYLES = <<~HEREDOC
       aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow
       focus:outline-none focus-visible:ring-1 focus-visible:ring-ring
       disabled:cursor-not-allowed disabled:opacity-50 relative cursor-pointer
@@ -20,8 +20,8 @@ module ShadcnPhlexcomponents
     def view_template(&)
       button(**@attributes) do
         span(
-            class: "items-center justify-center hidden group-data-[checked=true]/radio:flex"
-          ) do
+          class: "items-center justify-center hidden group-data-[checked=true]/radio:flex",
+        ) do
           icon("circle", class: "size-2.5 fill-primary")
         end
 
@@ -33,7 +33,7 @@ module ShadcnPhlexcomponents
           tabindex: -1,
           checked: @checked,
           aria: { hidden: true },
-          data: { input: "" }
+          data: { input: "" },
         )
       end
     end
@@ -46,12 +46,12 @@ module ShadcnPhlexcomponents
         role: "radio",
         aria: {
           checked: @checked.to_s,
-        }, 
+        },
         data: {
           checked: @checked.to_s,
           value: @value,
           "shadcn-phlexcomponents--radio-group-target": "item",
-          action: <<~HEREDOC
+          action: <<~HEREDOC,
             click->shadcn-phlexcomponents--radio-group#setChecked
             keydown.right->shadcn-phlexcomponents--radio-group#setCheckedToNext:prevent
             keydown.down->shadcn-phlexcomponents--radio-group#setCheckedToNext:prevent
@@ -59,7 +59,7 @@ module ShadcnPhlexcomponents
             keydown.left->shadcn-phlexcomponents--radio-group#setCheckedToPrev:prevent
             keydown.enter->shadcn-phlexcomponents--radio-group#preventDefault
           HEREDOC
-        }
+        },
       }
     end
   end

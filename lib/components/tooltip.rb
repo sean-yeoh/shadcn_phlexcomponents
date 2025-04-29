@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Tooltip < Base
-    STYLES = "inline-block".freeze
+    STYLES = "inline-block"
 
     def initialize(side: :top, aria_id: "tooltip-#{SecureRandom.hex(5)}", **attributes)
       @side = side
@@ -11,20 +11,20 @@ module ShadcnPhlexcomponents
     end
 
     def trigger(**attributes, &)
-      render TooltipTrigger.new(aria_id: @aria_id, **attributes, &)
+      render(TooltipTrigger.new(aria_id: @aria_id, **attributes, &))
     end
 
     def content(**attributes, &)
-      render TooltipContent.new(side: @side, aria_id: @aria_id, **attributes, &)
-    end 
+      render(TooltipContent.new(side: @side, aria_id: @aria_id, **attributes, &))
+    end
 
     def default_attributes
       {
         data: {
           controller: "shadcn-phlexcomponents--tooltip",
-          side: @side
-        }
-      }  
+          side: @side,
+        },
+      }
     end
 
     def view_template(&)

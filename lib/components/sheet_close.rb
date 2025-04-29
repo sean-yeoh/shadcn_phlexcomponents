@@ -22,7 +22,7 @@ module ShadcnPhlexcomponents
           merged_attributes.delete(:role)
         end
 
-        send(element.name, **merged_attributes) do        
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else
@@ -34,8 +34,8 @@ module ShadcnPhlexcomponents
       {
         role: "button",
         data: {
-          action: "click->shadcn-phlexcomponents--sheet#close"
-        }
+          action: "click->shadcn-phlexcomponents--sheet#close",
+        },
       }
     end
   end

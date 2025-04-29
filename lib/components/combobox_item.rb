@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 module ShadcnPhlexcomponents
-  class CardContent < Base
-    STYLES = "p-6 pt-0"
-
+  class ComboboxItem < Base
     def view_template(&)
-      div(**@attributes, &)
+      option(**@attributes, &)
     end
   end
 end

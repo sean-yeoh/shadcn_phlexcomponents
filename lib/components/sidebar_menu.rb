@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class SidebarMenu < Base
-    STYLES = "flex w-full min-w-0 flex-col gap-1".freeze
+    STYLES = "flex w-full min-w-0 flex-col gap-1"
 
     def view_template(&)
       ul(**@attributes, &)

@@ -13,12 +13,12 @@ module ShadcnPhlexcomponents
     end
 
     def default_styles
-      "#{ORIENTATIONS[@orientation]}"
+      ORIENTATIONS[@orientation].to_s
     end
 
     def default_attributes
       {
-        role: "none"
+        role: "none",
       }
     end
 

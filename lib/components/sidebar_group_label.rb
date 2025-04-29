@@ -8,7 +8,7 @@ module ShadcnPhlexcomponents
       duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0
       group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0
     HEREDOC
-    
+
     def view_template(&)
       div(**@attributes, &)
     end

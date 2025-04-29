@@ -18,8 +18,8 @@ module ShadcnPhlexcomponents
         dir: @dir,
         data: {
           controller: "shadcn-phlexcomponents--tabs",
-          "shadcn-phlexcomponents--tabs-selected-value": @value
-        }
+          "shadcn-phlexcomponents--tabs-selected-value": @value,
+        },
       }
     end
 

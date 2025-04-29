@@ -19,7 +19,11 @@ module ShadcnPhlexcomponents
         merged_attributes = mix(@attributes, element_attributes)
         merged_attributes[:class] = styles
 
-        send(element.name, **merged_attributes) do        
+        if element.name == "button"
+          merged_attributes.delete(:role)
+        end
+
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else
@@ -32,18 +36,12 @@ module ShadcnPhlexcomponents
         id: @id,
         role: "button",
         aria: {
-          describedby: "#{@aria_id}-content"
+          describedby: "#{@aria_id}-content",
         },
         data: {
           as_child: @as_child.to_s,
-          state: "closed",
-          action: <<~HEREDOC,
-            click->shadcn-phlexcomponents--tooltip#toggle
-            mouseover->shadcn-phlexcomponents--tooltip#openWithDelay
-            mouseout->shadcn-phlexcomponents--tooltip#closeWithDelay
-          HEREDOC
-          "shadcn-phlexcomponents--tooltip-target": "trigger"
-        }
+          "shadcn-phlexcomponents--tooltip-target": "trigger",
+        },
       }
     end
   end

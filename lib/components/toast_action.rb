@@ -15,7 +15,7 @@ module ShadcnPhlexcomponents
       @as_child = as_child
       super(**attributes)
     end
-    
+
     def view_template(&)
       if @as_child
         content = capture(&)
@@ -24,10 +24,11 @@ module ShadcnPhlexcomponents
         vanish(&)
 
         element_attributes = nokogiri_attributes_to_hash(element)
+        styles = TAILWIND_MERGER.merge("#{@attributes[:class]} #{element_attributes[:class]}")
         merged_attributes = mix(@attributes, element_attributes)
-        merged_attributes[:class] = TAILWIND_MERGER.merge("#{STYLES} #{element_attributes[:class]}")
+        merged_attributes[:class] = styles
 
-        send(element.name, **merged_attributes) do        
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else

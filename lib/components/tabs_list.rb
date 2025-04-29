@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class TabsList < Base
-    STYLES = <<~HEREDOC.freeze
+    STYLES = <<~HEREDOC
       inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground outline-none
     HEREDOC
 
@@ -15,8 +15,8 @@ module ShadcnPhlexcomponents
         role: "tablist",
         tabindex: "-1",
         aria: {
-          orientation: "horizontal"
-        }
+          orientation: "horizontal",
+        },
       }
     end
   end

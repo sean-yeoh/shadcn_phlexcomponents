@@ -14,7 +14,7 @@ module ShadcnPhlexcomponents
     def items(collection, value_method:, text_method:, wrapper_class: nil)
       wrapper_class = TAILWIND_MERGER.merge("flex items-center space-x-2 #{wrapper_class}")
 
-      if collection.first && collection.first.is_a?(Hash)
+      if collection.first&.is_a?(Hash)
         collection = convert_collection_hash_to_struct(collection, value_method: value_method, text_method: text_method)
       end
 
@@ -24,12 +24,13 @@ module ShadcnPhlexcomponents
         id = "#{@name.parameterize.underscore}_#{value}"
 
         div(class: wrapper_class) do
-          Checkbox(name: "#{@name}[]", 
-                          id: id,
-                          value: value,
-                          checked: @value.include?(value),
-                          include_hidden: false
-                        )
+          Checkbox(
+            name: "#{@name}[]",
+            id: id,
+            value: value,
+            checked: @value.include?(value),
+            include_hidden: false,
+          )
           Label(for: id) { text }
         end
       end

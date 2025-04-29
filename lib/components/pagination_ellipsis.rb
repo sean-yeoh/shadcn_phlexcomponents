@@ -7,8 +7,8 @@ module ShadcnPhlexcomponents
     def default_attributes
       {
         aria: {
-          hidden: "true"
-        }
+          hidden: "true",
+        },
       }
     end
 

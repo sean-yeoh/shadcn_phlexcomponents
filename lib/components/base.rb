@@ -11,7 +11,7 @@ module ShadcnPhlexcomponents
     STYLES = ""
 
     SANITIZER_ALLOWED_TAGS = (Rails::HTML::SafeListSanitizer.allowed_tags.to_a +
-      [ "svg", "path", "polygon", "polyline", "circle", "ellipse", "rect", "line", "use", "defs", "g" ]).freeze
+      ["svg", "path", "polygon", "polyline", "circle", "ellipse", "rect", "line", "use", "defs", "g"]).freeze
 
     SANITIZER_ALLOWED_ATTRIBUTES = (Rails::HTML::SafeListSanitizer.allowed_attributes.to_a +
       [
@@ -32,7 +32,7 @@ module ShadcnPhlexcomponents
         "stroke-width",
         "stroke-linecap",
         "aria-hidden",
-        "class"
+        "class",
       ]).freeze
 
     def initialize(**attributes)
@@ -90,15 +90,15 @@ module ShadcnPhlexcomponents
     def icon(named, **options)
       options = options.with_indifferent_access
       size = options.delete(:size)
-      options = options.merge width: size, height: size if size
+      options = options.merge(width: size, height: size) if size
 
       svg(**LucideRails.default_options.merge(**options)) { LucideRails::IconProvider.icon(named).html_safe }
     end
 
     def convert_collection_hash_to_struct(collection, value_method:, text_method:)
-      structConstructor = Struct.new(value_method, text_method)
+      struct_constructor = Struct.new(value_method, text_method)
       collection.map do |item|
-        struct = structConstructor.new
+        struct = struct_constructor.new
         struct[value_method] = item[value_method]
         struct[text_method] = item[text_method]
         struct

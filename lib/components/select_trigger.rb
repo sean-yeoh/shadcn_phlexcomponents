@@ -2,9 +2,9 @@
 
 module ShadcnPhlexcomponents
   class SelectTrigger < Base
-    STYLES = <<~HEREDOC.freeze
+    STYLES = <<~HEREDOC
       flex h-9 items-center justify-between whitespace-nowrap rounded-md border
-      border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background 
+      border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background#{" "}
       data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1
       focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1
       w-full cursor-pointer
@@ -21,7 +21,9 @@ module ShadcnPhlexcomponents
 
     def view_template
       button(**@attributes) do
-        span(class: "pointer-events-none", data: { "shadcn-phlexcomponents--select-target": "triggerText" }) { @value || @placeholder } 
+        span(class: "pointer-events-none", data: { "shadcn-phlexcomponents--select-target": "triggerText" }) do
+          @value || @placeholder
+        end
 
         icon("chevron-down", class: "size-4 opacity-50")
       end
@@ -36,18 +38,18 @@ module ShadcnPhlexcomponents
         aria: {
           autocomplete: "none",
           expanded: false,
-          controls: "#{@aria_id}-content"
+          controls: "#{@aria_id}-content",
         },
         data: {
           placeholder: @placeholder.present?,
           placeholder_text: @placeholder,
           action: <<~HEREDOC,
-          click->shadcn-phlexcomponents--select#toggle
-          keydown.down->shadcn-phlexcomponents--select#toggle:prevent
-          keydown.up->shadcn-phlexcomponents--select#toggle:prevent
+            click->shadcn-phlexcomponents--select#toggle
+            keydown.down->shadcn-phlexcomponents--select#toggle:prevent
+            keydown.up->shadcn-phlexcomponents--select#toggle:prevent
           HEREDOC
-          "shadcn-phlexcomponents--select-target": "trigger"
-        }
+          "shadcn-phlexcomponents--select-target": "trigger",
+        },
       }
     end
   end

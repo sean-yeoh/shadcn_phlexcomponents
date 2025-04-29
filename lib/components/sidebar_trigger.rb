@@ -14,15 +14,15 @@ module ShadcnPhlexcomponents
       @sidebar_id = sidebar_id
       super(**attributes)
     end
-    
+
     def default_attributes
       {
         data: {
           sidebar_id: @sidebar_id,
           controller: "shadcn-phlexcomponents--sidebar-trigger",
-          action: "click->shadcn-phlexcomponents--sidebar-trigger#toggle"
-        }
-      }  
+          action: "click->shadcn-phlexcomponents--sidebar-trigger#toggle",
+        },
+      }
     end
 
     def view_template(&)

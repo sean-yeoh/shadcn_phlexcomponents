@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module ShadcnPhlexcomponents
-
   class AvatarImage < Base
     STYLES = "aspect-square h-full w-full"
 

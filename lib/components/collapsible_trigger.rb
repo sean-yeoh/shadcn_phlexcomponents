@@ -14,13 +14,13 @@ module ShadcnPhlexcomponents
         role: "button",
         aria: {
           expanded: @open.to_s,
-          controls: "#{@aria_id}-content"
+          controls: "#{@aria_id}-content",
         },
         data: {
-          state: @open ? "open" : 'closed',
+          state: @open ? "open" : "closed",
           action: "click->shadcn-phlexcomponents--collapsible#toggle",
-          "shadcn-phlexcomponents--collapsible-target": "trigger"
-        }
+          "shadcn-phlexcomponents--collapsible-target": "trigger",
+        },
       }
     end
 
@@ -39,7 +39,7 @@ module ShadcnPhlexcomponents
           merged_attributes.delete(:role)
         end
 
-        send(element.name, **merged_attributes) do        
+        send(element.name, **merged_attributes) do
           sanitize_as_child(element.children.to_s)
         end
       else

@@ -3,7 +3,7 @@
 module ShadcnPhlexcomponents
   class PaginationLink < Base
     def initialize(href: nil, active: false, **attributes)
-      @href = href  
+      @href = href
       @active = active
       super(**attributes)
     end
@@ -20,9 +20,9 @@ module ShadcnPhlexcomponents
       {
         href: @href,
         aria: {
-          current: @active ? "page" : nil
-        }
-      }  
+          current: @active ? "page" : nil,
+        },
+      }
     end
 
     def view_template(&)

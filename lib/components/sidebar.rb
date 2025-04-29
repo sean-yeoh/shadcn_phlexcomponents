@@ -11,7 +11,7 @@ module ShadcnPhlexcomponents
     PANEL_STYLES = {
       sidebar: "group-data-[side=left]:border-r group-data-[side=right]:border-l",
       floating: "p-2",
-      inset: "p-2"
+      inset: "p-2",
     }
 
     def initialize(id:, variant: :sidebar, side: :left, width: "16rem", expanded: true, **attributes)
@@ -46,11 +46,11 @@ module ShadcnPhlexcomponents
     def menu(**attributes, &)
       SidebarMenu(**attributes, &)
     end
-    
+
     def menu_item(**attributes, &)
       SidebarMenuItem(**attributes, &)
     end
-    
+
     def menu_button(**attributes, &)
       SidebarMenuButton(**attributes, &)
     end
@@ -58,11 +58,11 @@ module ShadcnPhlexcomponents
     def menu_sub(**attributes, &)
       SidebarMenuSub(**attributes, &)
     end
-    
+
     def menu_sub_item(**attributes, &)
       SidebarMenuSubItem(**attributes, &)
     end
-    
+
     def menu_sub_button(**attributes, &)
       SidebarMenuSubButton(**attributes, &)
     end
@@ -72,29 +72,34 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      div(id: @id,
-          class: "group peer hidden md:block", 
-          style: { "--sidebar-width": @width }, 
-          data: { 
-            side: @side,
-            variant: @variant, 
-            collapsible: @expanded ? "" : "offcanvas", 
-            sidebar_id: @sidebar_id, 
-            state: @expanded ? "expanded" : "collapsed",
-            controller: "shadcn-phlexcomponents--sidebar"
-          }) do
-        div(class: "relative h-svh w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200
+      div(
+        id: @id,
+        class: "group peer hidden md:block",
+        style: { "--sidebar-width": @width },
+        data: {
+          side: @side,
+          variant: @variant,
+          collapsible: @expanded ? "" : "offcanvas",
+          sidebar_id: @sidebar_id,
+          state: @expanded ? "expanded" : "collapsed",
+          controller: "shadcn-phlexcomponents--sidebar",
+        },
+      ) do
+        div(
+          class: "relative h-svh w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200
                     ease-linear group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180
-                    group-data-[collapsible=icon]:w-[--sidebar-width-icon]", data: { "shadcn-phlexcomponents--sidebar-target": "panelOffset" })
+                    group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
+          data: { "shadcn-phlexcomponents--sidebar-target": "panelOffset" },
+        )
 
-
-        div(class: "fixed inset-y-0 z-10 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200
+        div(
+          class: "fixed inset-y-0 z-10 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200
                     ease-linear md:flex left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]
                     group-data-[collapsible=icon]:w-[--sidebar-width-icon] #{PANEL_STYLES[@variant]}",
-                    data: {
-                      "shadcn-phlexcomponents--sidebar-target": "panel"
-                    }) do
-
+          data: {
+            "shadcn-phlexcomponents--sidebar-target": "panel",
+          },
+        ) do
           div(**@attributes, &)
         end
       end

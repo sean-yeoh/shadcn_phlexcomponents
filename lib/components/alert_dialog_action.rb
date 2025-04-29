@@ -14,7 +14,7 @@ module ShadcnPhlexcomponents
         },
       }
     end
-    
+
     def view_template(&)
       Button(variant: @variant, **@attributes, &)
     end

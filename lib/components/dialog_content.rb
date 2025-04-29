@@ -34,7 +34,7 @@ module ShadcnPhlexcomponents
         },
         data: {
           "shadcn-phlexcomponents--dialog-target": "content",
-          state: "closed"
+          state: "closed",
         },
       }
     end

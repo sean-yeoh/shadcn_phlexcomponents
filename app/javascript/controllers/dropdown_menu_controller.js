@@ -174,7 +174,7 @@ export default class extends Controller {
 
     const key = event.key
 
-    if (key === 'Tab') event.preventDefault()
+    if (['Tab', 'Enter', ' '].includes(key)) event.preventDefault()
 
     if (key === 'Escape') {
       this.close()

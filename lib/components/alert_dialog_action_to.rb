@@ -21,7 +21,10 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      @html_options, @options = @options, @name if block_given?
+      if block_given?
+        @html_options = @options
+        @options = @name
+      end
       @html_options ||= {}
       @variant = @html_options.delete(:variant) || :primary
       @html_options = mix(default_attributes, @html_options)

@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Skeleton < Base
-    STYLES = "animate-pulse rounded-md bg-primary/10".freeze
+    STYLES = "animate-pulse rounded-md bg-primary/10"
 
     def view_template(&)
       div(**@attributes, &)

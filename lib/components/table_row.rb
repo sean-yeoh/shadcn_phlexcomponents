@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class TableRow < Base
-    STYLES = "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted".freeze
+    STYLES = "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
 
     def view_template(&)
       tr(**@attributes, &)

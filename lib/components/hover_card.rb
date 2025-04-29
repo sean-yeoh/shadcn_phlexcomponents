@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class HoverCard < Base
-    STYLES = "inline-block".freeze
+    STYLES = "inline-block"
 
     def initialize(side: :bottom, **attributes)
       @side = side
@@ -11,7 +11,7 @@ module ShadcnPhlexcomponents
 
     def content(**attributes, &)
       HoverCardContent(**attributes, &)
-    end 
+    end
 
     def trigger(**attributes, &)
       HoverCardTrigger(side: @side, **attributes, &)
@@ -21,9 +21,9 @@ module ShadcnPhlexcomponents
       {
         data: {
           controller: "shadcn-phlexcomponents--hover-card",
-          side: @side
-        }
-      }  
+          side: @side,
+        },
+      }
     end
 
     def view_template(&)

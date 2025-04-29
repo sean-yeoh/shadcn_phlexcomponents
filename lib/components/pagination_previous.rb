@@ -11,9 +11,9 @@ module ShadcnPhlexcomponents
       {
         href: @href,
         aria: {
-          label: "Go to previous page"
-        }
-      }  
+          label: "Go to previous page",
+        },
+      }
     end
 
     def default_styles

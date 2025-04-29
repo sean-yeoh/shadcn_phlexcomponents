@@ -2,7 +2,6 @@
 
 module ShadcnPhlexcomponents
   class CollapsibleContent < Base
-
     def initialize(aria_id: :nil, **attributes)
       @aria_id = aria_id
       super(**attributes)
@@ -12,8 +11,8 @@ module ShadcnPhlexcomponents
       {
         id: "#{@aria_id}-content",
         data: {
-          "shadcn-phlexcomponents--collapsible-target": "content"
-        }
+          "shadcn-phlexcomponents--collapsible-target": "content",
+        },
       }
     end
 
