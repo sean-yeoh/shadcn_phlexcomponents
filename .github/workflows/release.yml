@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  push:
+  release:
     if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'dev'
     name: Push gem to RubyGems.org
     runs-on: ubuntu-latest
