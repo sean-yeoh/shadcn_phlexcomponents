@@ -4,10 +4,11 @@ module ShadcnPhlexcomponents
   class CheckboxGroup < Base
     STYLES = "space-y-1.5"
 
-    def initialize(name:, value: [], include_hidden: true, **attributes)
+    def initialize(name:, value: [], include_hidden: true, disabled: false, **attributes)
       @name = name
       @value = value
       @include_hidden = include_hidden
+      @disabled = disabled
       super(**attributes)
     end
 
@@ -24,16 +25,31 @@ module ShadcnPhlexcomponents
         id = "#{@name.parameterize.underscore}_#{value}"
 
         div(class: wrapper_class) do
+          checkbox_disabled = if @disabled.is_a?(String)
+            value == @disabled
+          elsif @disabled.is_a?(Array)
+            @disabled.include?(value)
+          else
+            @disabled
+          end
+
           Checkbox(
             name: "#{@name}[]",
             id: id,
             value: value,
             checked: @value.include?(value),
             include_hidden: false,
+            disabled: checkbox_disabled,
           )
           Label(for: id) { text }
         end
       end
+    end
+
+    def default_attributes
+      {
+        role: "group",
+      }
     end
 
     def view_template(&)
