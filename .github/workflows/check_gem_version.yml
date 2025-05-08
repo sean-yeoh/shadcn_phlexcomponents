@@ -11,6 +11,11 @@ jobs:
     if: github.head_ref == 'dev' && github.base_ref == 'main'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches all history to compare with previous versions
+
       - name: Get current version
         id: current_version
         run: |
