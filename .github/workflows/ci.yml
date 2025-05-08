@@ -4,6 +4,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
   push:
     branches:
       - main
