@@ -8,39 +8,39 @@ on:
 
 jobs:
   check_gem_version:
-  if: github.head_ref == 'dev' && github.base_ref == 'main'
-  runs-on: ubuntu-latest
-  steps:
-    - name: Get current version
-      id: current_version
-      run: |
-        CURRENT_VERSION=$(grep -m 1 "VERSION\s*=" lib/**/version.rb | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+" || echo "0.0.0")
-        echo "Current version: $CURRENT_VERSION"
-        echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+    if: github.head_ref == 'dev' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current version
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(grep -m 1 "VERSION\s*=" lib/**/version.rb | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+" || echo "0.0.0")
+          echo "Current version: $CURRENT_VERSION"
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
-    - name: Get previous version
-      id: previous_version
-      run: |
-        git checkout HEAD^
-        PREVIOUS_VERSION=$(grep -m 1 "VERSION\s*=" lib/**/version.rb | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+" || echo "0.0.0")
-        echo "Previous version: $PREVIOUS_VERSION"
-        echo "previous_version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
-        git checkout ${{ github.sha }}
+      - name: Get previous version
+        id: previous_version
+        run: |
+          git checkout HEAD^
+          PREVIOUS_VERSION=$(grep -m 1 "VERSION\s*=" lib/**/version.rb | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+" || echo "0.0.0")
+          echo "Previous version: $PREVIOUS_VERSION"
+          echo "previous_version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+          git checkout ${{ github.sha }}
 
-    - name: Compare versions
-      id: version_check
-      run: |
-        CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
-        PREVIOUS_VERSION="${{ steps.previous_version.outputs.previous_version }}"
+      - name: Compare versions
+        id: version_check
+        run: |
+          CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
+          PREVIOUS_VERSION="${{ steps.previous_version.outputs.previous_version }}"
 
-        if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
-          echo "✅ Version updated from $PREVIOUS_VERSION to $CURRENT_VERSION"
-          echo "version_changed=true" >> $GITHUB_OUTPUT
-          echo "old_version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
-          echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          exit 0
-        else
-          echo "❌ Version unchanged: $CURRENT_VERSION"
-          echo "version_changed=false" >> $GITHUB_OUTPUT
-          exit 1
-        fi
+          if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
+            echo "✅ Version updated from $PREVIOUS_VERSION to $CURRENT_VERSION"
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+            echo "old_version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+            echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "❌ Version unchanged: $CURRENT_VERSION"
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
