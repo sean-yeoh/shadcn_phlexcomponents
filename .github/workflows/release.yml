@@ -44,3 +44,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body: ${{ steps.changelog.outputs.latestBody }}
+          tag_name: v${{ steps.changelog.outputs.latestVersion	}}

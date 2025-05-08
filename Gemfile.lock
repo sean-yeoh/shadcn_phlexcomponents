@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    shadcn_phlexcomponents (0.1.4)
+    shadcn_phlexcomponents (0.1.5)
       lucide-rails (~> 0.5.1)
       phlex-rails (~> 2.1)
       railties (~> 8.0)
