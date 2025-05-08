@@ -1,0 +1,31 @@
+# .github/workflows/push_gem.yml
+name: Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  push:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'dev'
+    name: Push gem to RubyGems.org
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
+      contents: write # IMPORTANT: this permission is required for `rake release` to push the release tag
+
+    steps:
+      # Set up
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ruby
+
+      # Release
+      - uses: rubygems/release-gem@v1
