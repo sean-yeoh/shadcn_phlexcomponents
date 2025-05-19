@@ -1,11 +1,12 @@
 import { Controller } from '@hotwired/stimulus'
 import {
-  computePosition,
-  flip,
-  shift,
-  offset,
-  autoUpdate,
-} from '@floating-ui/dom'
+  ANIMATION_OUT_DELAY,
+  FOCUS_DELAY,
+  lockScroll,
+  unlockScroll,
+  initFloatingUi,
+  focusTrigger,
+} from '../utils'
 
 export default class extends Controller {
   static targets = [
@@ -31,7 +32,7 @@ export default class extends Controller {
 
     this.items = [
       ...this.element.querySelectorAll(
-        '[data-shadcn-phlexcomponents--select-target="item"]:not([data-disabled])',
+        '[data-select-target="item"]:not([data-disabled])',
       ),
     ]
 
@@ -40,7 +41,6 @@ export default class extends Controller {
     this.resetSearchTimer = null
   }
 
-  // Methods
   toggle() {
     if (this.isOpen()) {
       this.close()
@@ -50,6 +50,7 @@ export default class extends Controller {
   }
 
   open() {
+    lockScroll()
     const triggerWidth = this.triggerTarget.offsetWidth
     this.contentWrapperTarget.classList.remove('hidden')
 
@@ -62,66 +63,47 @@ export default class extends Controller {
     this.triggerTarget.ariaExpanded = true
     this.contentTarget.dataset.state = 'open'
 
-    if (this.selectedValue) {
-      const item = this.itemTargets.find(
-        (i) => i.dataset.value === this.selectedValue,
-      )
+    setTimeout(() => {
+      if (this.selectedValue) {
+        const item = this.itemTargets.find(
+          (i) => i.dataset.value === this.selectedValue,
+        )
 
-      if (item && !item.dataset.disabled) {
-        item.focus()
+        if (item && !item.dataset.disabled) {
+          item.focus()
+        } else {
+          this.contentTarget.focus()
+        }
       } else {
-        this.contentTarget.focus()
+        this.focusItem(null, 0)
       }
-    } else {
-      this.focusItem(null, 0)
-    }
+    }, FOCUS_DELAY * 1.25)
 
-    if (window.innerHeight < document.documentElement.scrollHeight) {
-      document.body.dataset.scrollLocked = 1
-    }
     this.setupEventListeners()
-
-    this.cleanup = autoUpdate(
+    this.cleanup = initFloatingUi(
       this.triggerTarget,
       this.contentWrapperTarget,
-      () => {
-        computePosition(this.triggerTarget, this.contentWrapperTarget, {
-          placement: 'bottom',
-          strategy: 'fixed',
-          middleware: [flip(), shift(), offset(4)],
-        }).then(({ x, y }) => {
-          Object.assign(this.contentWrapperTarget.style, {
-            left: `${x}px`,
-            top: `${y}px`,
-          })
-        })
-      },
+      'bottom',
     )
   }
 
   close() {
+    unlockScroll()
     this.contentTarget.dataset.state = 'closed'
     this.triggerTarget.ariaExpanded = false
     this.cleanup()
     this.cleanupEventListeners()
-    delete document.body.dataset.scrollLocked
 
     setTimeout(() => {
       this.contentWrapperTarget.classList.add('hidden')
-    }, 100)
+    }, ANIMATION_OUT_DELAY)
 
-    if (this.triggerTarget.nodeName === 'DIV') {
-      this.triggerTarget.firstElementChild.focus()
-    } else {
-      this.triggerTarget.focus()
-    }
+    focusTrigger(this.triggerTarget)
   }
 
   setAriaLabelledby() {
     this.groupTargets.forEach((g) => {
-      const label = g.querySelector(
-        '[data-shadcn-phlexcomponents--select-target="label"]',
-      )
+      const label = g.querySelector('[data-select-target="label"]')
 
       if (label) {
         const ariaId = this.element.dataset.ariaId
@@ -216,14 +198,12 @@ export default class extends Controller {
       this.selectTarget.value = value
     }
 
-    delete this.triggerTarget.dataset.placeholder
-    const hasPlaceholder = this.triggerTarget.dataset.placeholderText
+    this.triggerTarget.dataset.hasValue = !!value && value.length > 0
 
-    if (hasPlaceholder) {
-      if (!value || value.length === 0) {
-        this.triggerTarget.dataset.placeholder = true
-        this.triggerTextTarget.textContent = hasPlaceholder
-      }
+    const placeholder = this.triggerTarget.dataset.placeholder
+
+    if (placeholder && this.triggerTarget.dataset.hasValue === 'false') {
+      this.triggerTextTarget.textContent = placeholder
     }
   }
 

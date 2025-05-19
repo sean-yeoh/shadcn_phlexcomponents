@@ -1,9 +1,12 @@
 import { Controller } from '@hotwired/stimulus'
 import Choices from 'choices.js'
+
 export default class extends Controller {
   static targets = ['select']
 
   connect() {
+    this.DOMKeydownListener = this.onDOMKeydown.bind(this)
+
     if (this.element.dataset.value) {
       const option = this.selectTarget.querySelector(
         `[value=${this.element.dataset.value}]`,
@@ -24,11 +27,28 @@ export default class extends Controller {
     }
 
     this.selectTarget.addEventListener(
-      'hideDropdown',
+      'showDropdown',
       function () {
-        this.choices.containerOuter.element.focus()
+        document.addEventListener('keydown', this.DOMKeydownListener)
       }.bind(this),
       false,
     )
+
+    this.selectTarget.addEventListener(
+      'hideDropdown',
+      function () {
+        this.choices.containerOuter.element.focus()
+        document.removeEventListener('keydown', this.DOMKeydownListener)
+      }.bind(this),
+      false,
+    )
+  }
+
+  onDOMKeydown(event) {
+    const key = event.key
+
+    if (key === 'Tab') {
+      event.preventDefault()
+    }
   }
 }

@@ -1,4 +1,11 @@
 import { Controller } from '@hotwired/stimulus'
+import {
+  ANIMATION_OUT_DELAY,
+  openWithOverlay,
+  closeWithOverlay,
+  focusTrigger,
+  FOCUS_DELAY,
+} from '../utils'
 
 export default class extends Controller {
   static targets = ['trigger', 'content']
@@ -17,74 +24,36 @@ export default class extends Controller {
   }
 
   open() {
-    this.showOverlay()
+    openWithOverlay([this.contentElement])
     this.contentElement.classList.remove('hidden')
     this.contentElement.dataset.state = 'open'
     this.triggerTarget.ariaExpanded = true
     this.setupEventListeners()
-    this.addInert()
 
-    if (window.innerHeight < document.documentElement.scrollHeight) {
-      document.body.dataset.scrollLocked = 1
-    }
     document.body.appendChild(this.contentElement)
-    this.firstElement.focus() // must be after appendChild
+
+    setTimeout(() => {
+      // must be after appendChild
+      this.firstElement.focus()
+    }, FOCUS_DELAY * 1.25)
   }
 
   close() {
+    closeWithOverlay()
     this.contentElement.dataset.state = 'closed'
     this.triggerTarget.ariaExpanded = false
     this.cleanupEventListeners()
-    this.removeInert()
     this.element.appendChild(this.contentElement)
 
     setTimeout(() => {
       this.contentElement.classList.add('hidden')
-    }, 100)
+    }, ANIMATION_OUT_DELAY)
 
-    setTimeout(() => {
-      delete document.body.dataset.scrollLocked
-      this.removeOverlay()
-    }, 150)
-
-    this.focusTrigger()
-  }
-
-  focusTrigger() {
-    if (this.triggerTarget.dataset.asChild === 'false') {
-      this.triggerTarget.firstElementChild.focus()
-    } else {
-      this.triggerTarget.focus()
-    }
+    focusTrigger(this.triggerTarget)
   }
 
   isOpen() {
     return this.triggerTarget.ariaExpanded === 'true'
-  }
-
-  showOverlay() {
-    const elem = document.createElement('div')
-    elem.classList.add(
-      'fixed',
-      'inset-0',
-      'z-50',
-      'bg-black/80',
-      'data-[state=open]:animate-in',
-      'data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0',
-      'data-[state=open]:fade-in-0',
-      'pointer-events-auto',
-    )
-    elem.dataset.state = 'open'
-    elem.ariaHidden = true
-    elem.dataset.overlay = true
-    document.body.appendChild(elem)
-  }
-
-  removeOverlay() {
-    if (document.querySelector('[data-overlay]')) {
-      document.querySelector('[data-overlay]').remove()
-    }
   }
 
   // Global listeners
@@ -93,19 +62,17 @@ export default class extends Controller {
 
     const target = event.target
     const trigger = event.target.closest(
-      '[data-shadcn-phlexcomponents--dialog-target="trigger"]',
+      `[data-${this.identifier}-target="trigger"]`,
     )
 
     if (trigger) return
 
-    const close = target.closest(
-      '[data-action*="shadcn-phlexcomponents--dialog#close"]',
-    )
+    const close = target.closest(`[data-action*="${this.identifier}#close"]`)
 
     if (
       close ||
       (target.dataset.action &&
-        target.dataset.action.includes('shadcn-phlexcomponents--dialog#close'))
+        target.dataset.action.includes(`${this.identifier}#close`))
     )
       this.close()
 
@@ -143,17 +110,5 @@ export default class extends Controller {
   cleanupEventListeners() {
     document.removeEventListener('click', this.DOMClickListener)
     document.removeEventListener('keydown', this.DOMKeydownListener)
-  }
-
-  addInert() {
-    Array.from(document.body.children)
-      .filter((el) => el !== this.contentElement)
-      .forEach((el) => el.setAttribute('inert', ''))
-  }
-
-  removeInert() {
-    Array.from(document.body.children)
-      .filter((el) => el.hasAttribute('inert'))
-      .forEach((el) => el.removeAttribute('inert'))
   }
 }

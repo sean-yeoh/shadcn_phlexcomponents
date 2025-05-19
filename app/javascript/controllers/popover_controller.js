@@ -1,14 +1,13 @@
 import { Controller } from '@hotwired/stimulus'
 import {
-  computePosition,
-  flip,
-  shift,
-  offset,
-  autoUpdate,
-} from '@floating-ui/dom'
+  ANIMATION_OUT_DELAY,
+  FOCUS_DELAY,
+  initFloatingUi,
+  focusTrigger,
+} from '../utils'
 
 export default class extends Controller {
-  static targets = ['trigger', 'contentWrapper', 'content', 'menuItem']
+  static targets = ['trigger', 'contentWrapper', 'content']
 
   connect() {
     this.DOMClickListener = this.onDOMClick.bind(this)
@@ -33,7 +32,6 @@ export default class extends Controller {
   onDOMClick(event) {
     if (!this.isOpen()) return
     if (this.element.contains(event.target)) return
-
     this.close()
   }
 
@@ -68,25 +66,20 @@ export default class extends Controller {
     this.contentTarget.dataset.state = 'open'
     this.setupEventListeners()
 
-    setTimeout(() => {
-      this.firstElement.focus()
-    }, 100)
+    this.onOpen()
+  }
 
-    this.cleanup = autoUpdate(
+  onOpen() {
+    setTimeout(() => {
+      if (this.firstElement) {
+        this.firstElement.focus()
+      }
+    }, FOCUS_DELAY * 1.25)
+
+    this.cleanup = initFloatingUi(
       this.triggerTarget,
       this.contentWrapperTarget,
-      () => {
-        computePosition(this.triggerTarget, this.contentWrapperTarget, {
-          placement: this.element.dataset.side,
-          strategy: 'fixed',
-          middleware: [flip(), shift(), offset(4)],
-        }).then(({ x, y }) => {
-          Object.assign(this.contentWrapperTarget.style, {
-            left: `${x}px`,
-            top: `${y}px`,
-          })
-        })
-      },
+      this.element.dataset.side,
     )
   }
 
@@ -98,17 +91,13 @@ export default class extends Controller {
 
     setTimeout(() => {
       this.contentWrapperTarget.classList.add('hidden')
-    }, 100)
+    }, ANIMATION_OUT_DELAY)
 
-    this.focusTrigger()
+    this.onClose()
   }
 
-  focusTrigger() {
-    if (this.triggerTarget.dataset.asChild === 'false') {
-      this.triggerTarget.firstElementChild.focus()
-    } else {
-      this.triggerTarget.focus()
-    }
+  onClose() {
+    focusTrigger(this.triggerTarget)
   }
 
   // Global listeners
