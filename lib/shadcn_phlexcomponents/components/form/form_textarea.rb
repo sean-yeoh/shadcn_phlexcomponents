@@ -48,7 +48,7 @@ module ShadcnPhlexcomponents
             name: @name,
             value: @value || @model_value,
             aria: aria_attributes,
-**@attributes,
+            **@attributes,
           )
         end
 

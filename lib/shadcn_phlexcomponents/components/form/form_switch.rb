@@ -54,7 +54,7 @@ module ShadcnPhlexcomponents
             checked: !!@model_value,
             aria: aria_attributes,
             disabled: @disabled,
-**@attributes,
+            **@attributes,
           )
           render_label(&)
         end

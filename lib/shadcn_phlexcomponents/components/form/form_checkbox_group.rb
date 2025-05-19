@@ -90,7 +90,7 @@ module ShadcnPhlexcomponents
           value: @value || @model_value || [],
           aria: aria_attributes,
           item_id_prefix: @id,
-**@attributes,
+          **@attributes,
         ) do |c|
           c.items(
             @collection,
