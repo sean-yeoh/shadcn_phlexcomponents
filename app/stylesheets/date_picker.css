@@ -1,0 +1,212 @@
+[data-vc='calendar'] {
+  @apply relative flex flex-col outline-none p-3;
+}
+
+[data-vc='controls'] {
+  @apply absolute z-20 -left-1 -right-1 -top-1.5 flex justify-between items-center pt-5 px-4 pointer-events-none box-content;
+}
+
+[data-vc='grid'] {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+[data-vc='column'] {
+  @apply flex flex-col;
+}
+
+[data-vc='header'] {
+  @apply relative flex items-center mb-3;
+}
+
+[data-vc-header='content'] {
+  @apply grid grid-flow-col auto-cols-max items-center justify-center px-4 whitespace-pre-wrap grow;
+}
+
+[data-vc='month'],
+[data-vc='year'],
+[data-vc-months-month],
+[data-vc-years-year] {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-base;
+  @apply font-medium transition-colors focus-visible:outline-none focus-visible:ring-1;
+  @apply focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
+  @apply [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer;
+  @apply hover:bg-accent hover:text-accent-foreground px-2 h-10 md:h-8 md:px-3 pointer-events-auto;
+}
+
+[data-vc-months-month],
+[data-vc-years-year] {
+  @apply md:text-sm;
+}
+
+[data-vc='wrapper'] {
+  @apply flex grow;
+}
+
+[data-vc='content'] {
+  @apply flex flex-col grow;
+}
+
+[data-vc='months'] {
+  @apply grid gap-y-4 gap-x-2 grid-cols-3 md:grid-cols-4 items-center grow;
+}
+
+[data-vc='years'] {
+  @apply grid gap-y-4 gap-x-2 grid-cols-3 md:grid-cols-5 items-center grow;
+}
+
+[data-vc='week'] {
+  @apply grid grid-cols-[repeat(7,_1fr)] justify-items-center mb-2;
+}
+
+[data-vc-week-day] {
+  @apply text-muted-foreground font-normal text-xs flex items-center justify-center;
+}
+
+[data-vc='dates'] {
+  @apply grid gap-y-1 grid-cols-[repeat(7,_1fr)] justify-items-center items-center grow pointer-events-none;
+}
+
+[data-vc-date-btn] {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-base md:text-sm;
+  @apply font-medium transition-colors focus-visible:outline-none focus-visible:ring-1;
+  @apply focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
+  @apply [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer;
+  @apply hover:bg-accent hover:text-accent-foreground md:h-9 md:w-9 h-10 w-10 pointer-events-auto;
+}
+
+[data-vc-years-year-selected],
+[data-vc-months-month-selected] {
+  @apply bg-primary text-primary-foreground;
+}
+
+[data-vc-date-today] [data-vc-date-btn] {
+  @apply bg-accent text-accent-foreground font-bold;
+}
+
+[data-vc-date-btn][aria-selected='true'] {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+[data-vc-arrow] {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm;
+  @apply font-medium transition-colors focus-visible:outline-none focus-visible:ring-1;
+  @apply focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
+  @apply [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer;
+  @apply border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground;
+  @apply pointer-events-auto w-7 h-7;
+}
+
+[data-vc-arrow='next']:before {
+  @apply bg-accent-foreground h-7 w-7;
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>');
+  mask-repeat: no-repeat;
+  position: absolute;
+  content: '';
+  mask-size: auto 16px;
+  mask-position: center;
+}
+
+[data-vc-arrow='prev']:before {
+  @apply bg-accent-foreground h-7 w-7;
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>');
+  mask-repeat: no-repeat;
+  position: absolute;
+  content: '';
+  mask-size: auto 16px;
+  mask-position: center;
+}
+
+[data-vc-date-month='prev'] [data-vc-date-btn],
+[data-vc-date-month='next'] [data-vc-date-btn] {
+  @apply text-muted-foreground;
+}
+
+[data-vc-date-disabled] [data-vc-date-btn] {
+  @apply pointer-events-none opacity-50 text-muted-foreground;
+}
+
+[data-vc='grid'][data-vc-grid='hidden'] [data-vc='column'] {
+  @apply opacity-30 pointer-events-none;
+}
+
+[data-vc='grid'][data-vc-grid='hidden']
+  [data-vc='column'][data-vc-column='month'],
+[data-vc='grid'][data-vc-grid='hidden']
+  [data-vc='column'][data-vc-column='year'] {
+  @apply opacity-100 pointer-events-auto;
+}
+
+[data-vc-date][data-vc-date-hover] [data-vc-date-btn] {
+  @apply rounded-none;
+}
+
+[data-vc-date][data-vc-date-hover='first'] [data-vc-date-btn] {
+  @apply rounded-r-none rounded-l-md;
+}
+
+[data-vc-date][data-vc-date-hover='last'] [data-vc-date-btn] {
+  @apply rounded-l-none rounded-r-md;
+}
+
+[data-vc-date][data-vc-date-hover='first-and-last'] [data-vc-date-btn] {
+  @apply rounded-md;
+}
+
+[data-vc-date][data-vc-date-hover='first'][data-vc-date-selected]
+  [data-vc-date-btn] {
+  @apply rounded-l-md;
+}
+
+[data-vc-date][data-vc-date-hover='last'][data-vc-date-selected]
+  [data-vc-date-btn] {
+  @apply rounded-r-md;
+}
+
+[data-vc-date][data-vc-date-selected='first'] [data-vc-date-btn] {
+  @apply rounded-r-none rounded-l-md;
+}
+
+[data-vc-date][data-vc-date-selected='last'] [data-vc-date-btn] {
+  @apply rounded-l-none rounded-r-md;
+}
+
+[data-vc-date][data-vc-date-selected='first-and-last'] [data-vc-date-btn] {
+  @apply rounded-l-md rounded-r-md;
+}
+
+[data-vc-date][data-vc-date-selected='middle'] [data-vc-date-btn] {
+  @apply rounded-none;
+}
+
+/* [data-vc-date][data-vc-date-disabled]
+  + [data-vc-date-selected]
+  [data-vc-date-btn],
+[data-vc-date][data-vc-date-disabled]
+  + [data-vc-date-hover]
+  [data-vc-date-btn] {
+  @apply rounded-l-md;
+} */
+
+/* [data-vc-date][data-vc-date-hover]:has(+ [data-vc-date-disabled])
+  [data-vc-date-btn],
+[data-vc-date][data-vc-date-selected]:has(+ [data-vc-date-disabled])
+  [data-vc-date-btn] {
+  @apply rounded-r-md;
+} */
+
+[data-vc-date-hover] [data-vc-date-btn] {
+  @apply bg-accent text-accent-foreground;
+}
+
+[data-vc-date-selected] [data-vc-date-btn] {
+  @apply bg-primary text-primary-foreground;
+}
+
+[data-vc-date-selected='middle'][data-vc-date-selected] [data-vc-date-btn] {
+  @apply bg-primary/20 hover:bg-primary/20 text-accent-foreground;
+}
+
+[data-vc-date-hover='last'] [data-vc-date-btn],
+[data-vc-date-hover='first'] [data-vc-date-btn] {
+  @apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground;
+}
