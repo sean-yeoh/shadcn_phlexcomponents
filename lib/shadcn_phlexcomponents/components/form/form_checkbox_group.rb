@@ -46,7 +46,7 @@ module ShadcnPhlexcomponents
       @name = name
       @id = id
       @label = label
-      @error = error || (model ? model.errors.full_messages_for(method).first : nil)
+      @error = default_error(error, method)
       @hint = hint
       @disabled_items = disabled_items
       @aria_id = "form-field-#{SecureRandom.hex(5)}"

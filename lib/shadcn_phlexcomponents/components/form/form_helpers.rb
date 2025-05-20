@@ -104,5 +104,32 @@ module ShadcnPhlexcomponents
         @error ? "#{@aria_id}-message" : nil,
       ].compact.join(" ")
     end
+
+    def default_value(value, method)
+      return value unless value.nil?
+      return unless @model
+
+      if @model.respond_to?(method)
+        @model.public_send(method)
+      end
+    end
+
+    def default_checked(checked, method)
+      return checked if [true, false].include?(checked)
+      return unless @model
+
+      if @model.respond_to?(method)
+        !!@model.public_send(method)
+      end
+    end
+
+    def default_error(error, method)
+      return error unless error.nil?
+      return unless @model
+
+      if @model.respond_to?(:errors)
+        @model.errors.full_messages_for(method).first
+      end
+    end
   end
 end

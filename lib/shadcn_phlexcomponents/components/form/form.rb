@@ -110,7 +110,7 @@ module ShadcnPhlexcomponents
     # Follows rails f.submit
     # https://github.com/rails/rails/blob/3235827585d87661942c91bc81f64f56d710f0b2/actionview/lib/action_view/helpers/form_helper.rb#L2681-L2706
     def submit_default_value
-      object = @model&.to_model
+      object = @model.respond_to?(:to_model) ? @model.to_model : nil
       key    = if object
         object.persisted? ? :update : :create
       else

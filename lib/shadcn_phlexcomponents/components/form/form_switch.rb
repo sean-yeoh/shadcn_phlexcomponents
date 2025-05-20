@@ -14,19 +14,20 @@ module ShadcnPhlexcomponents
       label: nil,
       error: nil,
       hint: nil,
+      checked: nil,
       **attributes
     )
       @method = method
       @model = model
       @object_name = object_name
-      @value = value
-      @model_value = model&.public_send(method)
+      @value = value || "1"
       @name = name
       @id = id
       @label = label
-      @error = error || (model ? model.errors.full_messages_for(method).first : nil)
+      @error = default_error(error, method)
       @hint = hint
       @aria_id = "form-field-#{SecureRandom.hex(5)}"
+      @checked = default_checked(checked, method)
       super(**attributes)
     end
 
@@ -50,8 +51,8 @@ module ShadcnPhlexcomponents
           Switch(
             id: @id,
             name: @name,
-            value: @value || "1",
-            checked: !!@model_value,
+            value: @value,
+            checked: @checked,
             aria: aria_attributes,
             disabled: @disabled,
             **@attributes,

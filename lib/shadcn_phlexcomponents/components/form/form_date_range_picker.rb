@@ -24,16 +24,14 @@ module ShadcnPhlexcomponents
       @end_date_method = end_date_method
       @model = model
       @object_name = object_name
-      @start_date = start_date
-      @end_date = start_date
-      @start_date_model_value = model&.public_send(start_date_method)
-      @end_date_model_value = model&.public_send(end_date_method)
+      @start_date = default_value(start_date, start_date_method)
+      @end_date = default_value(end_date, end_date_method)
       @start_date_name = start_date_name
       @end_date_name = end_date_name
       @id = id
       @label = label
-      @start_date_error = start_date_error || (model ? model.errors.full_messages_for(start_date_method).first : nil)
-      @end_date_error = end_date_error || (model ? model.errors.full_messages_for(end_date_method).first : nil)
+      @start_date_error = default_error(start_date_error, start_date_method)
+      @end_date_error = default_error(end_date_error, end_date_method)
       @error = (@start_date_error || @end_date_error).present?
       @hint = hint
       @aria_id = "form-field-#{SecureRandom.hex(5)}"
@@ -58,10 +56,9 @@ module ShadcnPhlexcomponents
 
     def render_error
       if @start_date_error && @end_date_error
-        FormError(nil, aria_id: @aria_id) do
-          span { @start_date_error }
-          br
-          span { @end_date_error }
+        FormError(nil, aria_id: @aria_id, class: "space-y-0.5") do
+          span(class: "block") { @start_date_error }
+          span(class: "block") { @end_date_error }
         end
       elsif @start_date_error
         FormError(@start_date_error, aria_id: @aria_id)
@@ -83,8 +80,8 @@ module ShadcnPhlexcomponents
           id: @id,
           start_date_name: @start_date_name,
           end_date_name: @end_date_name,
-          start_date: @start_date || @start_date_model_value,
-          end_date: @end_date || @end_date_model_value,
+          start_date: @start_date,
+          end_date: @end_date,
           aria: aria_attributes,
           **@attributes,
         )

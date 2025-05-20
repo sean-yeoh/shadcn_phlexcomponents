@@ -52,7 +52,7 @@ module ShadcnPhlexcomponents
             checked: @value == value,
             id: id,
             disabled: item_disabled?(disabled_items, value),
-**@radio_attributes,
+            **@radio_attributes,
           )
           Label(for: id, **@label_attributes) { text }
         end

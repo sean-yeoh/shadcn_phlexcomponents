@@ -32,12 +32,11 @@ module ShadcnPhlexcomponents
 
       @value_method = value_method
       @text_method = text_method
-      @value = value
-      @model_value = model&.public_send(method)
+      @value = default_value(value, method)
       @name = name
       @id = id
       @label = label
-      @error = error || (model ? model.errors.full_messages_for(method).first : nil)
+      @error = default_error(error, method)
       @hint = hint
       @disabled_items = disabled_items
       @aria_id = "form-field-#{SecureRandom.hex(5)}"
@@ -53,7 +52,7 @@ module ShadcnPhlexcomponents
       div(class: "space-y-2", data: label_and_hint_container_attributes) do
         render_label(&)
 
-        Select(id: @id, name: @name, value: @value || @model_value, aria: aria_attributes, **@attributes) do |s|
+        Select(id: @id, name: @name, value: @value, aria: aria_attributes, **@attributes) do |s|
           s.items(@collection, value_method: @value_method, text_method: @text_method, disabled_items: @disabled_items)
         end
 
