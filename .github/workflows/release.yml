@@ -1,4 +1,3 @@
-# .github/workflows/push_gem.yml
 name: Release
 
 on:
@@ -31,6 +30,8 @@ jobs:
       - uses: rubygems/release-gem@v1
 
   gh_release:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
+    name: Release to Github With Changelog
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -47,3 +48,25 @@ jobs:
         with:
           body: ${{ steps.changelog.outputs.versions[0].body }}
           tag_name: v${{ steps.changelog.outputs.latestVersion	}}
+
+  post_release:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
+    name: Post Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Add Unreleased Changelog
+        run: |
+          BLOCK="## [Unreleased] - YYYY-MM-DD\n### Added\n### Changed\n### Deprecated\n### Removed\n### Fixed\n### Security"
+          FILE=CHANGELOG.md
+          if ! grep -q "## \[Unreleased\]" "$FILE"; then
+            echo -e "$BLOCK\n\n$(cat $FILE)" > $FILE
+          else
+            echo "Unreleased block already present. Skipping."
+          fi
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
