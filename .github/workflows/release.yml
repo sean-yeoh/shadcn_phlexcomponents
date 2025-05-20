@@ -47,7 +47,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          body: ${{ steps.changelog.outputs.parsed.versions[0].body }}
+          body: ${{ fromJSON(steps.changelog.outputs.parsed.versions[0].body) }}
           tag_name: v${{ steps.changelog.outputs.latestVersion	}}
 
   # post_release:
