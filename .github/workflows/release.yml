@@ -31,6 +31,7 @@ jobs:
 
   gh_release:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
+    needs: release
     name: Release to Github With Changelog
     runs-on: ubuntu-latest
     permissions:
@@ -51,6 +52,7 @@ jobs:
 
   post_release:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
+    needs: gh_release
     name: Post Release
     runs-on: ubuntu-latest
     permissions:
