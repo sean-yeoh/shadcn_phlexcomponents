@@ -8,30 +8,30 @@ on:
       - main
 
 jobs:
-  release:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
-    name: Push gem to RubyGems.org
-    runs-on: ubuntu-latest
+  # release:
+  #   if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
+  #   name: Push gem to RubyGems.org
+  #   runs-on: ubuntu-latest
 
-    permissions:
-      id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
-      contents: write # IMPORTANT: this permission is required for `rake release` to push the release tag
+  #   permissions:
+  #     id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
+  #     contents: write # IMPORTANT: this permission is required for `rake release` to push the release tag
 
-    steps:
-      # Set up
-      - uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-          ruby-version: ruby
+  #   steps:
+  #     # Set up
+  #     - uses: actions/checkout@v4
+  #     - name: Set up Ruby
+  #       uses: ruby/setup-ruby@v1
+  #       with:
+  #         bundler-cache: true
+  #         ruby-version: ruby
 
-      # Release
-      - uses: rubygems/release-gem@v1
+  #     # Release
+  #     - uses: rubygems/release-gem@v1
 
   gh_release:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
-    needs: release
+    # needs: release
     name: Release to Github With Changelog
     runs-on: ubuntu-latest
     permissions:
@@ -47,28 +47,28 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          body: ${{ steps.changelog.outputs.versions[0].body }}
+          body: ${{ steps.changelog.outputs.parsed.versions[0].body }}
           tag_name: v${{ steps.changelog.outputs.latestVersion	}}
 
-  post_release:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
-    needs: gh_release
-    name: Post Release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # post_release:
+  #   if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
+  #   needs: gh_release
+  #   name: Post Release
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Add Unreleased Changelog
-        run: |
-          BLOCK="## [Unreleased] - YYYY-MM-DD\n### Added\n### Changed\n### Deprecated\n### Removed\n### Fixed\n### Security"
-          FILE=CHANGELOG.md
-          if ! grep -q "## \[Unreleased\]" "$FILE"; then
-            echo -e "$BLOCK\n\n$(cat $FILE)" > $FILE
-          else
-            echo "Unreleased block already present. Skipping."
-          fi
+  #     - name: Add Unreleased Changelog
+  #       run: |
+  #         BLOCK="## [Unreleased] - YYYY-MM-DD\n### Added\n### Changed\n### Deprecated\n### Removed\n### Fixed\n### Security"
+  #         FILE=CHANGELOG.md
+  #         if ! grep -q "## \[Unreleased\]" "$FILE"; then
+  #           echo -e "$BLOCK\n\n$(cat $FILE)" > $FILE
+  #         else
+  #           echo "Unreleased block already present. Skipping."
+  #         fi
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
+  #     - uses: stefanzweifel/git-auto-commit-action@v5
