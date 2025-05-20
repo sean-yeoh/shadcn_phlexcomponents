@@ -24,7 +24,6 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          bundler-cache: true
           ruby-version: ruby
 
       # Release
@@ -45,5 +44,5 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          body: ${{ steps.changelog.outputs.latestBody }}
+          body: ${{ steps.changelog.outputs.versions[0].body }}
           tag_name: v${{ steps.changelog.outputs.latestVersion	}}
