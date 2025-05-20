@@ -2,13 +2,13 @@ import { FOCUS_DELAY, initFloatingUi, showOverlay, hideOverlay } from '../utils'
 import { Calendar } from 'vanilla-calendar-pro'
 import PopoverController from './popover_controller'
 import dayjs from 'dayjs'
-import 'imask'
+import Inputmask from 'inputmask'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
-const IMask = window.IMask
+const DELIMITER = ' - '
 
 export default class extends PopoverController {
   static targets = [
@@ -37,7 +37,6 @@ export default class extends PopoverController {
     const startDate = this.element.dataset.startDate
     const endDate = this.element.dataset.endDate
 
-    this.delimiter = ' - '
     this.onClickDateListener = this.onClickDate.bind(this)
 
     if (startDate && dayjs(startDate).isValid()) {
@@ -61,24 +60,24 @@ export default class extends PopoverController {
     this.calendar.init()
 
     if (this.hasInputTarget) {
-      IMask(this.inputTarget, {
-        mask: `${this.format.replace(/[^\/]/g, '0')}${
-          this.delimiter
-        }${this.format.replace(/[^\/]/g, '0')}`,
+      const pattern = this.format.replace(/[^\/]/g, '9')
+      const im = new Inputmask(`${pattern}${DELIMITER}${pattern}`, {
+        showMaskOnHover: false,
       })
+      im.mask(this.inputTarget)
     }
 
     this.calendarTarget.removeAttribute('tabindex')
   }
 
-  resetChanges() {
+  inputBlur() {
     const dates = this.calendar.context.selectedDates
     const startDate = dates[0]
     const endDate = dates[1]
     let datesDisplay = ''
 
     if (startDate) {
-      datesDisplay = `${dayjs(startDate).format(this.format)}${this.delimiter}`
+      datesDisplay = `${dayjs(startDate).format(this.format)}${DELIMITER}`
     }
 
     if (endDate) {
@@ -91,7 +90,7 @@ export default class extends PopoverController {
 
   changeDate(event) {
     const value = event.target.value
-    const dates = value.split(this.delimiter).filter((d) => d.length > 0)
+    const dates = value.split(DELIMITER).filter((d) => d.length > 0)
 
     if (dates.length > 0) {
       const startDate = dates[0]
@@ -212,7 +211,8 @@ export default class extends PopoverController {
         firstElement.focus()
       }
     } else if (
-      ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(key)
+      ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(key) &&
+      document.activeElement != this.inputTarget
     ) {
       event.preventDefault()
     }
@@ -275,17 +275,17 @@ export default class extends PopoverController {
       this.startDateHiddenInputTarget.value = dayjsDate.utc().format()
 
       if (endDate) {
-        datesDisplay = `${formattedDate}${this.delimiter}${dayjs(
-          endDate,
-        ).format(this.format)}`
+        datesDisplay = `${formattedDate}${DELIMITER}${dayjs(endDate).format(
+          this.format,
+        )}`
       } else {
-        datesDisplay = `${formattedDate}${this.delimiter}`
+        datesDisplay = `${formattedDate}${DELIMITER}`
       }
     } else {
       this.startDateHiddenInputTarget.value = ''
 
       if (endDate) {
-        datesDisplay = `${this.delimiter}${dayjs(endDate).format(this.format)}`
+        datesDisplay = `${DELIMITER}${dayjs(endDate).format(this.format)}`
       }
     }
 
@@ -314,19 +314,17 @@ export default class extends PopoverController {
       this.endDateHiddenInputTarget.value = dayjsDate.utc().format()
 
       if (startDate) {
-        datesDisplay = `${dayjs(startDate).format(this.format)}${
-          this.delimiter
-        }${formattedDate}`
+        datesDisplay = `${dayjs(startDate).format(
+          this.format,
+        )}${DELIMITER}${formattedDate}`
       } else {
-        datesDisplay = `${this.delimiter}${formattedDate}`
+        datesDisplay = `${DELIMITER}${formattedDate}`
       }
     } else {
       this.endDateHiddenInputTarget.value = ''
 
       if (startDate) {
-        datesDisplay = `${dayjs(startDate).format(this.format)}${
-          this.delimiter
-        }`
+        datesDisplay = `${dayjs(startDate).format(this.format)}${DELIMITER}`
       }
     }
 

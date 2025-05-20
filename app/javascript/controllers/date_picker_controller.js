@@ -7,15 +7,13 @@ import {
   unlockScroll,
 } from '../utils'
 import { Calendar } from 'vanilla-calendar-pro'
-import 'imask'
+import Inputmask from 'inputmask'
 import PopoverController from './popover_controller'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
-
-const IMask = window.IMask
 
 export default class extends PopoverController {
   static targets = [
@@ -59,22 +57,24 @@ export default class extends PopoverController {
     this.calendar.init()
 
     if (this.hasInputTarget) {
-      IMask(this.inputTarget, {
-        mask: this.format.replace(/[^\/]/g, '0'),
+      const im = new Inputmask(this.format.replace(/[^\/]/g, '9'), {
+        showMaskOnHover: false,
       })
+      im.mask(this.inputTarget)
     }
 
     this.calendarTarget.removeAttribute('tabindex')
   }
 
-  resetChanges() {
+  inputBlur() {
+    let dateDisplay = ''
     const date = this.calendar.context.selectedDates[0]
 
     if (date) {
-      const formattedDate = dayjs(date).format(this.format)
-      this.inputTarget.value = formattedDate
+      dateDisplay = dayjs(date).format(this.format)
     }
 
+    this.inputTarget.value = dateDisplay
     this.inputContainerTarget.dataset.focus = false
   }
 
@@ -174,7 +174,8 @@ export default class extends PopoverController {
         firstElement.focus()
       }
     } else if (
-      ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(key)
+      ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(key) &&
+      document.activeElement != this.inputTarget
     ) {
       event.preventDefault()
     }

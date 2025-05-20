@@ -100,7 +100,11 @@ module ShadcnPhlexcomponents
     def view_template(&)
       @form_class = @options[:class]
       @options[:class] = "#{@options[:class]} #{"group" if @loading}"
-      form_with(model: @model, scope: @scope, url: @url, format: @format, **@options, &)
+      # rubocop:disable Style/ExplicitBlockArgument
+      form_with(model: @model, scope: @scope, url: @url, format: @format, **@options) do
+        yield
+      end
+      # rubocop:enable Style/ExplicitBlockArgument
     end
 
     # Follows rails f.submit

@@ -66,7 +66,7 @@ module ShadcnPhlexcomponents
               data: {
                 "date-picker-target": "input",
                 action: "input->date-picker#changeDate
-                          blur->date-picker#resetChanges
+                          blur->date-picker#inputBlur
                           focus->date-picker#setContainerFocus",
               },
             )
