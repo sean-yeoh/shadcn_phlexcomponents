@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus'
+import { ANIMATION_OUT_DELAY } from '../utils'
 
 export default class extends Controller {
   static targets = ['trigger', 'content', 'item']
@@ -55,9 +56,7 @@ export default class extends Controller {
   toggleItem(event) {
     const trigger = event.currentTarget || event.target
 
-    const item = trigger.closest(
-      '[data-shadcn-phlexcomponents--accordion-target="item"]',
-    )
+    const item = trigger.closest('[data-accordion-target="item"]')
 
     if (item.dataset.state === 'open') {
       this.closeItem(item)
@@ -75,12 +74,8 @@ export default class extends Controller {
   }
 
   openItem(item) {
-    const button = item.querySelector(
-      '[data-shadcn-phlexcomponents--accordion-target="trigger"]',
-    )
-    const content = item.querySelector(
-      '[data-shadcn-phlexcomponents--accordion-target="content"]',
-    )
+    const button = item.querySelector('[data-accordion-target="trigger"]')
+    const content = item.querySelector('[data-accordion-target="content"]')
 
     item.dataset.state = 'open'
     button.ariaExpanded = true
@@ -90,12 +85,8 @@ export default class extends Controller {
   }
 
   closeItem(item) {
-    const button = item.querySelector(
-      '[data-shadcn-phlexcomponents--accordion-target="trigger"]',
-    )
-    const content = item.querySelector(
-      '[data-shadcn-phlexcomponents--accordion-target="content"]',
-    )
+    const button = item.querySelector('[data-accordion-target="trigger"]')
+    const content = item.querySelector('[data-accordion-target="content"]')
 
     item.dataset.state = 'closed'
     button.ariaExpanded = false
@@ -104,7 +95,7 @@ export default class extends Controller {
 
     setTimeout(() => {
       content.classList.add('hidden')
-    }, 150)
+    }, ANIMATION_OUT_DELAY)
   }
 
   focusNext(event) {

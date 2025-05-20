@@ -28,14 +28,13 @@ export default class extends Controller {
   connect() {
     const content = this.contentTarget.innerHTML
 
-    tippy(this.triggerTarget, {
+    this.tippy = tippy(this.triggerTarget, {
       content: content,
       allowHTML: true,
       interactive: true,
       arrow: false,
       placement: this.element.dataset.side,
       plugins: [hideOnEsc],
-      offset: [0, 4],
     })
   }
 }

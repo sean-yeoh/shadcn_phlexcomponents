@@ -1,231 +1,344 @@
-import { Controller } from '@hotwired/stimulus'
+import { FOCUS_DELAY, initFloatingUi, showOverlay, hideOverlay } from '../utils'
 import { Calendar } from 'vanilla-calendar-pro'
+import PopoverController from './popover_controller'
 import dayjs from 'dayjs'
+import Inputmask from 'inputmask'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
-// window.dayjs = dayjs
-export default class extends Controller {
+const DELIMITER = ' - '
+
+export default class extends PopoverController {
   static targets = [
-    'startDateInput',
-    'endDateInput',
+    'trigger',
+    'triggerText',
+    'contentWrapper',
+    'content',
+    'input',
     'startDateHiddenInput',
     'endDateHiddenInput',
-    'clearButton',
-    'calendarIcon',
+    'inputContainer',
+    'calendar',
   ]
 
+  static values = {
+    startDate: String,
+    endDate: String,
+  }
+
   connect() {
-    this.startDate = this.element.dataset.startDate
-    this.endDate = this.element.dataset.endDate
+    super.connect()
+
     this.format = this.element.dataset.format
-    this.type = this.element.dataset.type
     const settings = this.getSettings()
-    settings.type = 'multiple'
-    settings.selectionDatesMode = 'multiple-ranged'
-    settings.displayMonthsCount = 2
-    settings.monthsToSwitch = 1
-    settings.displayDatesOutside = false
+    settings.selectedDates = []
+    const startDate = this.element.dataset.startDate
+    const endDate = this.element.dataset.endDate
 
-    if (this.startDate && dayjs(this.startDate).isValid()) {
-      const dayjsDate = dayjs(this.startDate)
-      const formattedDate = dayjsDate.format(this.format)
-      this.startDateInputTarget.value = formattedDate
-      settings.selectedDates = [dayjsDate.format('YYYY-MM-DD')]
+    this.onClickDateListener = this.onClickDate.bind(this)
+
+    if (startDate && dayjs(startDate).isValid()) {
+      const date = dayjs(startDate).format('YYYY-MM-DD')
+      settings.selectedDates.push(date)
+      this.startDateValue = date
     }
 
-    if (this.endDate && dayjs(this.endDate).isValid()) {
-      const dayjsDate = dayjs(this.endDate)
-      const formattedDate = dayjsDate.format(this.format)
-      this.endDateInputTarget.value = formattedDate
-      settings.selectedDates = [
-        ...settings.selectedDates,
-        dayjsDate.format('YYYY-MM-DD'),
-      ]
+    if (endDate && dayjs(endDate).isValid()) {
+      const date = dayjs(endDate).format('YYYY-MM-DD')
+      settings.selectedDates.push(date)
+      this.endDateValue = date
     }
 
-    const calendar = new Calendar(this.element, {
-      inputMode: true,
+    this.calendar = new Calendar(this.calendarTarget, {
       enableJumpToSelectedDate: true,
       ...settings,
-      onShow(self) {
-        const controllerElement = self.context.inputElement
-
-        const startDateInput = controllerElement.querySelector(
-          '[data-shadcn-phlexcomponents--date-range-picker-target="startDateInput"]',
-        )
-
-        const endDateInput = controllerElement.querySelector(
-          '[data-shadcn-phlexcomponents--date-range-picker-target="endDateInput"]',
-        )
-
-        controllerElement.dataset.focus = 'true'
-        if (document.activeElement !== endDateInput) {
-          startDateInput.focus()
-        }
-      },
-      onHide(self) {
-        const controllerElement = self.context.inputElement
-        controllerElement.dataset.focus = 'false'
-      },
-      onClickDate(self, event) {
-        const dates = self.context.selectedDates.filter((date) => !!date)
-        const controllerElement = self.context.inputElement
-
-        const startDateInput = controllerElement.querySelector(
-          '[data-shadcn-phlexcomponents--date-range-picker-target="startDateInput"]',
-        )
-
-        const endDateInput = controllerElement.querySelector(
-          '[data-shadcn-phlexcomponents--date-range-picker-target="endDateInput"]',
-        )
-
-        const startDateHiddenInput = controllerElement.querySelector(
-          '[data-shadcn-phlexcomponents--date-range-picker-target="startDateHiddenInput"]',
-        )
-
-        const endDateHiddenInput = controllerElement.querySelector(
-          '[data-shadcn-phlexcomponents--date-range-picker-target="endDateHiddenInput"]',
-        )
-
-        if (dates.length > 0) {
-          const startDate = dates[0]
-          const endDate = dates[1]
-
-          const formattedStartDate = dayjs(startDate).format(
-            controllerElement.dataset.format,
-          )
-          startDateInput.value = formattedStartDate
-          controllerElement.dataset.hasValue = 'true'
-          const utcStartDate = dayjs(startDate).utc().format()
-          startDateHiddenInput.value = utcStartDate
-
-          if (endDate) {
-            const formattedEndDate = dayjs(endDate).format(
-              controllerElement.dataset.format,
-            )
-            endDateInput.value = formattedEndDate
-            const utcEndDate = dayjs(endDate).utc().format()
-            endDateHiddenInput.value = utcEndDate
-          } else {
-            endDateInput.value = ''
-            endDateHiddenInput.value = ''
-          }
-        } else {
-          self.context.inputElement.value = ''
-          endDateInput.value = ''
-          controllerElement.dataset.hasValue = 'false'
-          startDateHiddenInput.value = ''
-          endDateHiddenInput.value = ''
-        }
-      },
+      onClickDate: this.onClickDateListener,
     })
-    calendar.init()
 
-    this.calendar = calendar
-  }
+    this.calendar.init()
 
-  openCalendar(event) {
-    this.calendar.show()
-  }
-
-  closeCalendar(event) {
-    const key = event.key
-
-    switch (key) {
-      case 'Tab':
-        if (
-          event.target.dataset[
-            'shadcnPhlexcomponents-DateRangePickerTarget'
-          ] === 'startDateInput'
-        ) {
-          if (event.shiftKey) {
-            this.calendar.hide()
-          }
-        } else {
-          if (!event.shiftKey) {
-            this.calendar.hide()
-          }
-        }
-
-        break
-      case 'Escape':
-        this.calendar.hide()
-        break
-      default:
-        break
+    if (this.hasInputTarget) {
+      const pattern = this.format.replace(/[^\/]/g, '9')
+      const im = new Inputmask(`${pattern}${DELIMITER}${pattern}`, {
+        showMaskOnHover: false,
+      })
+      im.mask(this.inputTarget)
     }
+
+    this.calendarTarget.removeAttribute('tabindex')
+  }
+
+  inputBlur() {
+    const dates = this.calendar.context.selectedDates
+    const startDate = dates[0]
+    const endDate = dates[1]
+    let datesDisplay = ''
+
+    if (startDate) {
+      datesDisplay = `${dayjs(startDate).format(this.format)}${DELIMITER}`
+    }
+
+    if (endDate) {
+      datesDisplay = `${datesDisplay}${dayjs(endDate).format(this.format)}`
+    }
+
+    this.inputTarget.value = datesDisplay
+    this.inputContainerTarget.dataset.focus = false
   }
 
   changeDate(event) {
     const value = event.target.value
-    const dates = this.calendar.selectedDates.filter((date) => !!date)
+    const dates = value.split(DELIMITER).filter((d) => d.length > 0)
 
-    if (
-      event.target.dataset['shadcnPhlexcomponents-DateRangePickerTarget'] ===
-      'startDateInput'
-    ) {
-      if (dayjs(value, this.format, true).isValid()) {
-        const dayjsDate = dayjs(value, this.format)
-        dates[0] = dayjsDate.format('YYYY-MM-DD')
+    if (dates.length > 0) {
+      const startDate = dates[0]
+      const endDate = dates[1]
+      let selectedDates = this.calendar.context.selectedDates
 
-        this.calendar.set({
-          selectedDates: dates,
-        })
-        this.element.dataset.hasValue = 'true'
+      if (dayjs(startDate, this.format, true).isValid()) {
+        const dayjsDate = dayjs(value, this.format).format('YYYY-MM-DD')
+        selectedDates[0] = dayjsDate
+      }
+
+      if (dayjs(endDate, this.format, true).isValid()) {
+        const dayjsDate = dayjs(endDate, this.format).format('YYYY-MM-DD')
+        selectedDates[1] = dayjsDate
+      }
+
+      selectedDates = selectedDates.filter((d) => !!d)
+
+      this.calendar.set({
+        selectedDates: selectedDates,
+      })
+      if (selectedDates[0]) {
+        this.startDateValue = selectedDates[0]
+      }
+      if (selectedDates[1]) {
+        this.endDateValue = selectedDates[1]
       }
     } else {
-      if (dayjs(value, this.format, true).isValid()) {
-        const dayjsDate = dayjs(value, this.format)
-        dates[1] = dayjsDate.format('YYYY-MM-DD')
-
-        this.calendar.set({
-          selectedDates: dates,
-        })
-        this.element.dataset.hasValue = 'true'
-      }
+      this.calendar.set({
+        selectedDates: [],
+      })
+      this.startDateValue = ''
+      this.endDateValue = ''
     }
   }
 
-  openCalendar() {
+  onOpen() {
     setTimeout(() => {
-      this.calendar.show()
-    }, 125)
-  }
+      this.focusCalendar()
+    }, FOCUS_DELAY * 1.5)
 
-  clear() {
-    this.startDateInputTarget.value = ''
+    this.cleanup = initFloatingUi(
+      this.hasInputTarget ? this.inputTarget : this.triggerTarget,
+      this.contentWrapperTarget,
+      'bottom-start',
+    )
 
-    if (this.hasEndDateInputTarget) {
-      this.endDateInputTarget.value = ''
+    if (!this.contentTarget.dataset.width) {
+      const contentWidth = this.contentTarget.offsetWidth
+      this.contentTarget.dataset.width = contentWidth
+
+      this.contentTarget.style.maxWidth = `${contentWidth}px`
+      this.contentTarget.style.minWidth = `${contentWidth}px`
     }
 
-    this.calendar.set({
-      selectedDates: [],
-    })
-
-    this.element.dataset.hasValue = 'false'
+    showOverlay('md:hidden')
   }
 
-  showClearButton() {
-    if (this.element.dataset.hasValue === 'true') {
-      this.clearButtonTarget.classList.remove('!hidden')
-      this.calendarIconTarget.classList.add('hidden')
+  focusCalendar() {
+    const focusableElements = this.contentTarget.querySelectorAll(
+      'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+
+    const selectedElement = Array.from(focusableElements).find(
+      (e) => e.ariaSelected,
+    )
+
+    const currentElement = this.contentTarget.querySelector('[aria-current]')
+
+    if (selectedElement) {
+      selectedElement.focus()
+    } else if (currentElement) {
+      currentElement.firstElementChild.focus()
     }
-  }
-
-  hideClearButton() {
-    this.clearButtonTarget.classList.add('!hidden')
-    this.calendarIconTarget.classList.remove('hidden')
   }
 
   getSettings() {
+    const defaultSettings = {
+      type: 'multiple',
+      selectionDatesMode: 'multiple-ranged',
+      displayMonthsCount: 2,
+      monthsToSwitch: 1,
+      displayDatesOutside: false,
+    }
     try {
-      return JSON.parse(this.element.dataset.settings)
+      return {
+        ...defaultSettings,
+        ...JSON.parse(this.element.dataset.settings),
+      }
     } catch {
-      return {}
+      return defaultSettings
+    }
+  }
+
+  onDOMKeydown(event) {
+    if (!this.isOpen()) return
+
+    const key = event.key
+
+    const focusableElements = this.contentTarget.querySelectorAll(
+      'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+
+    if (key === 'Escape') {
+      this.close()
+    } else if (key === 'Tab') {
+      // If Shift + Tab pressed on first element, go to last element
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault()
+        lastElement.focus()
+      }
+      // If Tab pressed on last element, go to first element
+      else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault()
+        firstElement.focus()
+      }
+    } else if (
+      ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(key) &&
+      document.activeElement != this.inputTarget
+    ) {
+      event.preventDefault()
+    }
+  }
+
+  onDOMClick(event) {
+    if (!this.isOpen()) return
+    if (this.element.contains(event.target)) return
+
+    // Fix bug with clicking/pressing on Month/Year button will cause popover to close
+    if (
+      event.target.dataset.vcMonth ||
+      event.target.dataset.vcYear ||
+      event.target.dataset.vcYearsYear ||
+      event.target.dataset.vcMonthsMonth ||
+      event.target.dataset.vcArrow ||
+      event.target.dataset.vcGrid
+    )
+      return
+
+    this.close()
+  }
+
+  setContainerFocus() {
+    this.inputContainerTarget.dataset.focus = true
+  }
+
+  onClose() {
+    hideOverlay()
+  }
+
+  onClickDate(self, event) {
+    const dates = self.context.selectedDates
+
+    if (dates.length > 0) {
+      const startDate = dates[0]
+      const endDate = dates[1]
+
+      this.startDateValue = startDate
+
+      if (endDate) {
+        this.endDateValue = endDate
+        this.close()
+      } else {
+        this.endDateValue = ''
+      }
+    } else {
+      this.startDateValue = ''
+      this.endDateValue = ''
+    }
+  }
+
+  startDateValueChanged(value) {
+    const endDate = this.endDateValue
+    let datesDisplay = ''
+
+    if (value && value.length > 0) {
+      const dayjsDate = dayjs(value)
+      const formattedDate = dayjsDate.format(this.format)
+      this.startDateHiddenInputTarget.value = dayjsDate.utc().format()
+
+      if (endDate) {
+        datesDisplay = `${formattedDate}${DELIMITER}${dayjs(endDate).format(
+          this.format,
+        )}`
+      } else {
+        datesDisplay = `${formattedDate}${DELIMITER}`
+      }
+    } else {
+      this.startDateHiddenInputTarget.value = ''
+
+      if (endDate) {
+        datesDisplay = `${DELIMITER}${dayjs(endDate).format(this.format)}`
+      }
+    }
+
+    if (this.hasInputTarget) this.inputTarget.value = datesDisplay
+    if (this.hasTriggerTextTarget) {
+      const hasValue = (!!value && value.length > 0) || !!endDate
+
+      this.triggerTarget.dataset.hasValue = hasValue
+
+      if (this.triggerTarget.dataset.placeholder && !hasValue) {
+        this.triggerTextTarget.textContent =
+          this.triggerTarget.dataset.placeholder
+      } else {
+        this.triggerTextTarget.textContent = datesDisplay
+      }
+    }
+  }
+
+  endDateValueChanged(value) {
+    const startDate = this.startDateValue
+    let datesDisplay = ''
+
+    if (value && value.length > 0) {
+      const dayjsDate = dayjs(value)
+      const formattedDate = dayjsDate.format(this.format)
+      this.endDateHiddenInputTarget.value = dayjsDate.utc().format()
+
+      if (startDate) {
+        datesDisplay = `${dayjs(startDate).format(
+          this.format,
+        )}${DELIMITER}${formattedDate}`
+      } else {
+        datesDisplay = `${DELIMITER}${formattedDate}`
+      }
+    } else {
+      this.endDateHiddenInputTarget.value = ''
+
+      if (startDate) {
+        datesDisplay = `${dayjs(startDate).format(this.format)}${DELIMITER}`
+      }
+    }
+
+    if (this.hasInputTarget) this.inputTarget.value = datesDisplay
+    if (this.hasTriggerTextTarget) {
+      const hasValue = (!!value && value.length > 0) || !!startDate
+      this.triggerTarget.dataset.hasValue = hasValue
+
+      if (this.triggerTarget.dataset.placeholder && !hasValue) {
+        this.triggerTextTarget.textContent =
+          this.triggerTarget.dataset.placeholder
+      } else {
+        this.triggerTextTarget.textContent = datesDisplay
+      }
     }
   }
 }

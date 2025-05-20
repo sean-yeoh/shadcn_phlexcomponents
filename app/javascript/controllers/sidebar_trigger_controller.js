@@ -8,7 +8,7 @@ export default class extends Controller {
   toggle() {
     const sidebar = this.application.getControllerForElementAndIdentifier(
       document.querySelector(`#${this.sidebarId}`),
-      'shadcn-phlexcomponents--sidebar',
+      'sidebar',
     )
     sidebar.toggle()
   }

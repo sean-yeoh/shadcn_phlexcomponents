@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus'
-
+import { ANIMATION_OUT_DELAY } from '../utils'
 export default class extends Controller {
   connect() {
     this.focusableElements = this.element.querySelectorAll('button')
@@ -26,7 +26,7 @@ export default class extends Controller {
 
     setTimeout(() => {
       this.element.remove()
-    }, 100)
+    }, ANIMATION_OUT_DELAY)
   }
 
   dismiss(event) {

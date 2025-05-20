@@ -1,17 +1,17 @@
 import { Controller } from '@hotwired/stimulus'
 import {
-  computePosition,
-  flip,
-  shift,
-  offset,
-  autoUpdate,
-} from '@floating-ui/dom'
+  ANIMATION_OUT_DELAY,
+  FOCUS_DELAY,
+  lockScroll,
+  unlockScroll,
+  initFloatingUi,
+  focusTrigger,
+} from '../utils'
 
 export default class extends Controller {
   static targets = ['trigger', 'contentWrapper', 'content', 'item']
 
   connect() {
-    this.contentTarget.dataset.state = this.isOpen() ? 'open' : 'closed'
     this.DOMClickListener = this.onDOMClick.bind(this)
     this.DOMKeydownListener = this.onDOMKeydown.bind(this)
     this.items = this.itemTargets.filter(
@@ -32,7 +32,7 @@ export default class extends Controller {
       if (['ArrowDown', 'Enter', ' '].includes(key)) {
         setTimeout(() => {
           this.focusItem(null, 0)
-        }, 100)
+        }, FOCUS_DELAY)
       }
     }
   }
@@ -42,6 +42,7 @@ export default class extends Controller {
   }
 
   open() {
+    lockScroll()
     this.contentWrapperTarget.classList.remove('hidden')
     this.triggerTarget.ariaExpanded = true
     this.triggerTarget.dataset.state = 'open'
@@ -49,53 +50,30 @@ export default class extends Controller {
 
     setTimeout(() => {
       this.focusContent()
-    }, 100)
+    }, FOCUS_DELAY * 1.25)
 
     this.setupEventListeners()
 
-    if (window.innerHeight < document.documentElement.scrollHeight) {
-      document.body.dataset.scrollLocked = 1
-    }
-
-    this.cleanup = autoUpdate(
+    this.cleanup = initFloatingUi(
       this.triggerTarget,
       this.contentWrapperTarget,
-      () => {
-        computePosition(this.triggerTarget, this.contentWrapperTarget, {
-          placement: this.element.dataset.side,
-          strategy: 'fixed',
-          middleware: [flip(), shift(), offset(4)],
-        }).then(({ x, y }) => {
-          Object.assign(this.contentWrapperTarget.style, {
-            left: `${x}px`,
-            top: `${y}px`,
-          })
-        })
-      },
+      this.element.dataset.side,
     )
   }
 
   close() {
+    unlockScroll()
     this.triggerTarget.ariaExpanded = false
     this.triggerTarget.dataset.state = 'closed'
     this.contentTarget.dataset.state = 'closed'
     this.cleanup()
     this.cleanupEventListeners()
-    delete document.body.dataset.scrollLocked
 
     setTimeout(() => {
       this.contentWrapperTarget.classList.add('hidden')
-    }, 100)
+    }, ANIMATION_OUT_DELAY)
 
-    this.focusTrigger()
-  }
-
-  focusTrigger() {
-    if (this.triggerTarget.dataset.asChild === 'false') {
-      this.triggerTarget.firstElementChild.focus()
-    } else {
-      this.triggerTarget.focus()
-    }
+    focusTrigger(this.triggerTarget)
   }
 
   focusItem(event = null, index = null) {
