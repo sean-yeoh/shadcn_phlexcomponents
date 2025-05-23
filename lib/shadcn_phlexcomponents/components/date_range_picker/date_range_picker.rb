@@ -83,7 +83,7 @@ module ShadcnPhlexcomponents
               disabled: @disabled,
               data: {
                 "date-range-picker-target": "input",
-                action: "input->date-range-picker#changeDate
+                action: "input->date-range-picker#inputDate
                           blur->date-range-picker#inputBlur
                           focus->date-range-picker#setContainerFocus",
               },

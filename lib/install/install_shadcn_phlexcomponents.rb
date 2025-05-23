@@ -7,6 +7,11 @@ stimulus_controllers_install_path = Rails.root.join("vendor/shadcn_phlexcomponen
 css_path = File.expand_path("../../app/stylesheets", __dir__)
 css_install_path = Rails.root.join("vendor/shadcn_phlexcomponents/stylesheets")
 
-directory(components_path, components_install_path)
-directory(stimulus_controllers_path, stimulus_controllers_install_path)
-directory(css_path, css_install_path)
+say "Running the install command will generate a lot of files (>100).", :blue
+say "Please make sure to commit or stash your existing changes in your working directory.", :blue
+
+if yes?("Do you want to continue? (y/n)")
+  directory(components_path, components_install_path)
+  directory(stimulus_controllers_path, stimulus_controllers_install_path)
+  directory(css_path, css_install_path)
+end
