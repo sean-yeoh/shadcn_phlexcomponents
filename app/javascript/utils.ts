@@ -4,6 +4,7 @@ import {
   shift,
   offset,
   autoUpdate,
+  Placement,
 } from '@floating-ui/dom'
 
 const ANIMATION_OUT_DELAY = 125
@@ -14,7 +15,6 @@ const getScrollbarWidth = () => {
   const outer = document.createElement('div')
   outer.style.visibility = 'hidden'
   outer.style.overflow = 'scroll' // force scrollbars
-  outer.style.msOverflowStyle = 'scrollbar' // needed for some older versions of Edge
   outer.style.width = '100px'
   outer.style.position = 'absolute'
   outer.style.top = '-9999px'
@@ -53,8 +53,8 @@ const showOverlay = (classNames = '') => {
 
   element.classList.add(...defaultClassNames)
   element.dataset.state = 'open'
-  element.dataset.shadcnPhlexcomponentsOverlay = true
-  element.ariaHidden = true
+  element.dataset.shadcnPhlexcomponentsOverlay = 'true'
+  element.ariaHidden = 'true'
   document.body.appendChild(element)
 }
 
@@ -63,7 +63,7 @@ const hideOverlay = () => {
     '[data-shadcn-phlexcomponents-overlay]',
   )
 
-  if (element) {
+  if (element && element instanceof HTMLElement) {
     element.dataset.state = 'closed'
 
     setTimeout(() => {
@@ -74,7 +74,7 @@ const hideOverlay = () => {
 
 const lockScroll = () => {
   if (window.innerHeight < document.documentElement.scrollHeight) {
-    document.body.dataset.scrollLocked = 1
+    document.body.dataset.scrollLocked = '1'
     const style = getComputedStyle(document.body)
     const originalMarginRight = style.marginRight
     document.body.dataset.marginRight = originalMarginRight
@@ -87,19 +87,19 @@ const unlockScroll = () => {
     delete document.body.dataset.scrollLocked
     const originalMarginRight = document.body.dataset.marginRight
 
-    if (parseInt(originalMarginRight) === 0) {
+    if (originalMarginRight && parseInt(originalMarginRight) === 0) {
       document.body.style.marginRight = ''
     } else {
-      document.body.style.marginRight = originalMarginRight
+      document.body.style.marginRight = `${originalMarginRight}`
     }
 
     delete document.body.dataset.marginRight
   }
 }
 
-const addInert = (ignoredElements = []) => {
+const addInert = (ignoredElements: HTMLElement[] = []) => {
   Array.from(document.body.children)
-    .filter((el) => !ignoredElements.includes(el))
+    .filter((el) => el instanceof HTMLElement && !ignoredElements.includes(el))
     .forEach((el) => el.setAttribute('inert', ''))
 }
 
@@ -109,7 +109,7 @@ const removeInert = () => {
     .forEach((el) => el.removeAttribute('inert'))
 }
 
-const openWithOverlay = (ignoredElements = []) => {
+const openWithOverlay = (ignoredElements: HTMLElement[] = []) => {
   showOverlay()
   lockScroll()
   addInert(ignoredElements)
@@ -124,9 +124,9 @@ const closeWithOverlay = () => {
 const hideOnEsc = {
   name: 'hideOnEsc',
   defaultValue: true,
-  fn({ hide }) {
-    function onKeyDown(event) {
-      if (event.keyCode === 27) {
+  fn({ hide }: { hide: () => void }) {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
         hide()
       }
     }
@@ -142,10 +142,14 @@ const hideOnEsc = {
   },
 }
 
-const initFloatingUi = (referenceElement, floatingElement, side) => {
+const initFloatingUi = (
+  referenceElement: HTMLElement,
+  floatingElement: HTMLElement,
+  side: string | undefined,
+) => {
   return autoUpdate(referenceElement, floatingElement, () => {
     computePosition(referenceElement, floatingElement, {
-      placement: side,
+      placement: (side || 'bottom') as Placement,
       strategy: 'fixed',
       middleware: [flip(), shift(), offset(4)],
     }).then(({ x, y }) => {
@@ -157,10 +161,14 @@ const initFloatingUi = (referenceElement, floatingElement, side) => {
   })
 }
 
-const focusTrigger = (triggerTarget) => {
+const focusTrigger = (triggerTarget: HTMLElement) => {
   setTimeout(() => {
     if (triggerTarget.dataset.asChild === 'false') {
-      triggerTarget.firstElementChild.focus()
+      const childElement = triggerTarget.firstElementChild as HTMLElement
+
+      if (childElement) {
+        childElement.focus()
+      }
     } else {
       triggerTarget.focus()
     }

@@ -8,8 +8,17 @@ import {
   focusTrigger,
 } from '../utils'
 
-export default class extends Controller {
+export default class extends Controller<HTMLElement> {
   static targets = ['trigger', 'contentWrapper', 'content', 'item']
+
+  declare readonly triggerTarget: HTMLElement
+  declare readonly contentWrapperTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+  declare readonly itemTargets: HTMLElement[]
+  declare DOMClickListener: (event: MouseEvent) => void
+  declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare items: HTMLElement[]
+  declare cleanup: () => void
 
   connect() {
     this.DOMClickListener = this.onDOMClick.bind(this)
@@ -19,21 +28,11 @@ export default class extends Controller {
     )
   }
 
-  toggle(event) {
-    const key = event.key
-
+  toggle() {
     if (this.isOpen()) {
       this.close()
     } else {
       this.open()
-    }
-
-    if (event.currentTarget === this.triggerTarget) {
-      if (['ArrowDown', 'Enter', ' '].includes(key)) {
-        setTimeout(() => {
-          this.focusItem(null, 0)
-        }, FOCUS_DELAY)
-      }
     }
   }
 
@@ -41,15 +40,29 @@ export default class extends Controller {
     return this.triggerTarget.ariaExpanded === 'true'
   }
 
-  open() {
+  open(event: KeyboardEvent | null = null) {
     lockScroll()
     this.contentWrapperTarget.classList.remove('hidden')
-    this.triggerTarget.ariaExpanded = true
+    this.triggerTarget.ariaExpanded = 'true'
     this.triggerTarget.dataset.state = 'open'
     this.contentTarget.dataset.state = 'open'
 
     setTimeout(() => {
-      this.focusContent()
+      let focusItem = false
+
+      if (event instanceof KeyboardEvent) {
+        const key = event.key
+
+        if (['ArrowDown', 'Enter', ' '].includes(key)) {
+          focusItem = true
+        }
+      }
+
+      if (focusItem) {
+        this.focusItem(null, 0)
+      } else {
+        this.focusContent()
+      }
     }, FOCUS_DELAY * 1.25)
 
     this.setupEventListeners()
@@ -63,7 +76,7 @@ export default class extends Controller {
 
   close() {
     unlockScroll()
-    this.triggerTarget.ariaExpanded = false
+    this.triggerTarget.ariaExpanded = 'false'
     this.triggerTarget.dataset.state = 'closed'
     this.contentTarget.dataset.state = 'closed'
     this.cleanup()
@@ -76,11 +89,11 @@ export default class extends Controller {
     focusTrigger(this.triggerTarget)
   }
 
-  focusItem(event = null, index = null) {
+  focusItem(event: MouseEvent | null = null, index: number | null = null) {
     let itemIndex = index
 
     if (event) {
-      const item = event.currentTarget || event.target
+      const item = (event.currentTarget || event.target) as HTMLElement
       itemIndex = this.items.indexOf(item)
     }
 
@@ -102,16 +115,16 @@ export default class extends Controller {
     this.focusItem(null, this.items.length - 1)
   }
 
-  focusNextItem(event) {
-    const item = event.currentTarget || event.target
+  focusNextItem(event: KeyboardEvent) {
+    const item = (event.currentTarget || event.target) as HTMLElement
     const index = this.items.indexOf(item)
     if (index === this.items.length - 1) return
 
     this.focusItem(null, index + 1)
   }
 
-  focusPrevItem(event) {
-    const item = event.currentTarget
+  focusPrevItem(event: KeyboardEvent) {
+    const item = (event.currentTarget || event.target) as HTMLElement
     const index = this.items.indexOf(item)
     if (index === 0) return
 
@@ -126,28 +139,30 @@ export default class extends Controller {
     this.contentTarget.focus()
   }
 
-  selectItem(event) {
+  selectItem(event: MouseEvent | KeyboardEvent) {
     if (!this.isOpen()) return
 
-    const key = event.key
-    const item = event.currentTarget || event.target
+    if (event instanceof KeyboardEvent) {
+      const key = event.key
+      const item = (event.currentTarget || event.target) as HTMLElement
 
-    if (key === 'Enter' || key === ' ') {
-      item.click()
+      if (item && (key === 'Enter' || key === ' ')) {
+        item.click()
+      }
     }
 
     this.close()
   }
 
   // Global listeners
-  onDOMClick(event) {
+  onDOMClick(event: MouseEvent) {
     if (!this.isOpen()) return
-    if (this.element.contains(event.target)) return
+    if (this.element.contains(event.target as HTMLElement)) return
 
     this.close()
   }
 
-  onDOMKeydown(event) {
+  onDOMKeydown(event: KeyboardEvent) {
     if (!this.isOpen()) return
 
     const key = event.key

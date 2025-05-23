@@ -6,15 +6,27 @@ import {
   focusTrigger,
 } from '../utils'
 
-export default class extends Controller {
+export default class extends Controller<HTMLElement> {
   static targets = ['trigger', 'contentWrapper', 'content']
+
+  declare readonly triggerTarget: HTMLElement
+  declare readonly contentWrapperTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+  declare DOMClickListener: (event: MouseEvent) => void
+  declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare focusableElements: HTMLElement[]
+  declare firstElement: HTMLElement
+  declare lastElement: HTMLElement
+  declare cleanup: () => void
 
   connect() {
     this.DOMClickListener = this.onDOMClick.bind(this)
     this.DOMKeydownListener = this.onDOMKeydown.bind(this)
 
-    this.focusableElements = this.contentTarget.querySelectorAll(
-      'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+    this.focusableElements = Array.from(
+      this.contentTarget.querySelectorAll(
+        'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+      ),
     )
 
     this.firstElement = this.focusableElements[0]
@@ -29,13 +41,13 @@ export default class extends Controller {
     }
   }
 
-  onDOMClick(event) {
+  onDOMClick(event: MouseEvent) {
     if (!this.isOpen()) return
-    if (this.element.contains(event.target)) return
+    if (this.element.contains(event.target as HTMLElement)) return
     this.close()
   }
 
-  onDOMKeydown(event) {
+  onDOMKeydown(event: KeyboardEvent) {
     if (!this.isOpen()) return
 
     const key = event.key
@@ -62,7 +74,7 @@ export default class extends Controller {
 
   open() {
     this.contentWrapperTarget.classList.remove('hidden')
-    this.triggerTarget.ariaExpanded = true
+    this.triggerTarget.ariaExpanded = 'true'
     this.contentTarget.dataset.state = 'open'
     this.setupEventListeners()
 
@@ -85,7 +97,7 @@ export default class extends Controller {
 
   close() {
     this.contentTarget.dataset.state = 'closed'
-    this.triggerTarget.ariaExpanded = false
+    this.triggerTarget.ariaExpanded = 'false'
     this.cleanup()
     this.cleanupEventListeners()
 

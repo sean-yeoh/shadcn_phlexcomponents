@@ -1,8 +1,13 @@
 import { Controller } from '@hotwired/stimulus'
 import { ANIMATION_OUT_DELAY } from '../utils'
-export default class extends Controller {
+
+export default class extends Controller<HTMLElement> {
+  declare focusableElements: HTMLButtonElement[]
+  declare duration: number
+  declare timer: number
+
   connect() {
-    this.focusableElements = this.element.querySelectorAll('button')
+    this.focusableElements = Array.from(this.element.querySelectorAll('button'))
     this.duration = Number(this.element.dataset.duration)
 
     this.focusableElements.forEach((el) => {
@@ -10,11 +15,11 @@ export default class extends Controller {
         this.cancelDismiss()
       })
       el.addEventListener('blur', () => {
-        this.dismiss()
+        this.dismiss(null)
       })
     })
 
-    this.dismiss()
+    this.dismiss(null)
   }
 
   cancelDismiss() {
@@ -29,7 +34,7 @@ export default class extends Controller {
     }, ANIMATION_OUT_DELAY)
   }
 
-  dismiss(event) {
+  dismiss(event: MouseEvent | null) {
     if (event && event.type === 'mouseout') {
       if (this.element.contains(document.activeElement)) {
         return
@@ -37,7 +42,7 @@ export default class extends Controller {
     }
 
     if (this.duration > 0) {
-      this.timer = setTimeout(() => {
+      this.timer = window.setTimeout(() => {
         this.close()
       }, this.duration)
     }

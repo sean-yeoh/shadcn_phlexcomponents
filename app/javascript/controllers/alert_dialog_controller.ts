@@ -1,11 +1,11 @@
 import DialogController from './dialog_controller'
 
 export default class extends DialogController {
-  onDOMClick(event) {
+  onDOMClick(event: MouseEvent) {
     if (!this.isOpen()) return
 
-    const target = event.target
-    const trigger = event.target.closest('[data-alert-dialog-target="trigger"]')
+    const target = event.target as HTMLElement
+    const trigger = target.closest('[data-alert-dialog-target="trigger"]')
 
     if (trigger) return
 

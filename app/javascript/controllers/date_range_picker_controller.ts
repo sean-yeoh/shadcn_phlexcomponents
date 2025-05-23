@@ -28,10 +28,27 @@ export default class extends PopoverController {
     endDate: String,
   }
 
+  declare readonly triggerTarget: HTMLElement
+  declare readonly triggerTextTarget: HTMLElement
+  declare readonly contentWrapperTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+  declare readonly inputTarget: HTMLInputElement
+  declare readonly startDateHiddenInputTarget: HTMLInputElement
+  declare readonly endDateHiddenInputTarget: HTMLInputElement
+  declare readonly inputContainerTarget: HTMLElement
+  declare readonly calendarTarget: HTMLElement
+  declare onClickDateListener: (event: any, self: any) => void
+  declare format: string
+  declare startDateValue: string
+  declare endDateValue: string
+  declare calendar: Calendar
+  declare readonly hasInputTarget: boolean
+  declare readonly hasTriggerTextTarget: boolean
+
   connect() {
     super.connect()
 
-    this.format = this.element.dataset.format
+    this.format = this.element.dataset.format || 'YYYY-MM-DD'
     const settings = this.getSettings()
     settings.selectedDates = []
     const startDate = this.element.dataset.startDate
@@ -85,17 +102,17 @@ export default class extends PopoverController {
     }
 
     this.inputTarget.value = datesDisplay
-    this.inputContainerTarget.dataset.focus = false
+    this.inputContainerTarget.dataset.focus = 'false'
   }
 
-  changeDate(event) {
-    const value = event.target.value
+  inputDate(event: KeyboardEvent) {
+    const value = (event.target as HTMLInputElement).value
     const dates = value.split(DELIMITER).filter((d) => d.length > 0)
 
     if (dates.length > 0) {
       const startDate = dates[0]
       const endDate = dates[1]
-      let selectedDates = this.calendar.context.selectedDates
+      let selectedDates: string[] = this.calendar.context.selectedDates
 
       if (dayjs(startDate, this.format, true).isValid()) {
         const dayjsDate = dayjs(value, this.format).format('YYYY-MM-DD')
@@ -140,7 +157,7 @@ export default class extends PopoverController {
 
     if (!this.contentTarget.dataset.width) {
       const contentWidth = this.contentTarget.offsetWidth
-      this.contentTarget.dataset.width = contentWidth
+      this.contentTarget.dataset.width = `${contentWidth}`
 
       this.contentTarget.style.maxWidth = `${contentWidth}px`
       this.contentTarget.style.minWidth = `${contentWidth}px`
@@ -156,14 +173,17 @@ export default class extends PopoverController {
 
     const selectedElement = Array.from(focusableElements).find(
       (e) => e.ariaSelected,
-    )
+    ) as HTMLElement
 
-    const currentElement = this.contentTarget.querySelector('[aria-current]')
+    const currentElement = this.contentTarget.querySelector(
+      '[aria-current]',
+    ) as HTMLElement
 
     if (selectedElement) {
       selectedElement.focus()
     } else if (currentElement) {
-      currentElement.firstElementChild.focus()
+      const firstElementChild = currentElement.firstElementChild as HTMLElement
+      firstElementChild.focus()
     }
   }
 
@@ -178,21 +198,23 @@ export default class extends PopoverController {
     try {
       return {
         ...defaultSettings,
-        ...JSON.parse(this.element.dataset.settings),
+        ...JSON.parse(this.element.dataset.settings || ''),
       }
     } catch {
       return defaultSettings
     }
   }
 
-  onDOMKeydown(event) {
+  onDOMKeydown(event: KeyboardEvent) {
     if (!this.isOpen()) return
 
     const key = event.key
 
-    const focusableElements = this.contentTarget.querySelectorAll(
-      'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
-    )
+    const focusableElements = Array.from(
+      this.contentTarget.querySelectorAll(
+        'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+      ),
+    ) as HTMLElement[]
 
     const firstElement = focusableElements[0]
     const lastElement = focusableElements[focusableElements.length - 1]
@@ -218,18 +240,19 @@ export default class extends PopoverController {
     }
   }
 
-  onDOMClick(event) {
+  onDOMClick(event: MouseEvent) {
     if (!this.isOpen()) return
-    if (this.element.contains(event.target)) return
+    const target = event.target as HTMLElement
+    if (this.element.contains(target)) return
 
     // Fix bug with clicking/pressing on Month/Year button will cause popover to close
     if (
-      event.target.dataset.vcMonth ||
-      event.target.dataset.vcYear ||
-      event.target.dataset.vcYearsYear ||
-      event.target.dataset.vcMonthsMonth ||
-      event.target.dataset.vcArrow ||
-      event.target.dataset.vcGrid
+      target.dataset.vcMonth ||
+      target.dataset.vcYear ||
+      target.dataset.vcYearsYear ||
+      target.dataset.vcMonthsMonth ||
+      target.dataset.vcArrow ||
+      target.dataset.vcGrid
     )
       return
 
@@ -237,14 +260,14 @@ export default class extends PopoverController {
   }
 
   setContainerFocus() {
-    this.inputContainerTarget.dataset.focus = true
+    this.inputContainerTarget.dataset.focus = 'true'
   }
 
   onClose() {
     hideOverlay()
   }
 
-  onClickDate(self, event) {
+  onClickDate(self: Calendar) {
     const dates = self.context.selectedDates
 
     if (dates.length > 0) {
@@ -265,7 +288,7 @@ export default class extends PopoverController {
     }
   }
 
-  startDateValueChanged(value) {
+  startDateValueChanged(value: string) {
     const endDate = this.endDateValue
     let datesDisplay = ''
 
@@ -293,7 +316,7 @@ export default class extends PopoverController {
     if (this.hasTriggerTextTarget) {
       const hasValue = (!!value && value.length > 0) || !!endDate
 
-      this.triggerTarget.dataset.hasValue = hasValue
+      this.triggerTarget.dataset.hasValue = `${hasValue}`
 
       if (this.triggerTarget.dataset.placeholder && !hasValue) {
         this.triggerTextTarget.textContent =
@@ -304,7 +327,7 @@ export default class extends PopoverController {
     }
   }
 
-  endDateValueChanged(value) {
+  endDateValueChanged(value: string) {
     const startDate = this.startDateValue
     let datesDisplay = ''
 
@@ -331,7 +354,7 @@ export default class extends PopoverController {
     if (this.hasInputTarget) this.inputTarget.value = datesDisplay
     if (this.hasTriggerTextTarget) {
       const hasValue = (!!value && value.length > 0) || !!startDate
-      this.triggerTarget.dataset.hasValue = hasValue
+      this.triggerTarget.dataset.hasValue = `${hasValue}`
 
       if (this.triggerTarget.dataset.placeholder && !hasValue) {
         this.triggerTextTarget.textContent =

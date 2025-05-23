@@ -1,13 +1,22 @@
 import { Controller } from '@hotwired/stimulus'
 import { ANIMATION_OUT_DELAY } from '../utils'
 
-export default class extends Controller {
+export default class extends Controller<HTMLElement> {
   static targets = ['trigger', 'content', 'item']
+
+  declare readonly triggerTargets: HTMLButtonElement[]
+  declare readonly contentTarget: HTMLElement
+  declare readonly contentTargets: HTMLElement[]
+  declare readonly itemTargets: HTMLElement[]
+  declare triggers: HTMLElement[]
+  declare multiple: boolean
 
   connect() {
     this.triggers = this.triggerTargets.filter((t) => !t.disabled)
     this.multiple = this.element.dataset.multiple === 'true'
-    const value = JSON.parse(this.element.dataset.value)
+    const value = this.element.dataset.value
+      ? JSON.parse(this.element.dataset.value)
+      : {}
 
     this.itemTargets.forEach((i) => {
       if (value.includes(i.dataset.value)) {
@@ -24,12 +33,12 @@ export default class extends Controller {
     }, 200)
   }
 
-  setContentHeight(element) {
+  setContentHeight(element: HTMLElement) {
     const height = this.getContentHeight(element)
     element.style.setProperty('--accordion-content-height', `${height}px`)
   }
 
-  getContentHeight(element) {
+  getContentHeight(element: HTMLElement) {
     // Store the original styles we need to modify
     const originalStyles = {
       display: element.style.display,
@@ -53,10 +62,12 @@ export default class extends Controller {
     return height
   }
 
-  toggleItem(event) {
-    const trigger = event.currentTarget || event.target
+  toggleItem(event: MouseEvent) {
+    const trigger = (event.currentTarget || event.target) as HTMLElement
 
-    const item = trigger.closest('[data-accordion-target="item"]')
+    const item = trigger.closest(
+      '[data-accordion-target="item"]',
+    ) as HTMLElement
 
     if (item.dataset.state === 'open') {
       this.closeItem(item)
@@ -73,23 +84,31 @@ export default class extends Controller {
     }
   }
 
-  openItem(item) {
-    const button = item.querySelector('[data-accordion-target="trigger"]')
-    const content = item.querySelector('[data-accordion-target="content"]')
+  openItem(item: HTMLElement) {
+    const button = item.querySelector(
+      '[data-accordion-target="trigger"]',
+    ) as HTMLElement
+    const content = item.querySelector(
+      '[data-accordion-target="content"]',
+    ) as HTMLElement
 
     item.dataset.state = 'open'
-    button.ariaExpanded = true
+    button.ariaExpanded = 'true'
     button.dataset.state = 'open'
     content.dataset.state = 'open'
     content.classList.remove('hidden')
   }
 
-  closeItem(item) {
-    const button = item.querySelector('[data-accordion-target="trigger"]')
-    const content = item.querySelector('[data-accordion-target="content"]')
+  closeItem(item: HTMLElement) {
+    const button = item.querySelector(
+      '[data-accordion-target="trigger"]',
+    ) as HTMLElement
+    const content = item.querySelector(
+      '[data-accordion-target="content"]',
+    ) as HTMLElement
 
     item.dataset.state = 'closed'
-    button.ariaExpanded = false
+    button.ariaExpanded = 'false'
     button.dataset.state = 'closed'
     content.dataset.state = 'closed'
 
@@ -98,8 +117,8 @@ export default class extends Controller {
     }, ANIMATION_OUT_DELAY)
   }
 
-  focusNext(event) {
-    const trigger = event.currentTarget || event.target
+  focusNext(event: KeyboardEvent) {
+    const trigger = (event.currentTarget || event.target) as HTMLElement
     const index = this.triggers.indexOf(trigger)
     let nextIndex = index + 1
 
@@ -110,8 +129,8 @@ export default class extends Controller {
     this.triggers[nextIndex].focus()
   }
 
-  focusPrev(event) {
-    const trigger = event.currentTarget || event.target
+  focusPrev(event: KeyboardEvent) {
+    const trigger = (event.currentTarget || event.target) as HTMLElement
     const index = this.triggers.indexOf(trigger)
     let prevIndex = index - 1
 

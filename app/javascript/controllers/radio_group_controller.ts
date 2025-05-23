@@ -1,10 +1,21 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller {
+export default class extends Controller<HTMLElement> {
   static targets = ['item']
   static values = {
     selected: String,
   }
+
+  declare readonly itemTargets: HTMLInputElement[]
+  declare selectedValue: string
+  declare items: HTMLInputElement[]
+
+  declare DOMClickListener: (event: MouseEvent) => void
+  declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare focusableElements: HTMLElement[]
+  declare firstElement: HTMLElement
+  declare lastElement: HTMLElement
+  declare cleanup: () => void
 
   connect() {
     if (!this.selectedValue) {
@@ -14,17 +25,17 @@ export default class extends Controller {
     this.items = this.itemTargets.filter((i) => !i.disabled)
   }
 
-  setChecked(event) {
-    const item = event.currentTarget
-    this.selectedValue = item.dataset.value
+  setChecked(event: MouseEvent) {
+    const item = event.currentTarget as HTMLInputElement
+    this.selectedValue = item.dataset.value as string
   }
 
-  preventDefault(event) {
+  preventDefault(event: KeyboardEvent) {
     event.preventDefault()
   }
 
-  setCheckedToNext(event) {
-    const item = event.currentTarget
+  setCheckedToNext(event: KeyboardEvent) {
+    const item = event.currentTarget as HTMLInputElement
     const index = this.items.indexOf(item)
     let nextIndex = index + 1
 
@@ -32,11 +43,11 @@ export default class extends Controller {
       nextIndex = 0
     }
 
-    this.selectedValue = this.items[nextIndex].dataset.value
+    this.selectedValue = this.items[nextIndex].dataset.value as string
   }
 
-  setCheckedToPrev(event) {
-    const item = event.currentTarget
+  setCheckedToPrev(event: KeyboardEvent) {
+    const item = event.currentTarget as HTMLInputElement
     const index = this.items.indexOf(item)
     let prevIndex = index - 1
 
@@ -44,7 +55,7 @@ export default class extends Controller {
       prevIndex = this.items.length - 1
     }
 
-    this.selectedValue = this.items[prevIndex].dataset.value
+    this.selectedValue = this.items[prevIndex].dataset.value as string
   }
 
   focusItem() {
@@ -68,20 +79,20 @@ export default class extends Controller {
     }
   }
 
-  selectedValueChanged(value) {
+  selectedValueChanged(value: string) {
     this.itemTargets.forEach((item) => {
-      const input = item.querySelector('[data-input]')
+      const input = item.querySelector('[data-input]') as HTMLInputElement
 
       if (value === item.dataset.value) {
         input.checked = true
         item.tabIndex = 0
-        item.ariaChecked = true
-        item.dataset.checked = true
+        item.ariaChecked = 'true'
+        item.dataset.checked = 'true'
       } else {
         input.checked = false
         item.tabIndex = -1
-        item.ariaChecked = false
-        item.dataset.checked = false
+        item.ariaChecked = 'false'
+        item.dataset.checked = 'false'
       }
     })
 

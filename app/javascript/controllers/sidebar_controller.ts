@@ -1,7 +1,11 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller {
+export default class extends Controller<HTMLElement> {
   static targets = ['panel', 'panelOffset']
+
+  declare readonly panelTarget: HTMLElement
+  declare readonly panelOffsetTarget: HTMLElement
+  declare width: number
 
   connect() {
     this.width = this.element.offsetWidth
@@ -26,7 +30,7 @@ export default class extends Controller {
     this.element.dataset.state = 'collapsed'
     this.element.dataset.collapsible = 'offcanvas'
     this.panelTarget.style.left = `-${this.width}px`
-    this.panelOffsetTarget.style.width = 0
+    this.panelOffsetTarget.style.width = `${0}`
   }
 
   isOpen() {

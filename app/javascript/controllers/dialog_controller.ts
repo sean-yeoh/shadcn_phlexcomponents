@@ -10,24 +10,37 @@ import {
 export default class extends Controller {
   static targets = ['trigger', 'content']
 
+  declare readonly triggerTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+  declare DOMClickListener: (event: MouseEvent) => void
+  declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare focusableElements: HTMLElement[]
+  declare firstElement: HTMLElement
+  declare lastElement: HTMLElement
+  declare contentElement: HTMLElement
+
   connect() {
     this.DOMClickListener = this.onDOMClick.bind(this)
     this.DOMKeydownListener = this.onDOMKeydown.bind(this)
 
-    this.focusableElements = this.contentTarget.querySelectorAll(
-      'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+    this.focusableElements = Array.from(
+      this.contentTarget.querySelectorAll(
+        'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
+      ),
     )
 
     this.firstElement = this.focusableElements[0]
     this.lastElement = this.focusableElements[this.focusableElements.length - 1]
-    this.contentElement = document.querySelector(`#${this.contentTarget.id}`)
+    this.contentElement = document.querySelector(
+      `#${this.contentTarget.id}`,
+    ) as HTMLElement
   }
 
   open() {
     openWithOverlay([this.contentElement])
     this.contentElement.classList.remove('hidden')
     this.contentElement.dataset.state = 'open'
-    this.triggerTarget.ariaExpanded = true
+    this.triggerTarget.ariaExpanded = 'true'
     this.setupEventListeners()
 
     document.body.appendChild(this.contentElement)
@@ -41,7 +54,7 @@ export default class extends Controller {
   close() {
     closeWithOverlay()
     this.contentElement.dataset.state = 'closed'
-    this.triggerTarget.ariaExpanded = false
+    this.triggerTarget.ariaExpanded = 'false'
     this.cleanupEventListeners()
     this.element.appendChild(this.contentElement)
 
@@ -57,13 +70,11 @@ export default class extends Controller {
   }
 
   // Global listeners
-  onDOMClick(event) {
+  onDOMClick(event: MouseEvent) {
     if (!this.isOpen()) return
 
-    const target = event.target
-    const trigger = event.target.closest(
-      `[data-${this.identifier}-target="trigger"]`,
-    )
+    const target = event.target as HTMLElement
+    const trigger = target.closest(`[data-${this.identifier}-target="trigger"]`)
 
     if (trigger) return
 
@@ -76,12 +87,12 @@ export default class extends Controller {
     )
       this.close()
 
-    if (this.contentElement.contains(event.target)) return
+    if (this.contentElement.contains(target)) return
 
     this.close()
   }
 
-  onDOMKeydown(event) {
+  onDOMKeydown(event: KeyboardEvent) {
     if (!this.isOpen()) return
 
     const key = event.key

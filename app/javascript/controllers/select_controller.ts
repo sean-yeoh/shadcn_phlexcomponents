@@ -8,7 +8,7 @@ import {
   focusTrigger,
 } from '../utils'
 
-export default class extends Controller {
+export default class extends Controller<HTMLElement> {
   static targets = [
     'trigger',
     'contentWrapper',
@@ -24,17 +24,34 @@ export default class extends Controller {
     selected: String,
   }
 
+  declare readonly triggerTarget: HTMLElement
+  declare readonly contentWrapperTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+  declare readonly itemTargets: HTMLElement[]
+  declare readonly triggerTextTarget: HTMLElement
+  declare readonly groupTargets: HTMLElement[]
+  declare readonly labelTargets: HTMLElement[]
+  declare readonly selectTarget: HTMLSelectElement
+  declare selectedValue: string
+  declare DOMClickListener: (event: MouseEvent) => void
+  declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare items: HTMLElement[]
+  declare search: string
+  declare searchTimer: number | null
+  declare resetSearchTimer: number | null
+  declare cleanup: () => void
+
   connect() {
     this.DOMClickListener = this.onDOMClick.bind(this)
     this.DOMKeydownListener = this.onDOMKeydown.bind(this)
 
     this.setAriaLabelledby()
 
-    this.items = [
-      ...this.element.querySelectorAll(
+    this.items = Array.from(
+      this.element.querySelectorAll(
         '[data-select-target="item"]:not([data-disabled])',
       ),
-    ]
+    )
 
     this.search = ''
     this.searchTimer = null
@@ -60,7 +77,7 @@ export default class extends Controller {
       this.contentWrapperTarget.style.width = `${triggerWidth}px`
     }
 
-    this.triggerTarget.ariaExpanded = true
+    this.triggerTarget.ariaExpanded = 'true'
     this.contentTarget.dataset.state = 'open'
 
     setTimeout(() => {
@@ -90,7 +107,7 @@ export default class extends Controller {
   close() {
     unlockScroll()
     this.contentTarget.dataset.state = 'closed'
-    this.triggerTarget.ariaExpanded = false
+    this.triggerTarget.ariaExpanded = 'false'
     this.cleanup()
     this.cleanupEventListeners()
 
@@ -103,9 +120,11 @@ export default class extends Controller {
 
   setAriaLabelledby() {
     this.groupTargets.forEach((g) => {
-      const label = g.querySelector('[data-select-target="label"]')
+      const label = g.querySelector(
+        '[data-select-target="label"]',
+      ) as HTMLElement
 
-      if (label) {
+      if (label.textContent) {
         const ariaId = this.element.dataset.ariaId
         const labelledby = `${ariaId}-${label.textContent
           .toLowerCase()
@@ -121,15 +140,15 @@ export default class extends Controller {
     return this.triggerTarget.ariaExpanded === 'true'
   }
 
-  focusItem(event = null, index = null) {
+  focusItem(event: MouseEvent | null = null, index: number | null = null) {
     let itemIndex = index
 
     if (event) {
-      const item = event.currentTarget || event.target
+      const item = (event.currentTarget || event.target) as HTMLElement
       itemIndex = this.items.indexOf(item)
     }
 
-    const item = this.items[itemIndex]
+    const item = this.items[itemIndex as number]
     item.tabIndex = 0
     item.focus()
 
@@ -148,8 +167,8 @@ export default class extends Controller {
     this.focusItem(null, this.items.length - 1)
   }
 
-  focusPrevItem(event) {
-    const item = event.currentTarget || event.target
+  focusPrevItem(event: KeyboardEvent) {
+    const item = (event.currentTarget || event.target) as HTMLElement
     const index = this.items.indexOf(item)
 
     if (index - 1 >= 0) {
@@ -157,8 +176,8 @@ export default class extends Controller {
     }
   }
 
-  focusNextItem(event) {
-    const item = event.currentTarget || event.target
+  focusNextItem(event: KeyboardEvent) {
+    const item = (event.currentTarget || event.target) as HTMLElement
     const index = this.items.indexOf(item)
 
     if (index + 1 < this.items.length) {
@@ -166,9 +185,9 @@ export default class extends Controller {
     }
   }
 
-  selectItem(event) {
-    const item = event.currentTarget || event.target
-    const value = item.dataset.value
+  selectItem(event: MouseEvent | KeyboardEvent) {
+    const item = (event.currentTarget || event.target) as HTMLElement
+    const value = item.dataset.value as string
     this.selectedValue = value
     this.close()
   }
@@ -181,7 +200,7 @@ export default class extends Controller {
     this.contentTarget.focus()
   }
 
-  selectedValueChanged(value) {
+  selectedValueChanged(value: string) {
     const item = this.itemTargets.find((i) => i.dataset.value === value)
 
     if (item) {
@@ -198,7 +217,7 @@ export default class extends Controller {
       this.selectTarget.value = value
     }
 
-    this.triggerTarget.dataset.hasValue = !!value && value.length > 0
+    this.triggerTarget.dataset.hasValue = `${!!value && value.length > 0}`
 
     const placeholder = this.triggerTarget.dataset.placeholder
 
@@ -207,9 +226,9 @@ export default class extends Controller {
     }
   }
 
-  handleSearchChange(search) {
+  handleSearchChange(search: string) {
     const item = this.items.find((i) =>
-      i.textContent.toLowerCase().startsWith(search.toLowerCase()),
+      i.innerText.toLowerCase().startsWith(search.toLowerCase()),
     )
 
     if (item) {
@@ -217,12 +236,13 @@ export default class extends Controller {
     }
   }
 
-  handleSearch(key) {
+  handleSearch(key: string) {
     const search = this.search + key
     this.search = search
 
-    window.clearTimeout(this.searchTimer)
-    window.clearTimeout(this.resetSearchTimer)
+    if (this.searchTimer) window.clearTimeout(this.searchTimer)
+
+    if (this.resetSearchTimer) window.clearTimeout(this.resetSearchTimer)
 
     if (search !== '') {
       this.searchTimer = window.setTimeout(() => {
@@ -236,23 +256,20 @@ export default class extends Controller {
   }
 
   // Global listeners
-  onDOMClick(event) {
-    const htmlFor = event.target.htmlFor
-
-    if (htmlFor === this.triggerTarget.id) return
-    if (event.target) if (this.element.contains(event.target)) return
+  onDOMClick(event: MouseEvent) {
+    if (!this.isOpen()) return
+    if (this.element.contains(event.target as HTMLElement)) return
 
     this.close()
   }
 
-  onDOMKeydown(event) {
+  onDOMKeydown(event: KeyboardEvent) {
     if (!this.isOpen()) return
 
     const key = event.key
     const isModifierKey = event.ctrlKey || event.altKey || event.metaKey
 
     if (key === 'Tab') event.preventDefault()
-
     if (!isModifierKey && key.length === 1) this.handleSearch(key)
 
     if (key === 'Escape') {
@@ -268,7 +285,7 @@ export default class extends Controller {
   cleanupEventListeners() {
     document.removeEventListener('click', this.DOMClickListener)
     document.removeEventListener('keydown', this.DOMKeydownListener)
-    window.clearTimeout(this.searchTimer)
-    window.clearTimeout(this.resetSearchTimer)
+    if (this.searchTimer) window.clearTimeout(this.searchTimer)
+    if (this.resetSearchTimer) window.clearTimeout(this.resetSearchTimer)
   }
 }

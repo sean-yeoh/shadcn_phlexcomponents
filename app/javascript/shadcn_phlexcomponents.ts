@@ -3,7 +3,7 @@ import AlertDialogController from './controllers/alert_dialog_controller'
 import AvatarController from './controllers/avatar_controller'
 import CheckboxController from './controllers/checkbox_controller'
 import CollapsibleController from './controllers/collapsible_controller'
-import ComboboxController from './controllers/combobox_controller'
+// import ComboboxController from './controllers/combobox_controller'
 import DatePickerController from './controllers/date_picker_controller'
 import DateRangePickerController from './controllers/date_range_picker_controller'
 import DialogController from './controllers/dialog_controller'
@@ -30,7 +30,7 @@ export default {
   avatar: AvatarController,
   checkbox: CheckboxController,
   collapsible: CollapsibleController,
-  combobox: ComboboxController,
+  // combobox: ComboboxController,
   'date-picker': DatePickerController,
   'date-range-picker': DateRangePickerController,
   dialog: DialogController,

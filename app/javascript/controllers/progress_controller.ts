@@ -7,8 +7,11 @@ export default class extends Controller {
     progress: Number,
   }
 
-  progressValueChanged(value) {
-    this.element.setAttribute('aria-valuenow', value)
+  declare readonly barTarget: HTMLElement
+  declare progressValue: number
+
+  progressValueChanged(value: number) {
+    this.element.setAttribute('aria-valuenow', `${value}`)
     this.barTarget.style.transform = `translateX(-${100 - value}%)`
   }
 }

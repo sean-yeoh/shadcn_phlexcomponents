@@ -6,6 +6,11 @@ export default class extends Controller {
     selected: String,
   }
 
+  declare readonly triggerTargets: HTMLButtonElement[]
+  declare readonly contentTargets: HTMLElement[]
+  declare triggers: HTMLElement[]
+  declare selectedValue: string | undefined
+
   connect() {
     this.triggers = this.triggerTargets.filter((t) => !t.disabled)
 
@@ -14,12 +19,14 @@ export default class extends Controller {
     }
   }
 
-  setActiveTab(event) {
-    this.selectedValue = event.target.dataset.value
+  setActiveTab(event: MouseEvent) {
+    const target = (event.currentTarget || event.target) as HTMLElement
+
+    if (target) this.selectedValue = target.dataset.value
   }
 
-  setActiveToPrev(event) {
-    const trigger = event.currentTarget
+  setActiveToPrev(event: KeyboardEvent) {
+    const trigger = (event.currentTarget || event.target) as HTMLElement
     const index = this.triggers.indexOf(trigger)
     let prevIndex = index - 1
 
@@ -31,8 +38,8 @@ export default class extends Controller {
     this.triggers[prevIndex].focus()
   }
 
-  setActiveToNext(event) {
-    const trigger = event.currentTarget
+  setActiveToNext(event: KeyboardEvent) {
+    const trigger = (event.currentTarget || event.target) as HTMLElement
     const index = this.triggers.indexOf(trigger)
     let nextIndex = index + 1
 
@@ -44,7 +51,7 @@ export default class extends Controller {
     this.triggers[nextIndex].focus()
   }
 
-  selectedValueChanged(value) {
+  selectedValueChanged(value: string) {
     this.triggerTargets.forEach((trigger) => {
       const triggerValue = trigger.dataset.value
       const content = this.contentTargets.find((c) => {
@@ -58,12 +65,12 @@ export default class extends Controller {
       }
 
       if (triggerValue === value) {
-        trigger.ariaSelected = true
+        trigger.ariaSelected = 'true'
         trigger.tabIndex = 0
         trigger.dataset.state = 'active'
         content.classList.remove('hidden')
       } else {
-        trigger.ariaSelected = false
+        trigger.ariaSelected = 'false'
         trigger.tabIndex = -1
         trigger.dataset.state = 'inactive'
         content.classList.add('hidden')

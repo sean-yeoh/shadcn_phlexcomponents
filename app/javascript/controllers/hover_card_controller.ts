@@ -1,19 +1,22 @@
 import { Controller } from '@hotwired/stimulus'
-import tippy from 'tippy.js'
+import tippy, { Placement } from 'tippy.js'
 import { hideOnEsc } from '../utils'
 
-export default class extends Controller {
+export default class extends Controller<HTMLElement> {
   static targets = ['trigger', 'content']
+
+  declare readonly triggerTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
 
   connect() {
     const content = this.contentTarget.innerHTML
 
-    this.tippy = tippy(this.triggerTarget, {
+    tippy(this.triggerTarget, {
       content: content,
       allowHTML: true,
       interactive: true,
       arrow: false,
-      placement: this.element.dataset.side,
+      placement: this.element.dataset.side as Placement,
       plugins: [hideOnEsc],
       delay: 250,
     })
