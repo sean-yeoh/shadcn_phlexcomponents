@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Popover < Base
-    STYLES = "inline-block"
+    STYLES = "inline-block max-w-fit"
 
     def initialize(side: :bottom, aria_id: "popover-#{SecureRandom.hex(5)}", **attributes)
       @side = side

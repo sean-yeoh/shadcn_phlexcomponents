@@ -7,9 +7,23 @@ require "phlex"
 require "phlex/rails"
 require "rails"
 require "action_controller/railtie"
+require "rails-html-sanitizer"
 require "minitest/autorun"
 require "lucide-rails"
 require "tailwind_merge"
+# Load components directly
+require "shadcn_phlexcomponents/components/base"
+
+# Load components in a specific order
+require "shadcn_phlexcomponents/components/link/link"
+require "shadcn_phlexcomponents/components/form/form_helpers"
+
+# Then load the rest
+Dir.glob(File.expand_path("../lib/shadcn_phlexcomponents/components/**/*.rb", __dir__)).each do |file|
+  next if file.include?("link/link.rb") # Skip link.rb since we already loaded it
+
+  require file
+end
 require "debug"
 
 ENV["RAILS_ENV"] = "test"
@@ -30,9 +44,11 @@ module PhlexKit
   extend Phlex::Kit
 end
 
-Dir.glob("lib/components/**/*.rb").map do |path|
-  class_name = path.split("/").last.delete_suffix(".rb").split("_").map(&:capitalize).join.to_sym
-  autoload class_name, path
+# Create constants for component classes
+ShadcnPhlexcomponents.constants.each do |const|
+  next unless ShadcnPhlexcomponents.const_get(const).is_a?(Class)
+
+  Object.const_set(const, ShadcnPhlexcomponents.const_get(const))
 end
 
 # Monkey patch view_context

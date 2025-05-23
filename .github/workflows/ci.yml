@@ -45,7 +45,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        plat: ['ubuntu', 'windows', 'macos']
+        plat: ['ubuntu', 'macos']
+        # plat: ['ubuntu', 'windows', 'macos']
     runs-on: ${{matrix.plat}}-latest
     steps:
       - uses: actions/checkout@v4

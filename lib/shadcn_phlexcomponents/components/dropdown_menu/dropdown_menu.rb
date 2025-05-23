@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class DropdownMenu < Base
-    STYLES = "inline-block"
+    STYLES = "inline-block max-w-fit"
 
     def initialize(side: :bottom, aria_id: "dropdown-menu-#{SecureRandom.hex(5)}", **attributes)
       @side = side

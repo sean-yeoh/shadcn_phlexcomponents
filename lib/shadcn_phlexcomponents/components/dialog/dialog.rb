@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Dialog < Base
-    STYLES = "inline-block"
+    STYLES = "inline-block max-w-fit"
 
     def initialize(aria_id: "dialog-#{SecureRandom.hex(5)}", **attributes)
       @aria_id = aria_id

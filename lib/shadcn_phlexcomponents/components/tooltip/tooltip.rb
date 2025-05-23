@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Tooltip < Base
-    STYLES = "inline-block"
+    STYLES = "inline-block max-w-fit"
 
     def initialize(side: :top, aria_id: "tooltip-#{SecureRandom.hex(5)}", **attributes)
       @side = side

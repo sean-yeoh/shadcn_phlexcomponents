@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class HoverCard < Base
-    STYLES = "inline-block"
+    STYLES = "inline-block max-w-fit"
 
     def initialize(side: :bottom, **attributes)
       @side = side
