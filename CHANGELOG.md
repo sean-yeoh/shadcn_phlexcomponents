@@ -1,10 +1,8 @@
-## [Unreleased] - YYYY-MM-DD
-### Added
-### Changed
-### Deprecated
-### Removed
+## [0.1.12] - 2025-06-19
+
 ### Fixed
-### Security
+
+- Tabs not setting active tab on Right keydown
 
 ## [0.1.10] - 2025-05-20
 
