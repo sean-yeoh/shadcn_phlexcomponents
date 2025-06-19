@@ -2,13 +2,12 @@
 
 module ShadcnPhlexcomponents
   class Base < Phlex::HTML
-    # Include any helpers you want to be available across all components
+    include ClassVariants::Helper
     include Phlex::Rails::Helpers::Sanitize
     include Phlex::Rails::Helpers::LinkTo
     include Phlex::Rails::Helpers::ButtonTo
 
     TAILWIND_MERGER = ::TailwindMerge::Merger.new.freeze
-    STYLES = ""
 
     SANITIZER_ALLOWED_TAGS = (Rails::HTML::SafeListSanitizer.allowed_tags.to_a +
       ["svg", "path", "polygon", "polyline", "circle", "ellipse", "rect", "line", "use", "defs", "g"]).freeze
@@ -33,11 +32,29 @@ module ShadcnPhlexcomponents
         "stroke-linecap",
         "aria-hidden",
         "class",
+        "x1",
+        "x2",
+        "y1",
+        "y2",
       ]).freeze
 
     def initialize(**attributes)
+      merge_default_attributes(attributes)
+    end
+
+    def merge_default_attributes(attributes)
       @attributes = mix(default_attributes, attributes)
-      @attributes[:class] = TAILWIND_MERGER.merge("#{default_styles} #{@attributes[:class]}")
+      @attributes = mix(@attributes, {
+        data: {
+          shadcn_phlexcomponents: self.class.name.demodulize.underscore.dasherize,
+        },
+      })
+
+      @attributes[:class] = class_variants(class: @attributes[:class], **@class_variants&.compact)
+
+      if @attributes[:class].blank?
+        @attributes.delete(:class)
+      end
     end
 
     if Rails.env.development?
@@ -49,10 +66,6 @@ module ShadcnPhlexcomponents
 
     def default_attributes
       {}
-    end
-
-    def default_styles
-      self.class::STYLES
     end
 
     def nokogiri_attributes_to_hash(element)
@@ -84,6 +97,20 @@ module ShadcnPhlexcomponents
       end
 
       element
+    end
+
+    def merged_as_child_attributes(element, component_attributes)
+      element_attributes = nokogiri_attributes_to_hash(element)
+      merged_attributes = mix(component_attributes, element_attributes)
+      merged_attributes[:class] = TAILWIND_MERGER.merge("#{component_attributes[:class]} #{element_attributes[:class]}")
+
+      # some components are divs that have role="button",
+      # we should remove it if the child element is a button
+      if component_attributes[:role].present? && component_attributes[:role].to_sym == :button && element.name == "button"
+        merged_attributes.delete(:role)
+      end
+
+      merged_attributes
     end
 
     # https://github.com/heyvito/lucide-rails/blob/master/lib/lucide-rails/rails_helper.rb

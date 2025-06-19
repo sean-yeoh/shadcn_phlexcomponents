@@ -33,11 +33,12 @@ bundle install --prefer-local
 bundle binstubs --all
 
 # install shadcn_phlexcomponents
-rake shadcn_phlexcomponents:install
+ENVIRONMENT=test rake shadcn_phlexcomponents:install
 
 # TEST: presence of the generated file
-grep -q "tailwindcss-animate.css" app/assets/tailwind/shadcn_phlexcomponents/tailwindcss-animate.css
-grep -q "@hotwired/stimulus" app/javascript/controllers/shadcn_phlexcomponents/theme_switcher_controller.js
-grep -q "BaseComponent < Phlex::HTML" vendor/shadcn_phlexcomponents/components/base_component.rb
+grep -q "tailwindcss-animate" vendor/shadcn_phlexcomponents/stylesheets/tw-animate.css
+grep -q "@hotwired/stimulus" vendor/shadcn_phlexcomponents/javascript/controllers/theme_switcher_controller.ts
+grep -q "class Base < Phlex::HTML" vendor/shadcn_phlexcomponents/components/base.rb
+grep -q "# Require base.rb first" config/initializers/shadcn_phlexcomponents.rb
 
 echo "OK"

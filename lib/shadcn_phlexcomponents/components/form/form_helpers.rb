@@ -64,15 +64,23 @@ module ShadcnPhlexcomponents
     end
 
     def render_error
-      if @error
-        FormError(@error, aria_id: @aria_id)
+      if @error.present?
+        if @error.is_a?(Array)
+          FormError(nil, aria_id: @aria_id, class: "space-y-0.5") do
+            @error.each do |error|
+              span(class: "block") { error }
+            end
+          end
+        else
+          FormError(@error, aria_id: @aria_id)
+        end
       end
     end
 
     def label_attributes(use_label_styles: false, **attributes)
       attributes[:class] = [
-        use_label_styles ? Label::STYLES : nil,
-        @error ? "text-destructive" : nil,
+        use_label_styles ? Label.new.class_variants : nil,
+        @error.present? ? "text-destructive" : nil,
         attributes[:class],
       ].compact.join(" ")
       attributes[:for] ||= @id
@@ -92,17 +100,44 @@ module ShadcnPhlexcomponents
     def aria_attributes
       {
         describedby: describedby,
-        invalid: @error.present?,
-      }.compact
+        invalid: @error.present?.to_s,
+      }
     end
 
     def describedby
-      return if !@hint && !@error
+      return if !@hint && !@error.present?
 
       [
         @hint ? "#{@aria_id}-description" : nil,
-        @error ? "#{@aria_id}-message" : nil,
+        @error.present? ? "#{@aria_id}-message" : nil,
       ].compact.join(" ")
+    end
+
+    def default_value(value, method)
+      return value unless value.nil?
+      return unless @model
+
+      if @model.respond_to?(method)
+        @model.public_send(method)
+      end
+    end
+
+    def default_checked(checked, method)
+      return checked if [true, false].include?(checked)
+      return unless @model
+
+      if @model.respond_to?(method)
+        !!@model.public_send(method)
+      end
+    end
+
+    def default_error(error, method)
+      return error unless error.nil?
+      return unless @model
+
+      if @model.respond_to?(:errors)
+        @model.errors.full_messages_for(method).first
+      end
     end
   end
 end

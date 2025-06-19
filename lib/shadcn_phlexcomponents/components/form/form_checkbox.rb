@@ -20,21 +20,20 @@ module ShadcnPhlexcomponents
       @method = method
       @model = model
       @object_name = object_name
-      @value = value
-      @model_value = model&.public_send(method)
+      @value = value || "1"
       @name = name
       @id = id
       @label = label
-      @error = error || (model ? model.errors.full_messages_for(method).first : nil)
+      @error = default_error(error, method)
       @hint = hint
       @aria_id = "form-field-#{SecureRandom.hex(5)}"
-      @checked = checked
+      @checked = default_checked(checked, method)
       super(**attributes)
     end
 
     def label_attributes(use_label_styles: false, **attributes)
       attributes[:class] = [
-        use_label_styles ? Label::STYLES : nil,
+        use_label_styles ? Label.new.class_variants : nil,
         "ml-6",
         attributes[:class],
       ].compact.join(" ")
@@ -64,8 +63,8 @@ module ShadcnPhlexcomponents
             Checkbox(
               id: @id,
               name: @name,
-              value: @value || "1",
-              checked: @checked || !!@model_value,
+              value: @value,
+              checked: @checked,
               aria: aria_attributes,
               disabled: @disabled,
               **@attributes,

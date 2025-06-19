@@ -19,12 +19,11 @@ module ShadcnPhlexcomponents
       @method = method
       @model = model
       @object_name = object_name
-      @value = value
-      @model_value = model&.public_send(method)
+      @value = default_value(value, method)
       @name = name
       @id = id
       @label = label
-      @error = error || (model ? model.errors.full_messages_for(method).first : nil)
+      @error = default_error(error, method)
       @hint = hint
       @aria_id = "form-field-#{SecureRandom.hex(5)}"
       super(**attributes)
@@ -46,7 +45,7 @@ module ShadcnPhlexcomponents
             type: @type,
             id: @id,
             name: @name,
-            value: @value || @model_value,
+            value: @value,
             aria: aria_attributes,
             **@attributes,
           )

@@ -5,36 +5,35 @@ module ShadcnPhlexcomponents
     include FormHelpers
 
     def initialize(
-      start_date_method,
-      end_date_method,
+      method,
+      end_method,
       model: false,
       object_name: nil,
-      start_date: nil,
-      end_date: nil,
-      start_date_name: nil,
-      end_date_name: nil,
+      value: nil,
+      name: nil,
       id: nil,
       label: nil,
-      start_date_error: nil,
-      end_date_error: nil,
+      error: nil,
       hint: nil,
       **attributes
     )
-      @start_date_method = start_date_method
-      @end_date_method = end_date_method
+      @method = method
+      @end_method = end_method
       @model = model
       @object_name = object_name
-      @start_date = start_date
-      @end_date = start_date
-      @start_date_model_value = model&.public_send(start_date_method)
-      @end_date_model_value = model&.public_send(end_date_method)
-      @start_date_name = start_date_name
-      @end_date_name = end_date_name
+
+      @value = [
+        default_value(value ? value[0] : nil, method),
+        default_value(value ? value[1] : nil, end_method),
+      ]
+      @error = [
+        default_error(error ? error[0] : nil, method),
+        default_error(error ? error[1] : nil, end_method),
+      ].compact
+
+      @name = name
       @id = id
       @label = label
-      @start_date_error = start_date_error || (model ? model.errors.full_messages_for(start_date_method).first : nil)
-      @end_date_error = end_date_error || (model ? model.errors.full_messages_for(end_date_method).first : nil)
-      @error = (@start_date_error || @end_date_error).present?
       @hint = hint
       @aria_id = "form-field-#{SecureRandom.hex(5)}"
       super(**attributes)
@@ -52,39 +51,26 @@ module ShadcnPhlexcomponents
         Label(**attrs) { @label }
       elsif @label != false
         attrs = label_attributes(use_label_styles: true)
-        rails_label(@object_name, [@start_date_method, @end_date_method].to_sentence, nil, **attrs)
-      end
-    end
-
-    def render_error
-      if @start_date_error && @end_date_error
-        FormError(nil, aria_id: @aria_id) do
-          span { @start_date_error }
-          br
-          span { @end_date_error }
-        end
-      elsif @start_date_error
-        FormError(@start_date_error, aria_id: @aria_id)
-      elsif @end_date_error
-        FormError(@end_date_error, aria_id: @aria_id)
+        rails_label(@object_name, [@method, @end_method].to_sentence, nil, **attrs)
       end
     end
 
     def view_template(&)
       vanish(&)
 
-      @id ||= field_id(@object_name, @start_date_method)
-      @start_date_name ||= field_name(@object_name, @start_date_method)
-      @end_date_name ||= field_name(@object_name, @end_date_method)
+      @id ||= field_id(@object_name, @method)
+      @name ||=
+        [
+          field_name(@object_name, @method),
+          field_name(@object_name, @end_method),
+        ]
 
       div(class: "space-y-2", data: label_and_hint_container_attributes) do
         render_label(&)
         DateRangePicker(
           id: @id,
-          start_date_name: @start_date_name,
-          end_date_name: @end_date_name,
-          start_date: @start_date || @start_date_model_value,
-          end_date: @end_date || @end_date_model_value,
+          name: @name,
+          value: @value,
           aria: aria_attributes,
           **@attributes,
         )
