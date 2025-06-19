@@ -97,7 +97,7 @@ module ShadcnPhlexcomponents
           action: <<~HEREDOC,
             click->tabs#setActiveTab
             keydown.left->tabs#setActiveTab:prevent
-            keydown.right->tabs#setActiveToNext:prevent
+            keydown.right->tabs#setActiveTab:prevent
           HEREDOC
         },
       }
