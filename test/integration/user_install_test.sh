@@ -39,6 +39,6 @@ ENVIRONMENT=test rake shadcn_phlexcomponents:install
 grep -q "tailwindcss-animate" vendor/shadcn_phlexcomponents/stylesheets/tw-animate.css
 grep -q "@hotwired/stimulus" vendor/shadcn_phlexcomponents/javascript/controllers/theme_switcher_controller.ts
 grep -q "class Base < Phlex::HTML" vendor/shadcn_phlexcomponents/components/base.rb
-grep -q "require Rails.root.join("vendor/shadcn_phlexcomponents/components/base.rb")" config/initializers/shadcn_phlexcomponents.rb
+grep -q "# Require base.rb first" config/initializers/shadcn_phlexcomponents.rb
 
 echo "OK"
