@@ -1,31 +1,34 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller<HTMLElement> {
-  static targets = ['input']
+  static targets = ['input', 'indicator']
   static values = {
-    checked: Boolean,
+    isChecked: Boolean,
   }
 
   declare readonly inputTarget: HTMLInputElement
-  declare checkedValue: boolean
+  declare readonly indicatorTarget: HTMLInputElement
+  declare isCheckedValue: boolean
 
   toggle() {
-    this.checkedValue = !this.checkedValue
+    this.isCheckedValue = !this.isCheckedValue
   }
 
   preventDefault(event: KeyboardEvent) {
     event.preventDefault()
   }
 
-  checkedValueChanged(value: boolean) {
-    if (value) {
+  isCheckedValueChanged(isChecked: boolean) {
+    if (isChecked) {
       this.element.ariaChecked = 'true'
-      this.element.dataset.checked = 'true'
+      this.element.dataset.state = 'checked'
       this.inputTarget.checked = true
+      this.indicatorTarget.classList.remove('hidden')
     } else {
       this.element.ariaChecked = 'false'
-      this.element.dataset.checked = 'false'
+      this.element.dataset.state = 'unchecked'
       this.inputTarget.checked = false
+      this.indicatorTarget.classList.add('hidden')
     }
   }
 }

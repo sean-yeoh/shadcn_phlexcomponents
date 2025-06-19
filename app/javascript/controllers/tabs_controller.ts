@@ -3,55 +3,54 @@ import { Controller } from '@hotwired/stimulus'
 export default class extends Controller {
   static targets = ['trigger', 'content']
   static values = {
-    selected: String,
+    active: String,
   }
 
   declare readonly triggerTargets: HTMLButtonElement[]
   declare readonly contentTargets: HTMLElement[]
-  declare triggers: HTMLElement[]
-  declare selectedValue: string | undefined
+  declare activeValue: string | undefined
 
   connect() {
-    this.triggers = this.triggerTargets.filter((t) => !t.disabled)
-
-    if (!this.selectedValue) {
-      this.selectedValue = this.triggerTargets[0].dataset.value
+    if (!this.activeValue) {
+      this.activeValue = this.triggerTargets[0].dataset.value
     }
   }
 
-  setActiveTab(event: MouseEvent) {
-    const target = (event.currentTarget || event.target) as HTMLElement
+  setActiveTab(event: MouseEvent | KeyboardEvent) {
+    const target = event.currentTarget as HTMLButtonElement
 
-    if (target) this.selectedValue = target.dataset.value
-  }
+    if (event instanceof MouseEvent) {
+      this.activeValue = target.dataset.value
+    } else {
+      const key = event.key
 
-  setActiveToPrev(event: KeyboardEvent) {
-    const trigger = (event.currentTarget || event.target) as HTMLElement
-    const index = this.triggers.indexOf(trigger)
-    let prevIndex = index - 1
+      const focusableTriggers = this.triggerTargets.filter(
+        (t) => !t.disabled,
+      ) as HTMLButtonElement[]
 
-    if (index === 0) {
-      prevIndex = this.triggers.length - 1
+      const index = focusableTriggers.indexOf(target)
+      let newIndex = 0
+
+      if (key === 'ArrowLeft') {
+        newIndex = index - 1
+
+        if (newIndex < 0) {
+          newIndex = focusableTriggers.length - 1
+        }
+      } else {
+        newIndex = index + 1
+
+        if (newIndex > focusableTriggers.length - 1) {
+          newIndex = 0
+        }
+      }
+
+      this.activeValue = focusableTriggers[newIndex].dataset.value
+      focusableTriggers[newIndex].focus()
     }
-
-    this.selectedValue = this.triggers[prevIndex].dataset.value
-    this.triggers[prevIndex].focus()
   }
 
-  setActiveToNext(event: KeyboardEvent) {
-    const trigger = (event.currentTarget || event.target) as HTMLElement
-    const index = this.triggers.indexOf(trigger)
-    let nextIndex = index + 1
-
-    if (index === this.triggers.length - 1) {
-      nextIndex = 0
-    }
-
-    this.selectedValue = this.triggers[nextIndex].dataset.value
-    this.triggers[nextIndex].focus()
-  }
-
-  selectedValueChanged(value: string) {
+  activeValueChanged(value: string) {
     this.triggerTargets.forEach((trigger) => {
       const triggerValue = trigger.dataset.value
       const content = this.contentTargets.find((c) => {

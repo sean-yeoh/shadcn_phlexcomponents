@@ -1,125 +1,141 @@
 import { Controller } from '@hotwired/stimulus'
+import { useClickOutside } from 'stimulus-use'
 import {
-  ANIMATION_OUT_DELAY,
-  FOCUS_DELAY,
   initFloatingUi,
   focusTrigger,
+  ON_OPEN_FOCUS_DELAY,
+  getFocusableElements,
+  showContent,
+  hideContent,
 } from '../utils'
 
 export default class extends Controller<HTMLElement> {
-  static targets = ['trigger', 'contentWrapper', 'content']
+  static targets = ['trigger', 'contentContainer', 'content']
+  static values = { isOpen: Boolean }
 
+  declare isOpenValue: boolean
   declare readonly triggerTarget: HTMLElement
-  declare readonly contentWrapperTarget: HTMLElement
+  declare readonly contentContainerTarget: HTMLElement
   declare readonly contentTarget: HTMLElement
-  declare DOMClickListener: (event: MouseEvent) => void
   declare DOMKeydownListener: (event: KeyboardEvent) => void
-  declare focusableElements: HTMLElement[]
-  declare firstElement: HTMLElement
-  declare lastElement: HTMLElement
   declare cleanup: () => void
 
   connect() {
-    this.DOMClickListener = this.onDOMClick.bind(this)
     this.DOMKeydownListener = this.onDOMKeydown.bind(this)
-
-    this.focusableElements = Array.from(
-      this.contentTarget.querySelectorAll(
-        'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
-      ),
-    )
-
-    this.firstElement = this.focusableElements[0]
-    this.lastElement = this.focusableElements[this.focusableElements.length - 1]
+    useClickOutside(this, { element: this.contentTarget, dispatchEvent: false })
   }
 
   toggle() {
-    if (this.isOpen()) {
+    if (this.isOpenValue) {
       this.close()
     } else {
       this.open()
     }
   }
 
-  onDOMClick(event: MouseEvent) {
-    if (!this.isOpen()) return
-    if (this.element.contains(event.target as HTMLElement)) return
-    this.close()
+  open() {
+    this.isOpenValue = true
+    this.onOpen()
+
+    setTimeout(() => {
+      this.onOpenFocusedElement().focus()
+    }, ON_OPEN_FOCUS_DELAY)
+  }
+
+  close() {
+    this.isOpenValue = false
+    this.onClose()
   }
 
   onDOMKeydown(event: KeyboardEvent) {
-    if (!this.isOpen()) return
+    if (!this.isOpenValue) return
 
     const key = event.key
 
     if (key === 'Escape') {
       this.close()
     } else if (key === 'Tab') {
+      const focusableElements = getFocusableElements(this.contentTarget)
+
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+
       // If Shift + Tab pressed on first element, go to last element
-      if (event.shiftKey && document.activeElement === this.firstElement) {
+      if (event.shiftKey && document.activeElement === firstElement) {
         event.preventDefault()
-        this.lastElement.focus()
+        lastElement.focus()
       }
       // If Tab pressed on last element, go to first element
-      else if (!event.shiftKey && document.activeElement === this.lastElement) {
+      else if (!event.shiftKey && document.activeElement === lastElement) {
         event.preventDefault()
-        this.firstElement.focus()
+        firstElement.focus()
       }
     }
   }
 
-  isOpen() {
-    return this.triggerTarget.ariaExpanded === 'true'
+  clickOutside(event: MouseEvent) {
+    const target = event.target
+    // Let #toggle to handle state when clicked on trigger
+    if (target === this.triggerTarget) return
+
+    this.close()
   }
 
-  open() {
-    this.contentWrapperTarget.classList.remove('hidden')
-    this.triggerTarget.ariaExpanded = 'true'
-    this.contentTarget.dataset.state = 'open'
-    this.setupEventListeners()
+  onOpen() {}
 
-    this.onOpen()
+  onOpenFocusedElement() {
+    const focusableElements = getFocusableElements(this.contentTarget)
+    return focusableElements[0]
   }
 
-  onOpen() {
-    setTimeout(() => {
-      if (this.firstElement) {
-        this.firstElement.focus()
+  onClose() {}
+
+  referenceElement() {
+    return this.triggerTarget
+  }
+
+  isOpenValueChanged(isOpen: boolean, previousIsOpen: boolean) {
+    if (isOpen === true) {
+      showContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentContainerTarget,
+      })
+
+      this.cleanup = initFloatingUi({
+        referenceElement: this.referenceElement(),
+        floatingElement: this.contentContainerTarget,
+        side: this.contentTarget.dataset.side,
+        align: this.contentTarget.dataset.align,
+        sideOffset: 4,
+      })
+      this.setupEventListeners()
+    } else {
+      hideContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentContainerTarget,
+      })
+
+      this.cleanupEventListeners()
+
+      // Only focus trigger when is previously opened
+      if (previousIsOpen) {
+        focusTrigger(this.triggerTarget)
       }
-    }, FOCUS_DELAY * 1.25)
-
-    this.cleanup = initFloatingUi(
-      this.triggerTarget,
-      this.contentWrapperTarget,
-      this.element.dataset.side,
-    )
+    }
   }
 
-  close() {
-    this.contentTarget.dataset.state = 'closed'
-    this.triggerTarget.ariaExpanded = 'false'
-    this.cleanup()
-    this.cleanupEventListeners()
-
-    setTimeout(() => {
-      this.contentWrapperTarget.classList.add('hidden')
-    }, ANIMATION_OUT_DELAY)
-
-    this.onClose()
-  }
-
-  onClose() {
-    focusTrigger(this.triggerTarget)
-  }
-
-  // Global listeners
   setupEventListeners() {
-    document.addEventListener('click', this.DOMClickListener)
     document.addEventListener('keydown', this.DOMKeydownListener)
   }
 
   cleanupEventListeners() {
-    document.removeEventListener('click', this.DOMClickListener)
+    if (this.cleanup) this.cleanup()
     document.removeEventListener('keydown', this.DOMKeydownListener)
+  }
+
+  disconnect() {
+    this.cleanupEventListeners()
   }
 }

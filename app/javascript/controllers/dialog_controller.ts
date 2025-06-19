@@ -1,125 +1,113 @@
 import { Controller } from '@hotwired/stimulus'
+import { useClickOutside } from 'stimulus-use'
 import {
-  ANIMATION_OUT_DELAY,
+  ON_OPEN_FOCUS_DELAY,
   openWithOverlay,
   closeWithOverlay,
   focusTrigger,
-  FOCUS_DELAY,
+  showContent,
+  hideContent,
+  getFocusableElements,
 } from '../utils'
 
-export default class extends Controller {
+export default class extends Controller<HTMLElement> {
   static targets = ['trigger', 'content']
+  static values = {
+    isOpen: Boolean,
+  }
 
   declare readonly triggerTarget: HTMLElement
   declare readonly contentTarget: HTMLElement
-  declare DOMClickListener: (event: MouseEvent) => void
+  declare readonly hasContentTarget: boolean
+  declare isOpenValue: boolean
   declare DOMKeydownListener: (event: KeyboardEvent) => void
-  declare focusableElements: HTMLElement[]
-  declare firstElement: HTMLElement
-  declare lastElement: HTMLElement
-  declare contentElement: HTMLElement
 
   connect() {
-    this.DOMClickListener = this.onDOMClick.bind(this)
     this.DOMKeydownListener = this.onDOMKeydown.bind(this)
-
-    this.focusableElements = Array.from(
-      this.contentTarget.querySelectorAll(
-        'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
-      ),
-    )
-
-    this.firstElement = this.focusableElements[0]
-    this.lastElement = this.focusableElements[this.focusableElements.length - 1]
-    this.contentElement = document.querySelector(
-      `#${this.contentTarget.id}`,
-    ) as HTMLElement
+    useClickOutside(this, { element: this.contentTarget })
   }
 
   open() {
-    openWithOverlay([this.contentElement])
-    this.contentElement.classList.remove('hidden')
-    this.contentElement.dataset.state = 'open'
-    this.triggerTarget.ariaExpanded = 'true'
-    this.setupEventListeners()
-
-    document.body.appendChild(this.contentElement)
+    this.isOpenValue = true
 
     setTimeout(() => {
-      // must be after appendChild
-      this.firstElement.focus()
-    }, FOCUS_DELAY * 1.25)
+      this.onOpenFocusedElement().focus()
+    }, ON_OPEN_FOCUS_DELAY)
+  }
+
+  onOpenFocusedElement() {
+    const focusableElements = getFocusableElements(this.contentTarget)
+    return focusableElements[0]
   }
 
   close() {
-    closeWithOverlay()
-    this.contentElement.dataset.state = 'closed'
-    this.triggerTarget.ariaExpanded = 'false'
-    this.cleanupEventListeners()
-    this.element.appendChild(this.contentElement)
-
-    setTimeout(() => {
-      this.contentElement.classList.add('hidden')
-    }, ANIMATION_OUT_DELAY)
-
-    focusTrigger(this.triggerTarget)
-  }
-
-  isOpen() {
-    return this.triggerTarget.ariaExpanded === 'true'
-  }
-
-  // Global listeners
-  onDOMClick(event: MouseEvent) {
-    if (!this.isOpen()) return
-
-    const target = event.target as HTMLElement
-    const trigger = target.closest(`[data-${this.identifier}-target="trigger"]`)
-
-    if (trigger) return
-
-    const close = target.closest(`[data-action*="${this.identifier}#close"]`)
-
-    if (
-      close ||
-      (target.dataset.action &&
-        target.dataset.action.includes(`${this.identifier}#close`))
-    )
-      this.close()
-
-    if (this.contentElement.contains(target)) return
-
-    this.close()
+    this.isOpenValue = false
   }
 
   onDOMKeydown(event: KeyboardEvent) {
-    if (!this.isOpen()) return
+    if (!this.isOpenValue) return
 
     const key = event.key
 
     if (key === 'Escape') {
       this.close()
     } else if (key === 'Tab') {
+      const focusableElements = getFocusableElements(this.contentTarget)
+
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+
       // If Shift + Tab pressed on first element, go to last element
-      if (event.shiftKey && document.activeElement === this.firstElement) {
+      if (event.shiftKey && document.activeElement === firstElement) {
         event.preventDefault()
-        this.lastElement.focus()
+        lastElement.focus()
       }
       // If Tab pressed on last element, go to first element
-      else if (!event.shiftKey && document.activeElement === this.lastElement) {
+      else if (!event.shiftKey && document.activeElement === lastElement) {
         event.preventDefault()
-        this.firstElement.focus()
+        firstElement.focus()
+      }
+    }
+  }
+
+  isOpenValueChanged(isOpen: boolean, previousIsOpen: boolean) {
+    if (isOpen) {
+      openWithOverlay(this.contentTarget.id)
+
+      showContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentTarget,
+      })
+
+      this.setupEventListeners()
+    } else {
+      closeWithOverlay(this.contentTarget.id)
+
+      hideContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentTarget,
+      })
+
+      this.cleanupEventListeners()
+
+      // Only focus trigger when is previously opened
+      if (previousIsOpen) {
+        focusTrigger(this.triggerTarget)
       }
     }
   }
 
   setupEventListeners() {
-    document.addEventListener('click', this.DOMClickListener)
     document.addEventListener('keydown', this.DOMKeydownListener)
   }
 
   cleanupEventListeners() {
-    document.removeEventListener('click', this.DOMClickListener)
     document.removeEventListener('keydown', this.DOMKeydownListener)
+  }
+
+  disconnect() {
+    this.cleanupEventListeners()
   }
 }

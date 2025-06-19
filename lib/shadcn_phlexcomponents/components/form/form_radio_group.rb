@@ -79,7 +79,6 @@ module ShadcnPhlexcomponents
           id: @id,
           value: @value,
           aria: aria_attributes,
-          item_id_prefix: @id,
           **@attributes,
         ) do |c|
           c.items(
@@ -87,6 +86,7 @@ module ShadcnPhlexcomponents
             value_method: @value_method,
             text_method: @text_method,
             disabled_items: @disabled_items,
+            id_prefix: @id,
           ) do
             if @radio_attributes
               c.radio(**@radio_attributes)

@@ -33,7 +33,7 @@ module ShadcnPhlexcomponents
 
     def label_attributes(use_label_styles: false, **attributes)
       attributes[:class] = [
-        use_label_styles ? Label::STYLES : nil,
+        use_label_styles ? Label.new.class_variants : nil,
         attributes[:class],
       ].compact.join(" ")
       attributes[:for] ||= @id

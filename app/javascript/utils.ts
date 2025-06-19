@@ -4,11 +4,36 @@ import {
   shift,
   offset,
   autoUpdate,
+  size,
   Placement,
+  Middleware,
+  arrow,
 } from '@floating-ui/dom'
 
-const ANIMATION_OUT_DELAY = 125
-const FOCUS_DELAY = 100
+const ANIMATION_OUT_DELAY = 100
+const ON_OPEN_FOCUS_DELAY = 100
+const ON_CLOSE_FOCUS_DELAY = 50
+
+const OPPOSITE_SIDE = {
+  top: 'bottom',
+  right: 'left',
+  bottom: 'top',
+  left: 'right',
+}
+
+const ARROW_TRANSFORM_ORIGIN = {
+  top: '',
+  right: '0 0',
+  bottom: 'center 0',
+  left: '100% 0',
+}
+
+const ARROW_TRANSFORM = {
+  top: 'translateY(100%)',
+  right: 'translateY(50%) rotate(90deg) translateX(-50%)',
+  bottom: `rotate(180deg)`,
+  left: 'translateY(50%) rotate(-90deg) translateX(50%)',
+}
 
 const getScrollbarWidth = () => {
   // Create a temporary div container and append it into the body
@@ -34,33 +59,42 @@ const getScrollbarWidth = () => {
   return scrollbarWidth
 }
 
-const showOverlay = (classNames = '') => {
+const showOverlay = ({
+  classNames = '',
+  elementId,
+}: {
+  classNames?: string
+  elementId: string
+}) => {
   const element = document.createElement('div')
+
   let defaultClassNames = [
-    'fixed',
-    'inset-0',
-    'z-50',
-    'bg-black/80',
     'data-[state=open]:animate-in',
     'data-[state=closed]:animate-out',
     'data-[state=closed]:fade-out-0',
     'data-[state=open]:fade-in-0',
+    'fixed',
+    'inset-0',
+    'z-[48]',
+    'bg-black/50',
     'pointer-events-auto',
   ]
+
   defaultClassNames = defaultClassNames.concat(
     classNames.split(' ').filter((c) => !!c),
   )
 
   element.classList.add(...defaultClassNames)
   element.dataset.state = 'open'
-  element.dataset.shadcnPhlexcomponentsOverlay = 'true'
+  element.dataset.shadcnPhlexcomponentsOverlay = elementId
   element.ariaHidden = 'true'
+
   document.body.appendChild(element)
 }
 
-const hideOverlay = () => {
+const hideOverlay = (elementId: string) => {
   const element = document.querySelector(
-    '[data-shadcn-phlexcomponents-overlay]',
+    `[data-shadcn-phlexcomponents-overlay=${elementId}]`,
   )
 
   if (element && element instanceof HTMLElement) {
@@ -75,6 +109,15 @@ const hideOverlay = () => {
 const lockScroll = () => {
   if (window.innerHeight < document.documentElement.scrollHeight) {
     document.body.dataset.scrollLocked = '1'
+    document.body.classList.add(
+      'data-[scroll-locked]:pointer-events-none',
+      'data-[scroll-locked]:!overflow-hidden',
+      'data-[scroll-locked]:!relative',
+      'data-[scroll-locked]:px-0',
+      'data-[scroll-locked]:pt-0',
+      'data-[scroll-locked]:ml-0',
+      'data-[scroll-locked]:mt-0',
+    )
     const style = getComputedStyle(document.body)
     const originalMarginRight = style.marginRight
     document.body.dataset.marginRight = originalMarginRight
@@ -85,6 +128,16 @@ const lockScroll = () => {
 const unlockScroll = () => {
   if (document.body.dataset.scrollLocked) {
     delete document.body.dataset.scrollLocked
+    document.body.classList.remove(
+      'data-[scroll-locked]:pointer-events-none',
+      'data-[scroll-locked]:!overflow-hidden',
+      'data-[scroll-locked]:!relative',
+      'data-[scroll-locked]:px-0',
+      'data-[scroll-locked]:pt-0',
+      'data-[scroll-locked]:ml-0',
+      'data-[scroll-locked]:mt-0',
+    )
+
     const originalMarginRight = document.body.dataset.marginRight
 
     if (originalMarginRight && parseInt(originalMarginRight) === 0) {
@@ -97,68 +150,176 @@ const unlockScroll = () => {
   }
 }
 
-const addInert = (ignoredElements: HTMLElement[] = []) => {
-  Array.from(document.body.children)
-    .filter((el) => el instanceof HTMLElement && !ignoredElements.includes(el))
-    .forEach((el) => el.setAttribute('inert', ''))
-}
-
-const removeInert = () => {
-  Array.from(document.body.children)
-    .filter((el) => el.hasAttribute('inert'))
-    .forEach((el) => el.removeAttribute('inert'))
-}
-
-const openWithOverlay = (ignoredElements: HTMLElement[] = []) => {
-  showOverlay()
+const openWithOverlay = (elementId: string) => {
+  showOverlay({ elementId })
   lockScroll()
-  addInert(ignoredElements)
 }
 
-const closeWithOverlay = () => {
-  hideOverlay()
+const closeWithOverlay = (elementId: string) => {
+  hideOverlay(elementId)
   unlockScroll()
-  removeInert()
 }
 
-const hideOnEsc = {
-  name: 'hideOnEsc',
-  defaultValue: true,
-  fn({ hide }: { hide: () => void }) {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        hide()
-      }
-    }
+const initFloatingUi = ({
+  referenceElement,
+  floatingElement,
+  side = 'bottom',
+  align = 'center',
+  sideOffset = 0,
+  alignOffset = 0,
+  arrowElement,
+}: {
+  referenceElement: HTMLElement
+  floatingElement: HTMLElement
+  side?: string
+  align?: string
+  sideOffset?: number
+  alignOffset?: number
+  offsetPx?: number
+  arrowElement?: HTMLElement
+}) => {
+  let placement = `${side}-${align}`
+  placement = placement.replace(/-center/g, '')
 
-    return {
-      onShow() {
-        document.addEventListener('keydown', onKeyDown)
-      },
-      onHide() {
-        document.removeEventListener('keydown', onKeyDown)
-      },
-    }
-  },
-}
+  let arrowHeight = 0,
+    arrowWidth = 0
 
-const initFloatingUi = (
-  referenceElement: HTMLElement,
-  floatingElement: HTMLElement,
-  side: string | undefined,
-) => {
+  if (arrowElement) {
+    const rect = arrowElement.getBoundingClientRect()
+    arrowWidth = rect.width
+    arrowHeight = rect.height
+  }
+
+  const middleware = [
+    transformOrigin({ arrowHeight, arrowWidth }),
+    offset({ mainAxis: sideOffset, alignmentAxis: alignOffset }),
+    size({
+      apply: ({ elements, rects, availableWidth, availableHeight }) => {
+        const { width: anchorWidth, height: anchorHeight } = rects.reference
+        const contentStyle = elements.floating.style
+        contentStyle.setProperty(
+          '--radix-popper-available-width',
+          `${availableWidth}px`,
+        )
+        contentStyle.setProperty(
+          '--radix-popper-available-height',
+          `${availableHeight}px`,
+        )
+        contentStyle.setProperty(
+          '--radix-popper-anchor-width',
+          `${anchorWidth}px`,
+        )
+        contentStyle.setProperty(
+          '--radix-popper-anchor-height',
+          `${anchorHeight}px`,
+        )
+      },
+    }),
+  ]
+
+  const flipMiddleware = flip({
+    // Ensure we flip to the perpendicular axis if it doesn't fit
+    // on narrow viewports.
+    crossAxis: 'alignment',
+    fallbackAxisSideDirection: 'end', // or 'start'
+  })
+  const shiftMiddleware = shift()
+
+  // Prioritize flip over shift for edge-aligned placements only.
+  if (placement.includes('-')) {
+    middleware.push(flipMiddleware, shiftMiddleware)
+  } else {
+    middleware.push(shiftMiddleware, flipMiddleware)
+  }
+
+  if (arrowElement) {
+    middleware.push(arrow({ element: arrowElement, padding: 0 }))
+  }
+
   return autoUpdate(referenceElement, floatingElement, () => {
     computePosition(referenceElement, floatingElement, {
-      placement: (side || 'bottom') as Placement,
+      placement: placement as Placement,
       strategy: 'fixed',
-      middleware: [flip(), shift(), offset(4)],
-    }).then(({ x, y }) => {
+      middleware,
+    }).then(({ middlewareData, x, y }) => {
+      const arrowX = middlewareData.arrow?.x
+      const arrowY = middlewareData.arrow?.y
+      const cannotCenterArrow = middlewareData.arrow?.centerOffset !== 0
+
+      floatingElement.style.setProperty(
+        '--radix-popper-transform-origin',
+        `${middlewareData.transformOrigin?.x} ${middlewareData.transformOrigin?.y}`,
+      )
+      if (arrowElement) {
+        const baseSide = OPPOSITE_SIDE[side as keyof typeof OPPOSITE_SIDE]
+
+        const arrowStyle = {
+          position: 'absolute',
+          left: arrowX ? `${arrowX}px` : undefined,
+          top: arrowY ? `${arrowY}px` : undefined,
+          [baseSide]: 0,
+          transformOrigin:
+            ARROW_TRANSFORM_ORIGIN[side as keyof typeof ARROW_TRANSFORM_ORIGIN],
+          transform: ARROW_TRANSFORM[side as keyof typeof ARROW_TRANSFORM],
+          visibility: cannotCenterArrow ? 'hidden' : undefined,
+        }
+
+        Object.assign(arrowElement.style, arrowStyle)
+      }
       Object.assign(floatingElement.style, {
         left: `${x}px`,
         top: `${y}px`,
       })
     })
   })
+}
+
+const transformOrigin = (options: {
+  arrowWidth: number
+  arrowHeight: number
+}): Middleware => {
+  return {
+    name: 'transformOrigin',
+    options,
+    fn(data) {
+      const { placement, rects, middlewareData } = data
+      const cannotCenterArrow = middlewareData.arrow?.centerOffset !== 0
+      const isArrowHidden = cannotCenterArrow
+      const arrowWidth = isArrowHidden ? 0 : options.arrowWidth
+      const arrowHeight = isArrowHidden ? 0 : options.arrowHeight
+
+      const [placedSide, placedAlign] = getSideAndAlignFromPlacement(placement)
+      const noArrowAlign = { start: '0%', center: '50%', end: '100%' }[
+        placedAlign
+      ] as string
+
+      const arrowXCenter = (middlewareData.arrow?.x ?? 0) + arrowWidth / 2
+      const arrowYCenter = (middlewareData.arrow?.y ?? 0) + arrowHeight / 2
+
+      let x = ''
+      let y = ''
+
+      if (placedSide === 'bottom') {
+        x = isArrowHidden ? noArrowAlign : `${arrowXCenter}px`
+        y = `${-arrowHeight}px`
+      } else if (placedSide === 'top') {
+        x = isArrowHidden ? noArrowAlign : `${arrowXCenter}px`
+        y = `${rects.floating.height + arrowHeight}px`
+      } else if (placedSide === 'right') {
+        x = `${-arrowHeight}px`
+        y = isArrowHidden ? noArrowAlign : `${arrowYCenter}px`
+      } else if (placedSide === 'left') {
+        x = `${rects.floating.width + arrowHeight}px`
+        y = isArrowHidden ? noArrowAlign : `${arrowYCenter}px`
+      }
+      return { data: { x, y } }
+    },
+  }
+}
+
+function getSideAndAlignFromPlacement(placement: Placement) {
+  const [side, align = 'center'] = placement.split('-')
+  return [side, align] as const
 }
 
 const focusTrigger = (triggerTarget: HTMLElement) => {
@@ -172,21 +333,105 @@ const focusTrigger = (triggerTarget: HTMLElement) => {
     } else {
       triggerTarget.focus()
     }
-  }, FOCUS_DELAY)
+  }, ON_CLOSE_FOCUS_DELAY)
+}
+
+const getFocusableElements = (container: HTMLElement) => {
+  return Array.from(
+    container.querySelectorAll(
+      'button, [href], input:not([type="hidden"]), select:not([tabindex="-1"]), textarea, [tabindex]:not([tabindex="-1"])',
+    ),
+  ) as HTMLElement[]
+}
+
+const getSameLevelItems = ({
+  content,
+  items,
+  closestContentSelector,
+}: {
+  content: HTMLElement
+  items: HTMLElement[]
+  closestContentSelector: string
+}) => {
+  let sameLevelItems = [] as HTMLElement[]
+
+  items.forEach((i) => {
+    if (
+      i.closest(closestContentSelector) === content &&
+      i.dataset.disabled === undefined
+    ) {
+      sameLevelItems.push(i)
+    }
+  })
+
+  return sameLevelItems
+}
+
+const showContent = ({
+  trigger,
+  content,
+  contentContainer,
+  setEqualWidth,
+}: {
+  trigger?: HTMLElement
+  content: HTMLElement
+  contentContainer: HTMLElement
+  setEqualWidth?: boolean
+}) => {
+  contentContainer.classList.remove('hidden')
+
+  if (trigger) {
+    if (setEqualWidth) {
+      const triggerWidth = trigger.offsetWidth
+      const contentContainerWidth = contentContainer.offsetWidth
+
+      if (contentContainerWidth < triggerWidth) {
+        contentContainer.style.width = `${triggerWidth}px`
+      }
+    }
+
+    trigger.ariaExpanded = 'true'
+    trigger.dataset.state = 'open'
+  }
+
+  content.dataset.state = 'open'
+}
+
+const hideContent = ({
+  trigger,
+  content,
+  contentContainer,
+}: {
+  trigger?: HTMLElement
+  content: HTMLElement
+  contentContainer: HTMLElement
+}) => {
+  if (trigger) {
+    trigger.ariaExpanded = 'false'
+    trigger.dataset.state = 'closed'
+  }
+
+  content.dataset.state = 'closed'
+
+  setTimeout(() => {
+    contentContainer.classList.add('hidden')
+  }, ANIMATION_OUT_DELAY)
 }
 
 export {
   ANIMATION_OUT_DELAY,
-  FOCUS_DELAY,
-  hideOnEsc,
+  ON_CLOSE_FOCUS_DELAY,
+  ON_OPEN_FOCUS_DELAY,
   showOverlay,
   hideOverlay,
   lockScroll,
   unlockScroll,
-  addInert,
-  removeInert,
   openWithOverlay,
   closeWithOverlay,
   initFloatingUi,
   focusTrigger,
+  getFocusableElements,
+  getSameLevelItems,
+  showContent,
+  hideContent,
 }

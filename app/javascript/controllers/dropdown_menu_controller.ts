@@ -1,186 +1,133 @@
-import { Controller } from '@hotwired/stimulus'
-import {
-  ANIMATION_OUT_DELAY,
-  FOCUS_DELAY,
-  lockScroll,
-  unlockScroll,
-  initFloatingUi,
-  focusTrigger,
-} from '../utils'
+import DropdownMenuSubController from './dropdown_menu_sub_controller'
+import DropdownMenuRootController from './dropdown_menu_root_controller'
 
-export default class extends Controller<HTMLElement> {
-  static targets = ['trigger', 'contentWrapper', 'content', 'item']
-
-  declare readonly triggerTarget: HTMLElement
-  declare readonly contentWrapperTarget: HTMLElement
-  declare readonly contentTarget: HTMLElement
-  declare readonly itemTargets: HTMLElement[]
-  declare DOMClickListener: (event: MouseEvent) => void
-  declare DOMKeydownListener: (event: KeyboardEvent) => void
-  declare items: HTMLElement[]
-  declare cleanup: () => void
-
-  connect() {
-    this.DOMClickListener = this.onDOMClick.bind(this)
-    this.DOMKeydownListener = this.onDOMKeydown.bind(this)
-    this.items = this.itemTargets.filter(
-      (item) => item.dataset.disabled === undefined,
-    )
+export default class extends DropdownMenuRootController {
+  static values = {
+    isOpen: Boolean,
+    setEqualWidth: { type: Boolean, default: false },
+    closestContentSelector: {
+      type: String,
+      default:
+        '[data-dropdown-menu-target="content"], [data-dropdown-menu-sub-target="content"]',
+    },
   }
 
-  toggle() {
-    if (this.isOpen()) {
-      this.close()
-    } else {
-      this.open()
+  declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare subMenuControllers: DropdownMenuSubController[]
+
+  connect() {
+    super.connect()
+  }
+
+  onOpen(_event: MouseEvent | KeyboardEvent) {
+    // Sub menus are not connected to the DOM yet when dropdown menu is connected.
+    // So we initialize them here instead of in connect().
+    if (this.subMenuControllers === undefined) {
+      let subMenuControllers = [] as DropdownMenuSubController[]
+
+      const subMenus = Array.from(
+        this.contentTarget.querySelectorAll(
+          '[data-shadcn-phlexcomponents="dropdown-menu-sub"]',
+        ),
+      )
+
+      subMenus.forEach((subMenu) => {
+        const subMenuController =
+          window.Stimulus.getControllerForElementAndIdentifier(
+            subMenu,
+            'dropdown-menu-sub',
+          ) as DropdownMenuSubController
+
+        if (subMenuController) {
+          subMenuControllers.push(subMenuController)
+        }
+      })
+
+      this.subMenuControllers = subMenuControllers
     }
   }
 
-  isOpen() {
-    return this.triggerTarget.ariaExpanded === 'true'
-  }
+  focusItem(event: MouseEvent | KeyboardEvent) {
+    const item = event.currentTarget as HTMLElement
+    let items = [] as HTMLElement[]
+    const content = item.closest(
+      this.closestContentSelectorValue,
+    ) as HTMLElement
 
-  open(event: KeyboardEvent | null = null) {
-    lockScroll()
-    this.contentWrapperTarget.classList.remove('hidden')
-    this.triggerTarget.ariaExpanded = 'true'
-    this.triggerTarget.dataset.state = 'open'
-    this.contentTarget.dataset.state = 'open'
+    const isSubMenu =
+      content.dataset.shadcnPhlexcomponents === 'dropdown-menu-sub-content'
 
-    setTimeout(() => {
-      let focusItem = false
+    if (isSubMenu) {
+      const subMenu = content.closest(
+        '[data-shadcn-phlexcomponents="dropdown-menu-sub"]',
+      )
+      const subMenuController = this.subMenuControllers.find(
+        (subMenuController) => subMenuController.element == subMenu,
+      )
+      if (subMenuController) {
+        items = subMenuController.items
+      }
+    } else {
+      items = this.items
+    }
 
-      if (event instanceof KeyboardEvent) {
-        const key = event.key
+    let index = items.indexOf(item)
 
-        if (['ArrowDown', 'Enter', ' '].includes(key)) {
-          focusItem = true
+    if (event instanceof KeyboardEvent) {
+      const key = event.key
+      let newIndex = 0
+
+      if (key === 'ArrowUp') {
+        newIndex = index - 1
+        if (newIndex < 0) {
+          newIndex = 0
+        }
+      } else {
+        newIndex = index + 1
+        if (newIndex > items.length - 1) {
+          newIndex = items.length - 1
         }
       }
 
-      if (focusItem) {
-        this.focusItem(null, 0)
-      } else {
-        this.focusContent()
-      }
-    }, FOCUS_DELAY * 1.25)
-
-    this.setupEventListeners()
-
-    this.cleanup = initFloatingUi(
-      this.triggerTarget,
-      this.contentWrapperTarget,
-      this.element.dataset.side,
-    )
-  }
-
-  close() {
-    unlockScroll()
-    this.triggerTarget.ariaExpanded = 'false'
-    this.triggerTarget.dataset.state = 'closed'
-    this.contentTarget.dataset.state = 'closed'
-    this.cleanup()
-    this.cleanupEventListeners()
-
-    setTimeout(() => {
-      this.contentWrapperTarget.classList.add('hidden')
-    }, ANIMATION_OUT_DELAY)
-
-    focusTrigger(this.triggerTarget)
-  }
-
-  focusItem(event: MouseEvent | null = null, index: number | null = null) {
-    let itemIndex = index
-
-    if (event) {
-      const item = (event.currentTarget || event.target) as HTMLElement
-      itemIndex = this.items.indexOf(item)
+      items[newIndex].focus()
+    } else {
+      // item mouseover event
+      items[index].focus()
     }
 
-    this.items.forEach((item, index) => {
-      if (index === itemIndex) {
-        item.tabIndex = 0
-        item.focus()
-      } else {
-        item.tabIndex = -1
+    // Close submenus on the same level
+    const subMenusInContent = Array.from(
+      content.querySelectorAll(
+        '[data-shadcn-phlexcomponents="dropdown-menu-sub"]',
+      ),
+    ) as HTMLElement[]
+
+    subMenusInContent.forEach((subMenu) => {
+      const subMenuController = this.subMenuControllers.find(
+        (subMenuController) => subMenuController.element == subMenu,
+      )
+
+      if (subMenuController) {
+        subMenuController.closeImmediately()
       }
     })
   }
 
-  focusFirstItem() {
-    this.focusItem(null, 0)
-  }
-
-  focusLastItem() {
-    this.focusItem(null, this.items.length - 1)
-  }
-
-  focusNextItem(event: KeyboardEvent) {
-    const item = (event.currentTarget || event.target) as HTMLElement
-    const index = this.items.indexOf(item)
-    if (index === this.items.length - 1) return
-
-    this.focusItem(null, index + 1)
-  }
-
-  focusPrevItem(event: KeyboardEvent) {
-    const item = (event.currentTarget || event.target) as HTMLElement
-    const index = this.items.indexOf(item)
-    if (index === 0) return
-
-    this.focusItem(null, index - 1)
-  }
-
-  focusContent() {
-    this.items.forEach((item) => {
-      item.blur()
+  onClose() {
+    this.subMenuControllers.forEach((subMenuController) => {
+      subMenuController.closeImmediately()
     })
-
-    this.contentTarget.focus()
   }
 
-  selectItem(event: MouseEvent | KeyboardEvent) {
-    if (!this.isOpen()) return
-
+  onSelect(event: MouseEvent | KeyboardEvent) {
     if (event instanceof KeyboardEvent) {
       const key = event.key
       const item = (event.currentTarget || event.target) as HTMLElement
 
+      // For rails button_to
       if (item && (key === 'Enter' || key === ' ')) {
         item.click()
       }
     }
-
-    this.close()
-  }
-
-  // Global listeners
-  onDOMClick(event: MouseEvent) {
-    if (!this.isOpen()) return
-    if (this.element.contains(event.target as HTMLElement)) return
-
-    this.close()
-  }
-
-  onDOMKeydown(event: KeyboardEvent) {
-    if (!this.isOpen()) return
-
-    const key = event.key
-
-    if (['Tab', 'Enter', ' '].includes(key)) event.preventDefault()
-
-    if (key === 'Escape') {
-      this.close()
-    }
-  }
-
-  setupEventListeners() {
-    document.addEventListener('click', this.DOMClickListener)
-    document.addEventListener('keydown', this.DOMKeydownListener)
-  }
-
-  cleanupEventListeners() {
-    document.removeEventListener('click', this.DOMClickListener)
-    document.removeEventListener('keydown', this.DOMKeydownListener)
   }
 }

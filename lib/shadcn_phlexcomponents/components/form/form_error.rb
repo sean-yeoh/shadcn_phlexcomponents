@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class FormError < Base
-    STYLES = "text-[0.8rem] font-medium text-destructive"
+    class_variants(base: "text-destructive text-sm")
 
     def initialize(message, aria_id: nil, **attributes)
       @message = message

@@ -2,31 +2,34 @@ import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
   initialize() {
-    document.documentElement.classList.toggle(
-      'dark',
+    if (
       localStorage.theme === 'dark' ||
-        (!('theme' in localStorage) &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches),
-    )
+      (!('theme' in localStorage) &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches)
+    ) {
+      this.setDarkMode()
+    } else {
+      this.setLightMode()
+    }
   }
 
   toggle() {
     if (document.documentElement.classList.contains('dark')) {
-      localStorage.theme = 'light'
-      document.documentElement.classList.remove('dark')
+      this.setLightMode()
     } else {
-      localStorage.theme = 'dark'
-      document.documentElement.classList.add('dark')
+      this.setDarkMode()
     }
   }
 
   setLightMode() {
     localStorage.theme = 'light'
     document.documentElement.classList.remove('dark')
+    document.documentElement.style.colorScheme = ''
   }
 
   setDarkMode() {
     localStorage.theme = 'dark'
     document.documentElement.classList.add('dark')
+    document.documentElement.style.colorScheme = 'dark'
   }
 }

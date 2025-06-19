@@ -1,39 +1,45 @@
 import { Controller } from '@hotwired/stimulus'
+import { hideContent, showContent } from '@shadcn_phlexcomponents/utils'
 
 export default class extends Controller {
-  static targets = ['trigger', 'content', 'item']
+  static targets = ['trigger', 'content']
+  static values = {
+    isOpen: Boolean,
+  }
 
   declare readonly triggerTarget: HTMLElement
   declare readonly contentTarget: HTMLElement
-  declare readonly itemTarget: HTMLElement
-
-  connect() {
-    if (this.isOpen()) {
-      this.open()
-    }
-  }
+  declare isOpenValue: boolean
 
   toggle() {
-    if (this.isOpen()) {
+    if (this.isOpenValue) {
       this.close()
     } else {
       this.open()
     }
   }
 
-  isOpen() {
-    return this.triggerTarget.ariaExpanded === 'true'
-  }
-
   open() {
-    this.triggerTarget.ariaExpanded = 'true'
-    this.triggerTarget.dataset.state = 'open'
-    this.contentTarget.classList.remove('hidden')
+    this.isOpenValue = true
   }
 
   close() {
-    this.triggerTarget.ariaExpanded = 'false'
-    this.triggerTarget.dataset.state = 'closed'
-    this.contentTarget.classList.add('hidden')
+    this.isOpenValue = false
+  }
+
+  isOpenValueChanged(isOpen: boolean) {
+    if (isOpen) {
+      showContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentTarget,
+      })
+    } else {
+      hideContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentTarget,
+      })
+    }
   }
 }

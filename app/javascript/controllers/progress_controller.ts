@@ -1,17 +1,17 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['bar']
+  static targets = ['indicator']
 
   static values = {
-    progress: Number,
+    percent: Number,
   }
 
-  declare readonly barTarget: HTMLElement
-  declare progressValue: number
+  declare readonly indicatorTarget: HTMLElement
+  declare percentValue: number
 
-  progressValueChanged(value: number) {
+  percentValueChanged(value: number) {
     this.element.setAttribute('aria-valuenow', `${value}`)
-    this.barTarget.style.transform = `translateX(-${100 - value}%)`
+    this.indicatorTarget.style.transform = `translateX(-${100 - value}%)`
   }
 }

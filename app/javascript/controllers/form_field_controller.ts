@@ -1,12 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['trigger', 'content', 'item']
-
-  declare readonly triggerTarget: HTMLElement
-  declare readonly contentTarget: HTMLElement
-  declare readonly itemTarget: HTMLElement
-
   connect() {
     const hintContainer = this.element.querySelector('[data-remove-label]')
     const labelContainer = this.element.querySelector('[data-remove-hint]')

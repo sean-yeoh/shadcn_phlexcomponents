@@ -1,17 +1,9 @@
-import { Controller } from '@hotwired/stimulus'
-import {
-  ANIMATION_OUT_DELAY,
-  FOCUS_DELAY,
-  lockScroll,
-  unlockScroll,
-  initFloatingUi,
-  focusTrigger,
-} from '../utils'
+import DropdownMenuRootController from './dropdown_menu_root_controller'
 
-export default class extends Controller<HTMLElement> {
+export default class extends DropdownMenuRootController {
   static targets = [
     'trigger',
-    'contentWrapper',
+    'contentContainer',
     'content',
     'item',
     'triggerText',
@@ -21,101 +13,28 @@ export default class extends Controller<HTMLElement> {
   ]
 
   static values = {
+    isOpen: Boolean,
     selected: String,
+    setEqualWidth: { type: Boolean, default: true },
+    closestContentSelector: {
+      type: String,
+      default: '[data-select-target="content"]',
+    },
   }
 
-  declare readonly triggerTarget: HTMLElement
-  declare readonly contentWrapperTarget: HTMLElement
-  declare readonly contentTarget: HTMLElement
-  declare readonly itemTargets: HTMLElement[]
-  declare readonly triggerTextTarget: HTMLElement
-  declare readonly groupTargets: HTMLElement[]
-  declare readonly labelTargets: HTMLElement[]
-  declare readonly selectTarget: HTMLSelectElement
   declare selectedValue: string
-  declare DOMClickListener: (event: MouseEvent) => void
-  declare DOMKeydownListener: (event: KeyboardEvent) => void
-  declare items: HTMLElement[]
-  declare search: string
-  declare searchTimer: number | null
-  declare resetSearchTimer: number | null
-  declare cleanup: () => void
+  declare searchString: string
+  declare searchTimeout: number
+  declare groupTargets: HTMLElement[]
+  declare triggerTextTarget: HTMLElement
+  declare selectTarget: HTMLSelectElement
+  declare itemsInnerText: string[]
 
   connect() {
-    this.DOMClickListener = this.onDOMClick.bind(this)
-    this.DOMKeydownListener = this.onDOMKeydown.bind(this)
-
+    super.connect()
+    this.itemsInnerText = this.items.map((i) => i.innerText.trim())
     this.setAriaLabelledby()
-
-    this.items = Array.from(
-      this.element.querySelectorAll(
-        '[data-select-target="item"]:not([data-disabled])',
-      ),
-    )
-
-    this.search = ''
-    this.searchTimer = null
-    this.resetSearchTimer = null
-  }
-
-  toggle() {
-    if (this.isOpen()) {
-      this.close()
-    } else {
-      this.open()
-    }
-  }
-
-  open() {
-    lockScroll()
-    const triggerWidth = this.triggerTarget.offsetWidth
-    this.contentWrapperTarget.classList.remove('hidden')
-
-    const contentWrapperWidth = this.contentWrapperTarget.offsetWidth
-
-    if (contentWrapperWidth < triggerWidth) {
-      this.contentWrapperTarget.style.width = `${triggerWidth}px`
-    }
-
-    this.triggerTarget.ariaExpanded = 'true'
-    this.contentTarget.dataset.state = 'open'
-
-    setTimeout(() => {
-      if (this.selectedValue) {
-        const item = this.itemTargets.find(
-          (i) => i.dataset.value === this.selectedValue,
-        )
-
-        if (item && !item.dataset.disabled) {
-          item.focus()
-        } else {
-          this.contentTarget.focus()
-        }
-      } else {
-        this.focusItem(null, 0)
-      }
-    }, FOCUS_DELAY * 1.25)
-
-    this.setupEventListeners()
-    this.cleanup = initFloatingUi(
-      this.triggerTarget,
-      this.contentWrapperTarget,
-      'bottom',
-    )
-  }
-
-  close() {
-    unlockScroll()
-    this.contentTarget.dataset.state = 'closed'
-    this.triggerTarget.ariaExpanded = 'false'
-    this.cleanup()
-    this.cleanupEventListeners()
-
-    setTimeout(() => {
-      this.contentWrapperTarget.classList.add('hidden')
-    }, ANIMATION_OUT_DELAY)
-
-    focusTrigger(this.triggerTarget)
+    this.searchString = ''
   }
 
   setAriaLabelledby() {
@@ -124,80 +43,133 @@ export default class extends Controller<HTMLElement> {
         '[data-select-target="label"]',
       ) as HTMLElement
 
-      if (label.textContent) {
-        const ariaId = this.element.dataset.ariaId
-        const labelledby = `${ariaId}-${label.textContent
-          .toLowerCase()
-          .trim()
-          .replace(/ /, '-')}`
-        label.setAttribute('id', labelledby)
-        g.setAttribute('aria-labelledby', labelledby)
+      if (label) {
+        label.id = g.getAttribute('aria-labelledby') as string
       }
     })
   }
 
-  isOpen() {
-    return this.triggerTarget.ariaExpanded === 'true'
-  }
+  onOpenFocusedElement(event: MouseEvent | KeyboardEvent) {
+    let itemIndex = null as number | null
 
-  focusItem(event: MouseEvent | null = null, index: number | null = null) {
-    let itemIndex = index
+    if (this.selectedValue) {
+      const item = this.itemTargets.find(
+        (i) => i.dataset.value === this.selectedValue,
+      )
 
-    if (event) {
-      const item = (event.currentTarget || event.target) as HTMLElement
-      itemIndex = this.items.indexOf(item)
-    }
-
-    const item = this.items[itemIndex as number]
-    item.tabIndex = 0
-    item.focus()
-
-    this.items.forEach((item, index) => {
-      if (index !== itemIndex) {
-        item.tabIndex = -1
+      if (item && !item.dataset.disabled) {
+        itemIndex = this.items.indexOf(item)
       }
-    })
-  }
+    } else {
+      if (event instanceof KeyboardEvent) {
+        const key = event.key
 
-  focusFirstItem() {
-    this.focusItem(null, 0)
-  }
+        if (['ArrowDown', 'Enter', ' '].includes(key)) {
+          itemIndex = 0
+        }
+      }
+    }
 
-  focusLastItem() {
-    this.focusItem(null, this.items.length - 1)
-  }
-
-  focusPrevItem(event: KeyboardEvent) {
-    const item = (event.currentTarget || event.target) as HTMLElement
-    const index = this.items.indexOf(item)
-
-    if (index - 1 >= 0) {
-      this.focusItem(null, index - 1)
+    if (itemIndex !== null) {
+      return this.items[itemIndex]
+    } else {
+      return this.contentTarget
     }
   }
 
-  focusNextItem(event: KeyboardEvent) {
-    const item = (event.currentTarget || event.target) as HTMLElement
-    const index = this.items.indexOf(item)
-
-    if (index + 1 < this.items.length) {
-      this.focusItem(null, index + 1)
-    }
-  }
-
-  selectItem(event: MouseEvent | KeyboardEvent) {
-    const item = (event.currentTarget || event.target) as HTMLElement
+  onSelect(event: MouseEvent | KeyboardEvent) {
+    const item = event.currentTarget as HTMLElement
     const value = item.dataset.value as string
     this.selectedValue = value
-    this.close()
   }
 
-  focusContent() {
-    this.items.forEach((item) => {
-      item.blur()
-    })
+  onDOMKeydown(event: KeyboardEvent) {
+    super.onDOMKeydown(event)
 
-    this.contentTarget.focus()
+    const { key, altKey, ctrlKey, metaKey } = event
+
+    if (
+      key === 'Backspace' ||
+      key === 'Clear' ||
+      (key.length === 1 && key !== ' ' && !altKey && !ctrlKey && !metaKey)
+    ) {
+      this.handleSearch(key)
+    }
+  }
+
+  // https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
+  handleSearch(char: string) {
+    const searchString = this.getSearchString(char)
+    const focusedItem = this.items.find(
+      (item) => document.activeElement === item,
+    )
+    const focusedIndex = focusedItem ? this.items.indexOf(focusedItem) : 0
+    const searchIndex = this.getIndexByLetter(searchString, focusedIndex + 1)
+
+    // if a match was found, go to it
+    if (searchIndex >= 0) {
+      this.focusItemByIndex(null, searchIndex)
+    }
+    // if no matches, clear the timeout and search string
+    else {
+      window.clearTimeout(this.searchTimeout)
+      this.searchString = ''
+    }
+  }
+
+  filterItemsInnerText(items: string[], filter: string) {
+    return items.filter((item) => {
+      const matches = item.toLowerCase().indexOf(filter.toLowerCase()) === 0
+      return matches
+    })
+  }
+
+  getSearchString(char: string) {
+    // reset typing timeout and start new timeout
+    // this allows us to make multiple-letter matches, like a native select
+    if (typeof this.searchTimeout === 'number') {
+      window.clearTimeout(this.searchTimeout)
+    }
+
+    this.searchTimeout = window.setTimeout(() => {
+      this.searchString = ''
+    }, 500)
+
+    // add most recent letter to saved search string
+    this.searchString += char
+    return this.searchString
+  }
+
+  // return the index of an option from an array of options, based on a search string
+  // if the filter is multiple iterations of the same letter (e.g "aaa"), then cycle through first-letter matches
+  getIndexByLetter(filter: string, startIndex: number) {
+    const orderedItems = [
+      ...this.itemsInnerText.slice(startIndex),
+      ...this.itemsInnerText.slice(0, startIndex),
+    ]
+
+    const firstMatch = this.filterItemsInnerText(orderedItems, filter)[0]
+
+    const allSameLetter = (array: string[]) =>
+      array.every((letter) => letter === array[0])
+
+    // first check if there is an exact match for the typed string
+    if (firstMatch) {
+      const index = this.itemsInnerText.indexOf(firstMatch)
+      return index
+    }
+
+    // if the same letter is being repeated, cycle through first-letter matches
+    else if (allSameLetter(filter.split(''))) {
+      const matches = this.filterItemsInnerText(orderedItems, filter[0])
+      const index = this.itemsInnerText.indexOf(matches[0])
+      return index
+    }
+
+    // if no matches, return -1
+    else {
+      return -1
+    }
   }
 
   selectedValueChanged(value: string) {
@@ -224,68 +196,5 @@ export default class extends Controller<HTMLElement> {
     if (placeholder && this.triggerTarget.dataset.hasValue === 'false') {
       this.triggerTextTarget.textContent = placeholder
     }
-  }
-
-  handleSearchChange(search: string) {
-    const item = this.items.find((i) =>
-      i.innerText.toLowerCase().startsWith(search.toLowerCase()),
-    )
-
-    if (item) {
-      item.focus()
-    }
-  }
-
-  handleSearch(key: string) {
-    const search = this.search + key
-    this.search = search
-
-    if (this.searchTimer) window.clearTimeout(this.searchTimer)
-
-    if (this.resetSearchTimer) window.clearTimeout(this.resetSearchTimer)
-
-    if (search !== '') {
-      this.searchTimer = window.setTimeout(() => {
-        this.handleSearchChange(search)
-      }, 150)
-
-      this.resetSearchTimer = window.setTimeout(() => {
-        this.search = ''
-      }, 300)
-    }
-  }
-
-  // Global listeners
-  onDOMClick(event: MouseEvent) {
-    if (!this.isOpen()) return
-    if (this.element.contains(event.target as HTMLElement)) return
-
-    this.close()
-  }
-
-  onDOMKeydown(event: KeyboardEvent) {
-    if (!this.isOpen()) return
-
-    const key = event.key
-    const isModifierKey = event.ctrlKey || event.altKey || event.metaKey
-
-    if (key === 'Tab') event.preventDefault()
-    if (!isModifierKey && key.length === 1) this.handleSearch(key)
-
-    if (key === 'Escape') {
-      this.close()
-    }
-  }
-
-  setupEventListeners() {
-    document.addEventListener('click', this.DOMClickListener)
-    document.addEventListener('keydown', this.DOMKeydownListener)
-  }
-
-  cleanupEventListeners() {
-    document.removeEventListener('click', this.DOMClickListener)
-    document.removeEventListener('keydown', this.DOMKeydownListener)
-    if (this.searchTimer) window.clearTimeout(this.searchTimer)
-    if (this.resetSearchTimer) window.clearTimeout(this.resetSearchTimer)
   }
 }

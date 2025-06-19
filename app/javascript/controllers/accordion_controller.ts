@@ -1,41 +1,29 @@
 import { Controller } from '@hotwired/stimulus'
-import { ANIMATION_OUT_DELAY } from '../utils'
+import { showContent, hideContent } from '../utils'
 
 export default class extends Controller<HTMLElement> {
-  static targets = ['trigger', 'content', 'item']
-
-  declare readonly triggerTargets: HTMLButtonElement[]
-  declare readonly contentTarget: HTMLElement
-  declare readonly contentTargets: HTMLElement[]
-  declare readonly itemTargets: HTMLElement[]
-  declare triggers: HTMLElement[]
+  static targets = ['item']
+  static values = { openItems: Array }
+  declare itemTargets: HTMLElement[]
   declare multiple: boolean
+  declare openItemsValue: string[]
 
   connect() {
-    this.triggers = this.triggerTargets.filter((t) => !t.disabled)
     this.multiple = this.element.dataset.multiple === 'true'
-    const value = this.element.dataset.value
-      ? JSON.parse(this.element.dataset.value)
-      : {}
-
-    this.itemTargets.forEach((i) => {
-      if (value.includes(i.dataset.value)) {
-        this.openItem(i)
-      } else {
-        this.closeItem(i)
-      }
-    })
 
     setTimeout(() => {
-      this.contentTargets.forEach((c) => {
-        this.setContentHeight(c)
+      this.itemTargets.forEach((item) => {
+        const content = item.querySelector(
+          '[data-shadcn-phlexcomponents="accordion-content-container"]',
+        ) as HTMLElement
+        this.setContentHeight(content)
       })
-    }, 200)
+    }, 250)
   }
 
   setContentHeight(element: HTMLElement) {
     const height = this.getContentHeight(element)
-    element.style.setProperty('--accordion-content-height', `${height}px`)
+    element.style.setProperty('--radix-accordion-content-height', `${height}px`)
   }
 
   getContentHeight(element: HTMLElement) {
@@ -62,82 +50,84 @@ export default class extends Controller<HTMLElement> {
     return height
   }
 
-  toggleItem(event: MouseEvent) {
-    const trigger = (event.currentTarget || event.target) as HTMLElement
+  toggle(event: MouseEvent) {
+    const trigger = event.currentTarget as HTMLElement
 
-    const item = trigger.closest(
-      '[data-accordion-target="item"]',
-    ) as HTMLElement
+    const item = this.itemTargets.find((item) => {
+      return item.contains(trigger)
+    })
 
-    if (item.dataset.state === 'open') {
-      this.closeItem(item)
+    if (!item) return
+
+    const value = item.dataset.value as string
+    const isOpen = this.openItemsValue.includes(value)
+
+    if (isOpen) {
+      this.openItemsValue = this.openItemsValue.filter((v) => v !== value)
     } else {
-      this.openItem(item)
-    }
-
-    if (!this.multiple) {
-      this.itemTargets.forEach((i) => {
-        if (i !== item) {
-          this.closeItem(i)
-        }
-      })
+      if (this.multiple) {
+        this.openItemsValue = [...this.openItemsValue, value]
+      } else {
+        this.openItemsValue = [value]
+      }
     }
   }
 
-  openItem(item: HTMLElement) {
-    const button = item.querySelector(
-      '[data-accordion-target="trigger"]',
-    ) as HTMLElement
-    const content = item.querySelector(
-      '[data-accordion-target="content"]',
-    ) as HTMLElement
+  focusTrigger(event: KeyboardEvent) {
+    const trigger = event.currentTarget as HTMLButtonElement
+    const key = event.key as 'ArrowUp' | 'ArrowDown'
 
-    item.dataset.state = 'open'
-    button.ariaExpanded = 'true'
-    button.dataset.state = 'open'
-    content.dataset.state = 'open'
-    content.classList.remove('hidden')
-  }
+    let focusableTriggers = this.itemTargets.map((item) => {
+      return item.querySelector(
+        '[data-shadcn-phlexcomponents="accordion-trigger"]',
+      )
+    }) as HTMLButtonElement[]
 
-  closeItem(item: HTMLElement) {
-    const button = item.querySelector(
-      '[data-accordion-target="trigger"]',
-    ) as HTMLElement
-    const content = item.querySelector(
-      '[data-accordion-target="content"]',
-    ) as HTMLElement
+    focusableTriggers = focusableTriggers.filter((trigger) => !trigger.disabled)
+    const index = focusableTriggers.indexOf(trigger)
+    let newIndex = 0
 
-    item.dataset.state = 'closed'
-    button.ariaExpanded = 'false'
-    button.dataset.state = 'closed'
-    content.dataset.state = 'closed'
+    if (key === 'ArrowUp') {
+      newIndex = index - 1
 
-    setTimeout(() => {
-      content.classList.add('hidden')
-    }, ANIMATION_OUT_DELAY)
-  }
+      if (newIndex < 0) {
+        newIndex = focusableTriggers.length - 1
+      }
+    } else {
+      newIndex = index + 1
 
-  focusNext(event: KeyboardEvent) {
-    const trigger = (event.currentTarget || event.target) as HTMLElement
-    const index = this.triggers.indexOf(trigger)
-    let nextIndex = index + 1
-
-    if (index === this.triggers.length - 1) {
-      nextIndex = 0
+      if (newIndex > focusableTriggers.length - 1) {
+        newIndex = 0
+      }
     }
 
-    this.triggers[nextIndex].focus()
+    focusableTriggers[newIndex].focus()
   }
 
-  focusPrev(event: KeyboardEvent) {
-    const trigger = (event.currentTarget || event.target) as HTMLElement
-    const index = this.triggers.indexOf(trigger)
-    let prevIndex = index - 1
+  openItemsValueChanged(openItems: string[]) {
+    this.itemTargets.forEach((item) => {
+      const itemValue = item.dataset.value as string
 
-    if (index === 0) {
-      prevIndex = this.triggers.length - 1
-    }
+      const trigger = item.querySelector(
+        '[data-shadcn-phlexcomponents="accordion-trigger"]',
+      ) as HTMLElement
+      const content = item.querySelector(
+        '[data-shadcn-phlexcomponents="accordion-content-container"]',
+      ) as HTMLElement
 
-    this.triggers[prevIndex].focus()
+      if (openItems.includes(itemValue)) {
+        showContent({
+          trigger,
+          content: content,
+          contentContainer: content,
+        })
+      } else {
+        hideContent({
+          trigger,
+          content: content,
+          contentContainer: content,
+        })
+      }
+    })
   }
 }

@@ -1,12 +1,13 @@
 import {
-  FOCUS_DELAY,
   initFloatingUi,
   showOverlay,
   hideOverlay,
   lockScroll,
   unlockScroll,
+  ON_OPEN_FOCUS_DELAY,
+  getFocusableElements,
 } from '../utils'
-import { Calendar } from 'vanilla-calendar-pro'
+import { Calendar, Options } from 'vanilla-calendar-pro'
 import Inputmask from 'inputmask'
 import PopoverController from './popover_controller'
 import dayjs from 'dayjs'
@@ -15,11 +16,13 @@ import utc from 'dayjs/plugin/utc'
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
+const DAYJS_FORMAT = 'YYYY-MM-DD'
+
 export default class extends PopoverController {
   static targets = [
     'trigger',
     'triggerText',
-    'contentWrapper',
+    'contentContainer',
     'content',
     'input',
     'hiddenInput',
@@ -27,20 +30,16 @@ export default class extends PopoverController {
     'calendar',
   ]
 
-  static values = {
-    date: String,
-  }
+  static values = { isOpen: Boolean, date: String }
 
-  declare readonly triggerTarget: HTMLElement
   declare readonly triggerTextTarget: HTMLElement
-  declare readonly contentWrapperTarget: HTMLElement
-  declare readonly contentTarget: HTMLElement
   declare readonly inputTarget: HTMLInputElement
   declare readonly hiddenInputTarget: HTMLInputElement
   declare readonly inputContainerTarget: HTMLElement
   declare readonly calendarTarget: HTMLElement
   declare onClickDateListener: (event: any, self: any) => void
   declare format: string
+  declare mask: boolean
   declare dateValue: string
   declare calendar: Calendar
   declare readonly hasInputTarget: boolean
@@ -48,34 +47,17 @@ export default class extends PopoverController {
 
   connect() {
     super.connect()
-
-    const date = this.element.dataset.value
-    this.format = this.element.dataset.format || 'YYYY-MM-DD'
-
-    const settings = this.getSettings()
-    settings.type = 'default'
-
     this.onClickDateListener = this.onClickDate.bind(this)
+    this.format = this.element.dataset.format || 'DD/MM/YYYY'
+    this.mask = this.element.dataset.mask === 'true'
 
-    if (date && dayjs(date).isValid()) {
-      const dayjsDate = dayjs(date).format('YYYY-MM-DD')
-      settings.selectedDates = [dayjsDate]
-      this.dateValue = dayjsDate
-    }
+    const options = this.getOptions()
 
-    this.calendar = new Calendar(this.calendarTarget, {
-      enableJumpToSelectedDate: true,
-      ...settings,
-      onClickDate: this.onClickDateListener,
-    })
-
+    this.calendar = new Calendar(this.calendarTarget, options)
     this.calendar.init()
 
-    if (this.hasInputTarget) {
-      const im = new Inputmask(this.format.replace(/[^\/]/g, '9'), {
-        showMaskOnHover: false,
-      })
-      im.mask(this.inputTarget)
+    if (this.hasInputTarget && this.mask) {
+      this.setupInputMask()
     }
 
     this.calendarTarget.removeAttribute('tabindex')
@@ -104,7 +86,7 @@ export default class extends PopoverController {
     }
 
     if (value.length > 0 && dayjs(value, this.format, true).isValid()) {
-      const dayjsDate = dayjs(value, this.format).format('YYYY-MM-DD')
+      const dayjsDate = dayjs(value, this.format).format(DAYJS_FORMAT)
       this.calendar.set({
         selectedDates: [dayjsDate],
       })
@@ -112,35 +94,12 @@ export default class extends PopoverController {
     }
   }
 
-  onOpen() {
-    setTimeout(() => {
-      this.focusCalendar()
-    }, FOCUS_DELAY * 1.5)
-
-    this.cleanup = initFloatingUi(
-      this.hasInputTarget ? this.inputTarget : this.triggerTarget,
-      this.contentWrapperTarget,
-      'bottom-start',
-    )
-
-    if (!this.contentTarget.dataset.width) {
-      const contentWidth = this.contentTarget.offsetWidth
-      this.contentTarget.dataset.width = `${contentWidth}`
-
-      this.contentTarget.style.maxWidth = `${contentWidth}px`
-      this.contentTarget.style.minWidth = `${contentWidth}px`
-    }
-
-    if (window.innerWidth <= 640) {
-      lockScroll()
-    }
-    showOverlay('md:hidden')
+  setContainerFocus() {
+    this.inputContainerTarget.dataset.focus = 'true'
   }
 
-  focusCalendar() {
-    const focusableElements = this.contentTarget.querySelectorAll(
-      'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
-    )
+  onOpenFocusedElement() {
+    const focusableElements = getFocusableElements(this.contentTarget)
 
     const selectedElement = Array.from(focusableElements).find(
       (e) => e.ariaSelected,
@@ -151,31 +110,96 @@ export default class extends PopoverController {
     ) as HTMLElement
 
     if (selectedElement) {
-      selectedElement.focus()
+      return selectedElement
     } else if (currentElement) {
       const firstElementChild = currentElement.firstElementChild as HTMLElement
-      firstElementChild.focus()
+      return firstElementChild
+    } else {
+      return focusableElements[0]
     }
   }
 
-  getSettings() {
-    try {
-      return JSON.parse(this.element.dataset.settings || '')
-    } catch {
-      return {}
+  referenceElement() {
+    return this.hasInputTarget ? this.inputTarget : this.triggerTarget
+  }
+
+  onOpen() {
+    if (this.isMobile()) {
+      lockScroll()
+      showOverlay({ elementId: this.contentTarget.id })
     }
+
+    setTimeout(() => {
+      // Prevent width from changing when changing to month/year view
+      if (!this.contentTarget.dataset.width) {
+        const contentWidth = this.contentTarget.offsetWidth
+        this.contentTarget.dataset.width = `${contentWidth}`
+
+        this.contentTarget.style.maxWidth = `${contentWidth}px`
+        this.contentTarget.style.minWidth = `${contentWidth}px`
+      }
+
+      if (this.isMobile()) {
+        // Prevent position from changing when toggling between month/year on mobile
+        if (!this.contentTarget.dataset.top) {
+          const rect = this.contentTarget.getBoundingClientRect()
+          this.contentTarget.dataset.top = `${rect.top}`
+          this.contentTarget.style.top = `${rect.top}px`
+          this.contentTarget.classList.remove('-translate-y-1/2', 'top-1/2')
+        }
+      }
+    }, ON_OPEN_FOCUS_DELAY)
+  }
+
+  onClose() {
+    if (this.isMobile()) {
+      hideOverlay(this.contentTarget.id)
+      unlockScroll()
+    }
+  }
+
+  // Popover is shown as a dialog on small screens with position: fixed
+  isMobile() {
+    const styles = window.getComputedStyle(this.contentTarget)
+    return styles.position === 'fixed'
+  }
+
+  getOptions() {
+    let options = {
+      type: 'default',
+      enableJumpToSelectedDate: true,
+      onClickDate: this.onClickDateListener,
+    } as Options
+
+    const date = this.element.dataset.value
+
+    if (date && dayjs(date).isValid()) {
+      const dayjsDate = dayjs(date).format(DAYJS_FORMAT)
+      options.selectedDates = [dayjsDate]
+    }
+
+    try {
+      options = {
+        ...options,
+        ...JSON.parse(this.element.dataset.options || ''),
+      }
+    } catch {
+      options = options
+    }
+
+    if (options.selectedDates && options.selectedDates.length > 0) {
+      this.dateValue = `${options.selectedDates[0]}`
+    }
+
+    return options
   }
 
   onDOMKeydown(event: KeyboardEvent) {
-    if (!this.isOpen()) return
+    if (!this.isOpenValue) return
 
     const key = event.key
 
-    const focusableElements = Array.from(
-      this.contentTarget.querySelectorAll(
-        'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
-      ),
-    ) as HTMLElement[]
+    const focusableElements = getFocusableElements(this.contentTarget)
 
     const firstElement = focusableElements[0]
     const lastElement = focusableElements[focusableElements.length - 1]
@@ -201,37 +225,6 @@ export default class extends PopoverController {
     }
   }
 
-  onDOMClick(event: MouseEvent) {
-    if (!this.isOpen()) return
-    const target = event.target as HTMLElement
-    if (this.element.contains(target)) return
-
-    // Fix bug with clicking/pressing on Month/Year button will cause popover to close
-    // Fix bug with clicking/pressing on Month/Year button will cause popover to close
-    if (
-      target.dataset.vcMonth ||
-      target.dataset.vcYear ||
-      target.dataset.vcYearsYear ||
-      target.dataset.vcMonthsMonth ||
-      target.dataset.vcArrow ||
-      target.dataset.vcGrid
-    )
-      return
-
-    this.close()
-  }
-
-  setContainerFocus() {
-    this.inputContainerTarget.dataset.focus = 'true'
-  }
-
-  onClose() {
-    hideOverlay()
-    if (window.innerWidth <= 640) {
-      unlockScroll()
-    }
-  }
-
   onClickDate(self: Calendar) {
     const date = self.context.selectedDates[0]
 
@@ -241,6 +234,13 @@ export default class extends PopoverController {
     } else {
       this.dateValue = ''
     }
+  }
+
+  setupInputMask() {
+    const im = new Inputmask(this.format.replace(/[^\/]/g, '9'), {
+      showMaskOnHover: false,
+    })
+    im.mask(this.inputTarget)
   }
 
   dateValueChanged(value: string) {

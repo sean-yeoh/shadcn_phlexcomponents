@@ -1,31 +1,23 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller<HTMLElement> {
-  static targets = ['item']
+  static targets = ['item', 'input', 'indicator']
   static values = {
     selected: String,
   }
 
   declare readonly itemTargets: HTMLInputElement[]
+  declare readonly inputTargets: HTMLInputElement[]
+  declare readonly indicatorTargets: HTMLInputElement[]
   declare selectedValue: string
-  declare items: HTMLInputElement[]
-
-  declare DOMClickListener: (event: MouseEvent) => void
-  declare DOMKeydownListener: (event: KeyboardEvent) => void
-  declare focusableElements: HTMLElement[]
-  declare firstElement: HTMLElement
-  declare lastElement: HTMLElement
-  declare cleanup: () => void
 
   connect() {
     if (!this.selectedValue) {
       this.itemTargets[0].tabIndex = 0
     }
-
-    this.items = this.itemTargets.filter((i) => !i.disabled)
   }
 
-  setChecked(event: MouseEvent) {
+  select(event: MouseEvent) {
     const item = event.currentTarget as HTMLInputElement
     this.selectedValue = item.dataset.value as string
   }
@@ -34,28 +26,31 @@ export default class extends Controller<HTMLElement> {
     event.preventDefault()
   }
 
-  setCheckedToNext(event: KeyboardEvent) {
-    const item = event.currentTarget as HTMLInputElement
-    const index = this.items.indexOf(item)
-    let nextIndex = index + 1
+  selectItem(event: KeyboardEvent) {
+    const focusableItems = this.itemTargets.filter(
+      (t) => !t.disabled,
+    ) as HTMLInputElement[]
 
-    if (index === this.items.length - 1) {
-      nextIndex = 0
+    const item = event.currentTarget as HTMLInputElement
+    const index = focusableItems.indexOf(item)
+    const key = event.key
+    let newIndex = 0
+
+    if (['ArrowUp', 'ArrowLeft'].includes(key)) {
+      newIndex = index - 1
+
+      if (newIndex < 0) {
+        newIndex = focusableItems.length - 1
+      }
+    } else {
+      newIndex = index + 1
+
+      if (newIndex > focusableItems.length - 1) {
+        newIndex = 0
+      }
     }
 
-    this.selectedValue = this.items[nextIndex].dataset.value as string
-  }
-
-  setCheckedToPrev(event: KeyboardEvent) {
-    const item = event.currentTarget as HTMLInputElement
-    const index = this.items.indexOf(item)
-    let prevIndex = index - 1
-
-    if (index === 0) {
-      prevIndex = this.items.length - 1
-    }
-
-    this.selectedValue = this.items[prevIndex].dataset.value as string
+    this.selectedValue = focusableItems[newIndex].dataset.value as string
   }
 
   focusItem() {
@@ -68,11 +63,14 @@ export default class extends Controller<HTMLElement> {
     // Focus first item that is not disabled and allow it to be focused
     if (item.disabled) {
       item.tabIndex = -1
-      const items = this.items || this.itemTargets.filter((i) => !i.disabled)
 
-      if (items.length > 0) {
-        items[0].focus()
-        items[0].tabIndex = 0
+      const focusableItems = this.itemTargets.filter(
+        (t) => !t.disabled,
+      ) as HTMLInputElement[]
+
+      if (focusableItems.length > 0) {
+        focusableItems[0].focus()
+        focusableItems[0].tabIndex = 0
       }
     } else {
       item.focus()
@@ -81,18 +79,25 @@ export default class extends Controller<HTMLElement> {
 
   selectedValueChanged(value: string) {
     this.itemTargets.forEach((item) => {
-      const input = item.querySelector('[data-input]') as HTMLInputElement
+      const input = item.querySelector(
+        '[data-radio-group-target="input"]',
+      ) as HTMLInputElement
+      const indicator = item.querySelector(
+        '[data-radio-group-target="indicator"]',
+      ) as HTMLInputElement
 
       if (value === item.dataset.value) {
         input.checked = true
         item.tabIndex = 0
         item.ariaChecked = 'true'
-        item.dataset.checked = 'true'
+        item.dataset.state = 'checked'
+        indicator.classList.remove('hidden')
       } else {
         input.checked = false
         item.tabIndex = -1
         item.ariaChecked = 'false'
-        item.dataset.checked = 'false'
+        item.dataset.state = 'unchecked'
+        indicator.classList.add('hidden')
       }
     })
 

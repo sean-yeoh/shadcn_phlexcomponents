@@ -1,91 +1,35 @@
-import { FOCUS_DELAY, initFloatingUi, showOverlay, hideOverlay } from '../utils'
-import { Calendar } from 'vanilla-calendar-pro'
-import PopoverController from './popover_controller'
+import { Calendar, Options } from 'vanilla-calendar-pro'
+import DatePickerController from './date_picker_controller'
 import dayjs from 'dayjs'
-import Inputmask from 'inputmask'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
 const DELIMITER = ' - '
+const DAYJS_FORMAT = 'YYYY-MM-DD'
 
-export default class extends PopoverController {
+export default class extends DatePickerController {
   static targets = [
     'trigger',
     'triggerText',
     'contentWrapper',
     'content',
     'input',
-    'startDateHiddenInput',
-    'endDateHiddenInput',
+    'hiddenInput',
+    'endHiddenInput',
     'inputContainer',
     'calendar',
   ]
 
   static values = {
-    startDate: String,
+    isOpen: Boolean,
+    date: String,
     endDate: String,
   }
 
-  declare readonly triggerTarget: HTMLElement
-  declare readonly triggerTextTarget: HTMLElement
-  declare readonly contentWrapperTarget: HTMLElement
-  declare readonly contentTarget: HTMLElement
-  declare readonly inputTarget: HTMLInputElement
-  declare readonly startDateHiddenInputTarget: HTMLInputElement
-  declare readonly endDateHiddenInputTarget: HTMLInputElement
-  declare readonly inputContainerTarget: HTMLElement
-  declare readonly calendarTarget: HTMLElement
-  declare onClickDateListener: (event: any, self: any) => void
-  declare format: string
-  declare startDateValue: string
+  declare readonly endHiddenInputTarget: HTMLInputElement
   declare endDateValue: string
-  declare calendar: Calendar
-  declare readonly hasInputTarget: boolean
-  declare readonly hasTriggerTextTarget: boolean
-
-  connect() {
-    super.connect()
-
-    this.format = this.element.dataset.format || 'YYYY-MM-DD'
-    const settings = this.getSettings()
-    settings.selectedDates = []
-    const startDate = this.element.dataset.startDate
-    const endDate = this.element.dataset.endDate
-
-    this.onClickDateListener = this.onClickDate.bind(this)
-
-    if (startDate && dayjs(startDate).isValid()) {
-      const date = dayjs(startDate).format('YYYY-MM-DD')
-      settings.selectedDates.push(date)
-      this.startDateValue = date
-    }
-
-    if (endDate && dayjs(endDate).isValid()) {
-      const date = dayjs(endDate).format('YYYY-MM-DD')
-      settings.selectedDates.push(date)
-      this.endDateValue = date
-    }
-
-    this.calendar = new Calendar(this.calendarTarget, {
-      enableJumpToSelectedDate: true,
-      ...settings,
-      onClickDate: this.onClickDateListener,
-    })
-
-    this.calendar.init()
-
-    if (this.hasInputTarget) {
-      const pattern = this.format.replace(/[^\/]/g, '9')
-      const im = new Inputmask(`${pattern}${DELIMITER}${pattern}`, {
-        showMaskOnHover: false,
-      })
-      im.mask(this.inputTarget)
-    }
-
-    this.calendarTarget.removeAttribute('tabindex')
-  }
 
   inputBlur() {
     const dates = this.calendar.context.selectedDates
@@ -115,12 +59,12 @@ export default class extends PopoverController {
       let selectedDates: string[] = this.calendar.context.selectedDates
 
       if (dayjs(startDate, this.format, true).isValid()) {
-        const dayjsDate = dayjs(value, this.format).format('YYYY-MM-DD')
+        const dayjsDate = dayjs(value, this.format).format(DAYJS_FORMAT)
         selectedDates[0] = dayjsDate
       }
 
       if (dayjs(endDate, this.format, true).isValid()) {
-        const dayjsDate = dayjs(endDate, this.format).format('YYYY-MM-DD')
+        const dayjsDate = dayjs(endDate, this.format).format(DAYJS_FORMAT)
         selectedDates[1] = dayjsDate
       }
 
@@ -130,7 +74,7 @@ export default class extends PopoverController {
         selectedDates: selectedDates,
       })
       if (selectedDates[0]) {
-        this.startDateValue = selectedDates[0]
+        this.dateValue = selectedDates[0]
       }
       if (selectedDates[1]) {
         this.endDateValue = selectedDates[1]
@@ -139,132 +83,54 @@ export default class extends PopoverController {
       this.calendar.set({
         selectedDates: [],
       })
-      this.startDateValue = ''
+      this.dateValue = ''
       this.endDateValue = ''
     }
   }
 
-  onOpen() {
-    setTimeout(() => {
-      this.focusCalendar()
-    }, FOCUS_DELAY * 1.5)
-
-    this.cleanup = initFloatingUi(
-      this.hasInputTarget ? this.inputTarget : this.triggerTarget,
-      this.contentWrapperTarget,
-      'bottom-start',
-    )
-
-    if (!this.contentTarget.dataset.width) {
-      const contentWidth = this.contentTarget.offsetWidth
-      this.contentTarget.dataset.width = `${contentWidth}`
-
-      this.contentTarget.style.maxWidth = `${contentWidth}px`
-      this.contentTarget.style.minWidth = `${contentWidth}px`
-    }
-
-    showOverlay('md:hidden')
-  }
-
-  focusCalendar() {
-    const focusableElements = this.contentTarget.querySelectorAll(
-      'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
-    )
-
-    const selectedElement = Array.from(focusableElements).find(
-      (e) => e.ariaSelected,
-    ) as HTMLElement
-
-    const currentElement = this.contentTarget.querySelector(
-      '[aria-current]',
-    ) as HTMLElement
-
-    if (selectedElement) {
-      selectedElement.focus()
-    } else if (currentElement) {
-      const firstElementChild = currentElement.firstElementChild as HTMLElement
-      firstElementChild.focus()
-    }
-  }
-
-  getSettings() {
-    const defaultSettings = {
+  getOptions() {
+    let options = {
       type: 'multiple',
       selectionDatesMode: 'multiple-ranged',
       displayMonthsCount: 2,
       monthsToSwitch: 1,
       displayDatesOutside: false,
+      enableJumpToSelectedDate: true,
+      onClickDate: this.onClickDateListener,
+    } as Options
+
+    const selectedDates = []
+
+    const startDate = this.element.dataset.value
+    const endDate = this.element.dataset.endValue
+
+    if (startDate && dayjs(startDate).isValid()) {
+      const date = dayjs(startDate).format(DAYJS_FORMAT)
+      selectedDates.push(date)
     }
+
+    if (endDate && dayjs(endDate).isValid()) {
+      const date = dayjs(endDate).format(DAYJS_FORMAT)
+      selectedDates.push(date)
+    }
+
+    options.selectedDates = selectedDates
+
     try {
-      return {
-        ...defaultSettings,
-        ...JSON.parse(this.element.dataset.settings || ''),
+      options = {
+        ...options,
+        ...JSON.parse(this.element.dataset.options || ''),
       }
     } catch {
-      return defaultSettings
+      options = options
     }
-  }
 
-  onDOMKeydown(event: KeyboardEvent) {
-    if (!this.isOpen()) return
-
-    const key = event.key
-
-    const focusableElements = Array.from(
-      this.contentTarget.querySelectorAll(
-        'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
-      ),
-    ) as HTMLElement[]
-
-    const firstElement = focusableElements[0]
-    const lastElement = focusableElements[focusableElements.length - 1]
-
-    if (key === 'Escape') {
-      this.close()
-    } else if (key === 'Tab') {
-      // If Shift + Tab pressed on first element, go to last element
-      if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault()
-        lastElement.focus()
-      }
-      // If Tab pressed on last element, go to first element
-      else if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault()
-        firstElement.focus()
-      }
-    } else if (
-      ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(key) &&
-      document.activeElement != this.inputTarget
-    ) {
-      event.preventDefault()
+    if (options.selectedDates && options.selectedDates.length > 0) {
+      this.dateValue = `${options.selectedDates[0]}`
+      this.endDateValue = `${options.selectedDates[1]}`
     }
-  }
 
-  onDOMClick(event: MouseEvent) {
-    if (!this.isOpen()) return
-    const target = event.target as HTMLElement
-    if (this.element.contains(target)) return
-
-    // Fix bug with clicking/pressing on Month/Year button will cause popover to close
-    if (
-      target.dataset.vcMonth ||
-      target.dataset.vcYear ||
-      target.dataset.vcYearsYear ||
-      target.dataset.vcMonthsMonth ||
-      target.dataset.vcArrow ||
-      target.dataset.vcGrid
-    )
-      return
-
-    this.close()
-  }
-
-  setContainerFocus() {
-    this.inputContainerTarget.dataset.focus = 'true'
-  }
-
-  onClose() {
-    hideOverlay()
+    return options
   }
 
   onClickDate(self: Calendar) {
@@ -274,7 +140,7 @@ export default class extends PopoverController {
       const startDate = dates[0]
       const endDate = dates[1]
 
-      this.startDateValue = startDate
+      this.dateValue = startDate
 
       if (endDate) {
         this.endDateValue = endDate
@@ -283,19 +149,29 @@ export default class extends PopoverController {
         this.endDateValue = ''
       }
     } else {
-      this.startDateValue = ''
+      this.dateValue = ''
       this.endDateValue = ''
     }
   }
 
-  startDateValueChanged(value: string) {
+  setupInputMask() {
+    const pattern = this.format.replace(/[^\/]/g, '9')
+    const im = new Inputmask(`${pattern}${DELIMITER}${pattern}`, {
+      showMaskOnHover: false,
+    })
+    im.mask(this.inputTarget)
+  }
+
+  dateValueChanged(value: string) {
+    this.onClickDateListener = this.onClickDate.bind(this)
+
     const endDate = this.endDateValue
     let datesDisplay = ''
 
     if (value && value.length > 0) {
       const dayjsDate = dayjs(value)
       const formattedDate = dayjsDate.format(this.format)
-      this.startDateHiddenInputTarget.value = dayjsDate.utc().format()
+      this.hiddenInputTarget.value = dayjsDate.utc().format()
 
       if (endDate) {
         datesDisplay = `${formattedDate}${DELIMITER}${dayjs(endDate).format(
@@ -305,7 +181,7 @@ export default class extends PopoverController {
         datesDisplay = `${formattedDate}${DELIMITER}`
       }
     } else {
-      this.startDateHiddenInputTarget.value = ''
+      this.hiddenInputTarget.value = ''
 
       if (endDate) {
         datesDisplay = `${DELIMITER}${dayjs(endDate).format(this.format)}`
@@ -328,13 +204,13 @@ export default class extends PopoverController {
   }
 
   endDateValueChanged(value: string) {
-    const startDate = this.startDateValue
+    const startDate = this.dateValue
     let datesDisplay = ''
 
     if (value && value.length > 0) {
       const dayjsDate = dayjs(value)
       const formattedDate = dayjsDate.format(this.format)
-      this.endDateHiddenInputTarget.value = dayjsDate.utc().format()
+      this.endHiddenInputTarget.value = dayjsDate.utc().format()
 
       if (startDate) {
         datesDisplay = `${dayjs(startDate).format(
@@ -344,7 +220,7 @@ export default class extends PopoverController {
         datesDisplay = `${DELIMITER}${formattedDate}`
       }
     } else {
-      this.endDateHiddenInputTarget.value = ''
+      this.endHiddenInputTarget.value = ''
 
       if (startDate) {
         datesDisplay = `${dayjs(startDate).format(this.format)}${DELIMITER}`
