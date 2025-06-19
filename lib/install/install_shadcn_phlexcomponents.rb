@@ -12,7 +12,12 @@ initializer_file_install_path = Rails.root.join("config/initializers/shadcn_phle
 say "Running the install command will copy a lot of files to your working directory.", :blue
 say "Please make sure to commit or stash your existing changes in your working directory.", :blue
 
-if yes?("Do you want to continue? (y/n)")
+if ENV["ENVIRONMENT"] == "test"
+  directory(components_path, components_install_path)
+  directory(stimulus_controllers_path, stimulus_controllers_install_path)
+  directory(css_path, css_install_path)
+  copy_file(initializer_file_path, initializer_file_install_path)
+elsif yes?("Do you want to continue? (y/n)")
   directory(components_path, components_install_path)
   directory(stimulus_controllers_path, stimulus_controllers_install_path)
   directory(css_path, css_install_path)

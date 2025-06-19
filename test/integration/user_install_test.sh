@@ -33,7 +33,7 @@ bundle install --prefer-local
 bundle binstubs --all
 
 # install shadcn_phlexcomponents
-rake shadcn_phlexcomponents:install
+ENVIRONMENT=test rake shadcn_phlexcomponents:install
 
 # TEST: presence of the generated file
 grep -q "tailwindcss-animate" vendor/shadcn_phlexcomponents/stylesheets/tw-animate.css
