@@ -32,7 +32,6 @@ jobs:
         ruby: ['3.3', '3.4', 'head']
     steps:
       - uses: actions/checkout@v4
-      - run: rm Gemfile.lock
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
