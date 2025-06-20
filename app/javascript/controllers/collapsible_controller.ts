@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus'
-import { hideContent, showContent } from '@shadcn_phlexcomponents/utils'
+import { hideContent, showContent } from '../utils'
 
 export default class extends Controller {
   static targets = ['trigger', 'content']
