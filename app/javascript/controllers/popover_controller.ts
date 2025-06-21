@@ -74,9 +74,10 @@ export default class extends Controller<HTMLElement> {
   }
 
   clickOutside(event: MouseEvent) {
-    const target = event.target
+    const target = event.target as HTMLElement
     // Let #toggle to handle state when clicked on trigger
     if (target === this.triggerTarget) return
+    if (this.triggerTarget.contains(target)) return
 
     this.close()
   }
