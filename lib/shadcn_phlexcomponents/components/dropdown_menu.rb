@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class DropdownMenu < Base
-    class_variants(base: "inline-block max-w-fit")
+    class_variants(base: "inline-flex max-w-fit")
 
     def initialize(open: false, **attributes)
       @aria_id = "dropdown-menu-#{SecureRandom.hex(5)}"

@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Command < Base
-    class_variants(base: "inline-block max-w-fit")
+    class_variants(base: "inline-flex max-w-fit")
 
     MODIFIER_KEYS = [
       :ctrl,
