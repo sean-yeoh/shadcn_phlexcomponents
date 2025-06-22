@@ -24,6 +24,7 @@ import TabsController from './controllers/tabs_controller'
 import ThemeSwitcherController from './controllers/theme_switcher_controller'
 import ToastContainerController from './controllers/toast_container_controller'
 import ToastController from './controllers/toast_controller'
+import ToggleController from './controllers/toggle_controller'
 import TooltipController from './controllers/tooltip_controller'
 
 export default {
@@ -53,5 +54,6 @@ export default {
   'theme-switcher': ThemeSwitcherController,
   'toast-container': ToastContainerController,
   toast: ToastController,
+  toggle: ToggleController,
   tooltip: TooltipController,
 }

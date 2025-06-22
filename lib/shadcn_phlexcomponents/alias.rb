@@ -42,4 +42,5 @@ Textarea = ShadcnPhlexcomponents::Textarea
 ThemeSwitcher = ShadcnPhlexcomponents::ThemeSwitcher
 Toast = ShadcnPhlexcomponents::Toast
 ToastContainer = ShadcnPhlexcomponents::ToastContainer
+Toggle = ShadcnPhlexcomponents::Toggle
 Tooltip = ShadcnPhlexcomponents::Tooltip
