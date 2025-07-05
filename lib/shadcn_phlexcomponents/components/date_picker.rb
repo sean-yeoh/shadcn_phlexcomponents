@@ -20,8 +20,12 @@ module ShadcnPhlexcomponents
       @id = id
 
       if value
-       value = if value.is_a?(String)
-          DateTime.parse(value) rescue nil
+        value = if value.is_a?(String)
+          begin
+            Time.parse(value)
+          rescue
+            nil
+          end
         else
           value
         end
@@ -72,14 +76,16 @@ module ShadcnPhlexcomponents
             placeholder: @placeholder,
           )
         else
-          div(class: <<~HEREDOC,
-            focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]
-            data-[focus=true]:border-ring data-[focus=true]:ring-ring/50 data-[focus=true]:ring-[3px]
-            data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 flex shadow-xs transition-[color,box-shadow]
-            rounded-md border bg-transparent dark:bg-input/30 border-input outline-none h-9 flex items-center
-            aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive
-          HEREDOC
-          data: { date_picker_target: "inputContainer", disabled: @disabled }) do
+          div(
+            class: <<~HEREDOC,
+              focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]
+              data-[focus=true]:border-ring data-[focus=true]:ring-ring/50 data-[focus=true]:ring-[3px]
+              data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 flex shadow-xs transition-[color,box-shadow]
+              rounded-md border bg-transparent dark:bg-input/30 border-input outline-none h-9 flex items-center
+              aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive
+            HEREDOC
+            data: { date_picker_target: "inputContainer", disabled: @disabled },
+          ) do
             input(
               id: @id,
               placeholder: @placeholder || @format,

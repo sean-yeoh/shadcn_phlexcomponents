@@ -27,11 +27,15 @@ module ShadcnPhlexcomponents
       if value
         value = value.map do |v|
           if v.is_a?(String)
-            DateTime.parse(v) rescue nil
+            begin
+              Time.parse(v)
+            rescue
+              nil
+            end
           else
             v
           end
-        end 
+        end
       end
 
       @name = name ? name[0] : nil
@@ -64,7 +68,7 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(**@attributes) do
-        overlay('date-range-picker')
+        overlay("date-range-picker")
 
         input(
           type: :hidden,

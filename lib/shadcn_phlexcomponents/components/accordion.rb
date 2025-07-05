@@ -120,7 +120,7 @@ module ShadcnPhlexcomponents
         },
         data: {
           state: "closed",
-          accordion_target: "content"
+          accordion_target: "content",
         },
       ) do
         div(**@attributes, &)
