@@ -93,9 +93,9 @@ module ShadcnPhlexcomponents
           dropdown_menu_target: "trigger",
           action: <<~HEREDOC,
             click->dropdown-menu#toggle
-            keydown.space->dropdown-menu#open
-            keydown.enter->dropdown-menu#open
             keydown.down->dropdown-menu#open:prevent
+            keydown.space->dropdown-menu#open:prevent
+            keydown.enter->dropdown-menu#open:prevent
           HEREDOC
         },
       }
@@ -123,7 +123,8 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(
-        class: "hidden fixed top-0 left-0 w-max z-50",
+        style: { display: "none" },
+        class: "fixed top-0 left-0 w-max z-50",
         data: { dropdown_menu_target: "contentContainer" },
       ) do
         div(**@attributes, &)

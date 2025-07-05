@@ -1,53 +1,33 @@
 import { Controller } from '@hotwired/stimulus'
-import { showContent, hideContent } from '../utils'
+import {
+  showContent,
+  hideContent,
+  getNextEnabledIndex,
+  getPreviousEnabledIndex,
+} from '../utils'
 
-export default class extends Controller<HTMLElement> {
-  static targets = ['item']
-  static values = { openItems: Array }
+const AccordionController = class extends Controller<HTMLElement> {
+  // targets
+  static targets = ['item', 'trigger', 'content']
   declare itemTargets: HTMLElement[]
-  declare multiple: boolean
+  declare triggerTargets: HTMLButtonElement[]
+  declare contentTargets: HTMLElement[]
+
+  // values
+  static values = { openItems: Array }
   declare openItemsValue: string[]
+
+  // custom properties
+  declare multiple: boolean
 
   connect() {
     this.multiple = this.element.dataset.multiple === 'true'
+  }
 
+  contentTargetConnected(content: HTMLElement) {
     setTimeout(() => {
-      this.itemTargets.forEach((item) => {
-        const content = item.querySelector(
-          '[data-shadcn-phlexcomponents="accordion-content-container"]',
-        ) as HTMLElement
-        this.setContentHeight(content)
-      })
-    }, 250)
-  }
-
-  setContentHeight(element: HTMLElement) {
-    const height = this.getContentHeight(element)
-    element.style.setProperty('--radix-accordion-content-height', `${height}px`)
-  }
-
-  getContentHeight(element: HTMLElement) {
-    // Store the original styles we need to modify
-    const originalStyles = {
-      display: element.style.display,
-      visibility: element.style.visibility,
-      position: element.style.position,
-    }
-
-    // Make the element visible but not displayed
-    element.style.display = 'block' // or whatever is appropriate (flex, inline, etc.)
-    element.style.visibility = 'hidden'
-    element.style.position = 'absolute'
-
-    // Get the height
-    const height = element.offsetHeight
-
-    // Restore the original styles
-    element.style.display = originalStyles.display
-    element.style.visibility = originalStyles.visibility
-    element.style.position = originalStyles.position
-
-    return height
+      this.setContentHeight(content)
+    }, 100)
   }
 
   toggle(event: MouseEvent) {
@@ -75,30 +55,27 @@ export default class extends Controller<HTMLElement> {
 
   focusTrigger(event: KeyboardEvent) {
     const trigger = event.currentTarget as HTMLButtonElement
-    const key = event.key as 'ArrowUp' | 'ArrowDown'
+    const key = event.key
 
-    let focusableTriggers = this.itemTargets.map((item) => {
-      return item.querySelector(
-        '[data-shadcn-phlexcomponents="accordion-trigger"]',
-      )
-    }) as HTMLButtonElement[]
+    const focusableTriggers = this.triggerTargets.filter(
+      (trigger) => !trigger.disabled,
+    )
 
-    focusableTriggers = focusableTriggers.filter((trigger) => !trigger.disabled)
     const index = focusableTriggers.indexOf(trigger)
     let newIndex = 0
 
     if (key === 'ArrowUp') {
-      newIndex = index - 1
-
-      if (newIndex < 0) {
-        newIndex = focusableTriggers.length - 1
-      }
+      newIndex = getPreviousEnabledIndex({
+        items: focusableTriggers,
+        currentIndex: index,
+        wrapAround: true,
+      })
     } else {
-      newIndex = index + 1
-
-      if (newIndex > focusableTriggers.length - 1) {
-        newIndex = 0
-      }
+      newIndex = getNextEnabledIndex({
+        items: focusableTriggers,
+        currentIndex: index,
+        wrapAround: true,
+      })
     }
 
     focusableTriggers[newIndex].focus()
@@ -108,11 +85,11 @@ export default class extends Controller<HTMLElement> {
     this.itemTargets.forEach((item) => {
       const itemValue = item.dataset.value as string
 
-      const trigger = item.querySelector(
-        '[data-shadcn-phlexcomponents="accordion-trigger"]',
+      const trigger = this.triggerTargets.find((trigger) =>
+        item.contains(trigger),
       ) as HTMLElement
-      const content = item.querySelector(
-        '[data-shadcn-phlexcomponents="accordion-content-container"]',
+      const content = this.contentTargets.find((content) =>
+        item.contains(content),
       ) as HTMLElement
 
       if (openItems.includes(itemValue)) {
@@ -130,4 +107,30 @@ export default class extends Controller<HTMLElement> {
       }
     })
   }
+
+  protected setContentHeight(element: HTMLElement) {
+    const height =
+      this.getContentHeight(element) || element.getBoundingClientRect().height
+    element.style.setProperty('--radix-accordion-content-height', `${height}px`)
+  }
+
+  getContentHeight(el: HTMLElement) {
+    const clone = el.cloneNode(true) as HTMLElement
+    Object.assign(clone.style, {
+      display: 'block',
+      position: 'absolute',
+      visibility: 'hidden',
+    })
+
+    document.body.appendChild(clone)
+    const height = clone.getBoundingClientRect().height
+    document.body.removeChild(clone)
+
+    return height
+  }
 }
+
+type Accordion = InstanceType<typeof AccordionController>
+
+export { AccordionController }
+export type { Accordion }

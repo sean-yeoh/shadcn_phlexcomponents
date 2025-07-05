@@ -1,18 +1,21 @@
 import { Controller } from '@hotwired/stimulus'
+import { getNextEnabledIndex, getPreviousEnabledIndex } from '../utils'
 
-export default class extends Controller {
+const TabsController = class extends Controller {
+  // targets
   static targets = ['trigger', 'content']
+  declare readonly triggerTargets: HTMLButtonElement[]
+  declare readonly contentTargets: HTMLElement[]
+
+  // values
   static values = {
     active: String,
   }
-
-  declare readonly triggerTargets: HTMLButtonElement[]
-  declare readonly contentTargets: HTMLElement[]
-  declare activeValue: string | undefined
+  declare activeValue: string
 
   connect() {
     if (!this.activeValue) {
-      this.activeValue = this.triggerTargets[0].dataset.value
+      this.activeValue = this.triggerTargets[0].dataset.value as string
     }
   }
 
@@ -20,7 +23,7 @@ export default class extends Controller {
     const target = event.currentTarget as HTMLButtonElement
 
     if (event instanceof MouseEvent) {
-      this.activeValue = target.dataset.value
+      this.activeValue = target.dataset.value as string
     } else {
       const key = event.key
 
@@ -32,20 +35,20 @@ export default class extends Controller {
       let newIndex = 0
 
       if (key === 'ArrowLeft') {
-        newIndex = index - 1
-
-        if (newIndex < 0) {
-          newIndex = focusableTriggers.length - 1
-        }
+        newIndex = getPreviousEnabledIndex({
+          items: focusableTriggers,
+          currentIndex: index,
+          wrapAround: true,
+        })
       } else {
-        newIndex = index + 1
-
-        if (newIndex > focusableTriggers.length - 1) {
-          newIndex = 0
-        }
+        newIndex = getNextEnabledIndex({
+          items: focusableTriggers,
+          currentIndex: index,
+          wrapAround: true,
+        })
       }
 
-      this.activeValue = focusableTriggers[newIndex].dataset.value
+      this.activeValue = focusableTriggers[newIndex].dataset.value as string
       focusableTriggers[newIndex].focus()
     }
   }
@@ -77,3 +80,8 @@ export default class extends Controller {
     })
   }
 }
+
+type Tabs = InstanceType<typeof TabsController>
+
+export { TabsController }
+export type { Tabs }

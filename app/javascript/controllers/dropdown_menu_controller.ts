@@ -1,42 +1,113 @@
-import DropdownMenuSubController from './dropdown_menu_sub_controller'
-import DropdownMenuRootController from './dropdown_menu_root_controller'
+import { DropdownMenuSub } from './dropdown_menu_sub_controller'
+import { Select } from './select_controller'
+import { Controller } from '@hotwired/stimulus'
+import { useClickOutside } from 'stimulus-use'
+import {
+  getSameLevelItems,
+  focusTrigger,
+  initFloatingUi,
+  hideContent,
+  showContent,
+  lockScroll,
+  unlockScroll,
+  getStimulusInstance,
+  onClickOutside,
+  getNextEnabledIndex,
+  getPreviousEnabledIndex,
+  focusElement,
+} from '../utils'
 
-export default class extends DropdownMenuRootController {
+const onKeydown = (controller: DropdownMenu | Select, event: KeyboardEvent) => {
+  const key = event.key
+
+  if (['Tab', 'Enter', ' '].includes(key)) event.preventDefault()
+  if (key === 'Home') {
+    controller.focusItemByIndex(null, 0)
+  } else if (key === 'End') {
+    controller.focusItemByIndex(null, controller.items.length - 1)
+  } else if (key === 'Escape') {
+    controller.close()
+  }
+}
+
+const focusItemByIndex = (
+  controller: DropdownMenu | Select,
+  event: KeyboardEvent | null = null,
+  index: number | null = null,
+) => {
+  if (event !== null) {
+    const key = event.key
+
+    if (key === 'ArrowUp') {
+      controller.items[controller.items.length - 1].focus()
+    } else {
+      controller.items[0].focus()
+    }
+  } else if (index !== null) {
+    controller.items[index].focus()
+  }
+}
+
+const DropdownMenuController = class extends Controller<HTMLElement> {
+  // targets
+  static targets = ['trigger', 'contentContainer', 'content', 'item']
+  declare readonly triggerTarget: HTMLElement
+  declare readonly contentContainerTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+  declare readonly itemTargets: HTMLElement[]
+
+  // values
   static values = {
     isOpen: Boolean,
-    setEqualWidth: { type: Boolean, default: false },
-    closestContentSelector: {
-      type: String,
-      default:
-        '[data-dropdown-menu-target="content"], [data-dropdown-menu-sub-target="content"]',
-    },
   }
+  declare isOpenValue: boolean
 
+  // custom properties
+  declare closestContentSelector: string
+  declare items: HTMLElement[]
+  declare subMenuControllers: DropdownMenuSub[]
   declare DOMKeydownListener: (event: KeyboardEvent) => void
-  declare subMenuControllers: DropdownMenuSubController[]
+  declare cleanup: () => void
 
   connect() {
-    super.connect()
+    this.closestContentSelector =
+      '[data-dropdown-menu-target="content"], [data-dropdown-menu-sub-target="content"]'
+    this.items = getSameLevelItems({
+      content: this.contentTarget,
+      items: this.itemTargets,
+      closestContentSelector: this.closestContentSelector,
+    })
+    useClickOutside(this, { element: this.contentTarget, dispatchEvent: false })
+    this.DOMKeydownListener = this.onDOMKeydown.bind(this)
   }
 
-  onOpen(_event: MouseEvent | KeyboardEvent) {
+  toggle(event: MouseEvent) {
+    if (this.isOpenValue) {
+      this.close()
+    } else {
+      this.open(event)
+    }
+  }
+
+  open(event: MouseEvent | KeyboardEvent) {
+    this.isOpenValue = true
+
     // Sub menus are not connected to the DOM yet when dropdown menu is connected.
     // So we initialize them here instead of in connect().
     if (this.subMenuControllers === undefined) {
-      let subMenuControllers = [] as DropdownMenuSubController[]
+      const subMenuControllers = [] as DropdownMenuSub[]
 
       const subMenus = Array.from(
         this.contentTarget.querySelectorAll(
           '[data-shadcn-phlexcomponents="dropdown-menu-sub"]',
         ),
-      )
+      ) as HTMLElement[]
 
       subMenus.forEach((subMenu) => {
-        const subMenuController =
-          window.Stimulus.getControllerForElementAndIdentifier(
-            subMenu,
-            'dropdown-menu-sub',
-          ) as DropdownMenuSubController
+        const subMenuController = getStimulusInstance<DropdownMenuSub>(
+          'dropdown-menu-sub',
+          subMenu,
+        )
 
         if (subMenuController) {
           subMenuControllers.push(subMenuController)
@@ -45,14 +116,33 @@ export default class extends DropdownMenuRootController {
 
       this.subMenuControllers = subMenuControllers
     }
+
+    let elementToFocus = null as HTMLElement | null
+
+    if (event instanceof KeyboardEvent) {
+      const key = event.key
+
+      if (['ArrowDown', 'Enter', ' '].includes(key)) {
+        elementToFocus = this.items[0]
+      }
+    } else {
+      elementToFocus = this.contentTarget
+    }
+
+    focusElement(elementToFocus)
+  }
+
+  close() {
+    this.isOpenValue = false
+    this.subMenuControllers.forEach((subMenuController) => {
+      subMenuController.closeImmediately()
+    })
   }
 
   focusItem(event: MouseEvent | KeyboardEvent) {
     const item = event.currentTarget as HTMLElement
     let items = [] as HTMLElement[]
-    const content = item.closest(
-      this.closestContentSelectorValue,
-    ) as HTMLElement
+    const content = item.closest(this.closestContentSelector) as HTMLElement
 
     const isSubMenu =
       content.dataset.shadcnPhlexcomponents === 'dropdown-menu-sub-content'
@@ -71,22 +161,24 @@ export default class extends DropdownMenuRootController {
       items = this.items
     }
 
-    let index = items.indexOf(item)
+    const index = items.indexOf(item)
 
     if (event instanceof KeyboardEvent) {
       const key = event.key
       let newIndex = 0
 
       if (key === 'ArrowUp') {
-        newIndex = index - 1
-        if (newIndex < 0) {
-          newIndex = 0
-        }
+        newIndex = getPreviousEnabledIndex({
+          items,
+          currentIndex: index,
+          wrapAround: false,
+        })
       } else {
-        newIndex = index + 1
-        if (newIndex > items.length - 1) {
-          newIndex = items.length - 1
-        }
+        newIndex = getNextEnabledIndex({
+          items,
+          currentIndex: index,
+          wrapAround: false,
+        })
       }
 
       items[newIndex].focus()
@@ -113,13 +205,30 @@ export default class extends DropdownMenuRootController {
     })
   }
 
-  onClose() {
-    this.subMenuControllers.forEach((subMenuController) => {
-      subMenuController.closeImmediately()
-    })
+  onItemFocus(event: FocusEvent) {
+    const item = event.currentTarget as HTMLElement
+    item.tabIndex = 0
   }
 
-  onSelect(event: MouseEvent | KeyboardEvent) {
+  onItemBlur(event: FocusEvent) {
+    const item = event.currentTarget as HTMLElement
+    item.tabIndex = -1
+  }
+
+  focusItemByIndex(
+    event: KeyboardEvent | null = null,
+    index: number | null = null,
+  ) {
+    focusItemByIndex(this, event, index)
+  }
+
+  focusContent(event: MouseEvent) {
+    const item = event.currentTarget as HTMLElement
+    const content = item.closest(this.closestContentSelector) as HTMLElement
+    content.focus()
+  }
+
+  select(event: MouseEvent | KeyboardEvent) {
     if (event instanceof KeyboardEvent) {
       const key = event.key
       const item = (event.currentTarget || event.target) as HTMLElement
@@ -129,5 +238,72 @@ export default class extends DropdownMenuRootController {
         item.click()
       }
     }
+
+    this.close()
+  }
+
+  clickOutside(event: MouseEvent) {
+    onClickOutside(this, event)
+  }
+
+  isOpenValueChanged(isOpen: boolean, previousIsOpen: boolean) {
+    if (isOpen) {
+      lockScroll(this.contentTarget.id)
+
+      showContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentContainerTarget,
+        setEqualWidth: false,
+      })
+
+      this.cleanup = initFloatingUi({
+        referenceElement: this.triggerTarget,
+        floatingElement: this.contentContainerTarget,
+        side: this.contentTarget.dataset.side,
+        align: this.contentTarget.dataset.align,
+        sideOffset: 4,
+      })
+
+      this.setupEventListeners()
+    } else {
+      unlockScroll(this.contentTarget.id)
+
+      hideContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentContainerTarget,
+      })
+
+      if (previousIsOpen) {
+        focusTrigger(this.triggerTarget)
+      }
+
+      this.cleanupEventListeners()
+    }
+  }
+
+  disconnect() {
+    this.cleanupEventListeners()
+  }
+
+  protected onDOMKeydown(event: KeyboardEvent) {
+    if (!this.isOpenValue) return
+
+    onKeydown(this, event)
+  }
+
+  protected setupEventListeners() {
+    document.addEventListener('keydown', this.DOMKeydownListener)
+  }
+
+  protected cleanupEventListeners() {
+    if (this.cleanup) this.cleanup()
+    document.removeEventListener('keydown', this.DOMKeydownListener)
   }
 }
+
+type DropdownMenu = InstanceType<typeof DropdownMenuController>
+
+export { DropdownMenuController, onKeydown, focusItemByIndex }
+export type { DropdownMenu }

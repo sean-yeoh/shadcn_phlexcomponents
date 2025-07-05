@@ -1,3 +1,48 @@
+[data-vc='calendar'] {
+  @apply relative flex flex-col outline-none;
+}
+
+[data-vc='controls'] {
+  @apply absolute z-20 -left-1 -right-1 -top-1.5 flex justify-between items-center pt-1.5 px-1 pointer-events-none box-content;
+}
+
+[data-vc='grid'] {
+  @apply grid gap-4 grid-cols-1 md:grid-cols-2;
+}
+
+[data-vc='column'] {
+  @apply flex flex-col;
+}
+
+[data-vc='header'] {
+  @apply relative flex items-center mb-4;
+}
+
+[data-vc-header='content'] {
+  @apply grid grid-flow-col gap-x-1 auto-cols-max items-center justify-center px-4 whitespace-pre-wrap grow;
+}
+
+[data-vc='month'],
+[data-vc='year'] {
+  @apply inline-flex items-center justify-center whitespace-nowrap font-medium transition-all;
+  @apply disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4;
+  @apply shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px];
+  @apply aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border;
+  @apply shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50;
+  @apply rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 text-xs h-7 bg-transparent;
+}
+
+[data-vc-arrow='prev'],
+[data-vc-arrow='next'] {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium;
+  @apply transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none;
+  @apply [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring;
+  @apply focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20;
+  @apply dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border shadow-xs hover:bg-accent;
+  @apply hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 pointer-events-auto;
+  @apply size-7 bg-transparent p-0 opacity-50 hover:opacity-100;
+}
+
 [data-vc-arrow='next']:before {
   @apply bg-current size-4 mask-size-[auto_16px] mask-center mask-no-repeat absolute content-[''];
   mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>');
@@ -6,6 +51,79 @@
 [data-vc-arrow='prev']:before {
   @apply bg-current size-4 mask-size-[auto_16px] mask-center mask-no-repeat absolute content-[''];
   mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>');
+}
+
+[data-vc='wrapper'] {
+  @apply flex items-center content-center h-full;
+}
+
+[data-vc='content'] {
+  @apply flex flex-col grow h-full;
+}
+
+[data-vc='months'] {
+  @apply grid gap-2 grid-cols-4 items-center grow;
+}
+
+[data-vc='years'] {
+  @apply grid gap-2 grid-cols-5 items-center grow;
+}
+
+[data-vc-months-month],
+[data-vc-years-year] {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all;
+  @apply disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4;
+  @apply shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px];
+  @apply aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive;
+  @apply hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-9 px-4 py-2 has-[>svg]:px-3;
+  @apply aria-[selected=true]:text-primary-foreground aria-[selected=true]:bg-primary;
+  @apply aria-[selected=true]:hover:text-primary-foreground aria-[selected=true]:hover:bg-primary;
+}
+
+[data-vc='week'] {
+  @apply grid mb-2 grid-cols-[repeat(7,_1fr)] justify-items-center items-center text-center;
+}
+
+[data-vc-week-day] {
+  @apply text-muted-foreground rounded-md w-8 font-normal text-[0.8rem];
+}
+
+[data-vc='dates'] {
+  @apply grid gap-y-2 grid-cols-[repeat(7,_1fr)] justify-items-center items-center;
+}
+
+[data-vc-date-btn] {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm transition-all;
+  @apply disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4;
+  @apply shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px];
+  @apply aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive;
+  @apply hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 has-[>svg]:px-3 size-8 p-0 font-normal;
+  @apply aria-[disabled]:text-muted-foreground aria-[disabled]:opacity-50 aria-[disabled]:pointer-events-none;
+}
+
+[data-vc-date-selected] [data-vc-date-btn] {
+  @apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground;
+}
+
+[data-vc-date-today] [data-vc-date-btn] {
+  @apply bg-accent text-accent-foreground;
+}
+
+[data-vc-date-month='prev'] [data-vc-date-btn],
+[data-vc-date-month='next'] [data-vc-date-btn] {
+  @apply text-muted-foreground;
+}
+
+[data-vc-date-selected='middle'][data-vc-date-selected] [data-vc-date-btn] {
+  @apply bg-accent text-accent-foreground;
+}
+
+[data-vc-date-selected='first'][data-vc-date-selected] [data-vc-date-btn] {
+  @apply bg-primary text-primary-foreground;
+}
+
+[data-vc-date-hover] [data-vc-date-btn] {
+  @apply bg-accent text-accent-foreground;
 }
 
 [data-vc='grid'][data-vc-grid='hidden'] [data-vc='column'] {

@@ -1,13 +1,14 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller {
+const ProgressController = class extends Controller {
+  // targets
   static targets = ['indicator']
+  declare readonly indicatorTarget: HTMLElement
 
+  // values
   static values = {
     percent: Number,
   }
-
-  declare readonly indicatorTarget: HTMLElement
   declare percentValue: number
 
   percentValueChanged(value: number) {
@@ -15,3 +16,8 @@ export default class extends Controller {
     this.indicatorTarget.style.transform = `translateX(-${100 - value}%)`
   }
 }
+
+type Progress = InstanceType<typeof ProgressController>
+
+export { ProgressController }
+export type { Progress }

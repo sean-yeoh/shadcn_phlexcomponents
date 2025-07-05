@@ -230,9 +230,9 @@ module ShadcnPhlexcomponents
           has_value: @value.present?.to_s,
           action: <<~HEREDOC,
             click->select#toggle
-            keydown.space->select#open
-            keydown.enter->select#open
             keydown.down->select#open:prevent
+            keydown.space->select#open:prevent
+            keydown.enter->select#open:prevent
           HEREDOC
           select_target: "trigger",
         },
@@ -264,12 +264,13 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(
-        class: "hidden fixed top-0 left-0 w-max z-50",
+        style: { display: "none" },
+        class: "fixed top-0 left-0 w-max z-50",
         data: { select_target: "contentContainer" },
       ) do
         div(**@attributes) do
           if @include_blank && !@native
-            SelectItem(aria_id: @aria_id, value: "", class: "h-8", hide_icon: true) do
+            SelectItem(aria_id: @aria_id, value: "", class: "h-8") do
               @include_blank.is_a?(String) ? @include_blank : ""
             end
           end
@@ -315,14 +316,6 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(**@attributes, &)
-    end
-
-    def default_attributes
-      {
-        data: {
-          select_target: "label",
-        },
-      }
     end
   end
 

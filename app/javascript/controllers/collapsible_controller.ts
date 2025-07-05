@@ -1,14 +1,16 @@
 import { Controller } from '@hotwired/stimulus'
 import { hideContent, showContent } from '../utils'
 
-export default class extends Controller {
+const CollapsibleController = class extends Controller {
+  // targets
   static targets = ['trigger', 'content']
+  declare readonly triggerTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+
+  // values
   static values = {
     isOpen: Boolean,
   }
-
-  declare readonly triggerTarget: HTMLElement
-  declare readonly contentTarget: HTMLElement
   declare isOpenValue: boolean
 
   toggle() {
@@ -43,3 +45,8 @@ export default class extends Controller {
     }
   }
 }
+
+type Collapsible = InstanceType<typeof CollapsibleController>
+
+export { CollapsibleController }
+export type { Collapsible }

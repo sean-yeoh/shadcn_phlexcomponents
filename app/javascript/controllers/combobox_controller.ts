@@ -6,57 +6,96 @@ import {
   unlockScroll,
   hideContent,
   focusTrigger,
+  setGroupLabelsId,
+  onClickOutside,
 } from '../utils'
-import CommandRootController from './command_root_controller'
+import { Controller } from '@hotwired/stimulus'
+import Fuse from 'fuse.js'
+import {
+  scrollToItem,
+  highlightItem,
+  highlightItemByIndex,
+  filteredItemsChanged,
+  setItemsGroupId,
+  search,
+  clearRemoteResults,
+} from './command_controller'
+import { useClickOutside, useDebounce } from 'stimulus-use'
 
-export default class extends CommandRootController {
+const ComboboxController = class extends Controller<HTMLElement> {
+  // targets
   static targets = [
     'trigger',
+    'triggerText',
     'contentContainer',
     'content',
     'item',
-    'triggerText',
     'group',
-    'label',
     'hiddenInput',
     'searchInput',
-    'results',
+    'list',
+    'listContainer',
     'empty',
+    'loading',
+    'error',
   ]
+  declare readonly triggerTarget: HTMLElement
+  declare readonly triggerTextTarget: HTMLElement
+  declare readonly contentContainerTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+  declare readonly itemTargets: HTMLInputElement[]
+  declare readonly groupTargets: HTMLElement[]
+  declare readonly hiddenInputTarget: HTMLInputElement
+  declare readonly searchInputTarget: HTMLInputElement
+  declare readonly listTarget: HTMLElement
+  declare readonly listContainerTarget: HTMLElement
+  declare readonly emptyTarget: HTMLElement
+  declare readonly loadingTarget: HTMLElement
+  declare readonly errorTarget: HTMLElement
 
+  // values
   static values = {
     isOpen: Boolean,
     selected: String,
     filteredItemIndexes: Array,
   }
-
-  declare readonly contentContainerTarget: HTMLElement
-  declare readonly triggerTextTarget: HTMLElement
-  declare readonly hiddenInputTarget: HTMLInputElement
+  declare isOpenValue: boolean
   declare selectedValue: string
+  declare filteredItemIndexesValue: number[]
+
+  // custom properties
+  declare orderedItems: HTMLElement[]
+  declare itemsInnerText: string[]
+  declare filteredItems: HTMLElement[]
+  declare fuse: Fuse<string>
+  declare scrollingViaKeyboard: boolean
+  declare keyboardScrollTimeout: number
+  declare abortController?: AbortController
+  declare searchPath?: string
+  declare isDirty: boolean
+  declare isLoading: boolean
+  declare DOMKeydownListener: (event: KeyboardEvent) => void
   declare cleanup: () => void
 
-  open() {
-    this.isOpenValue = true
-    this.highlightItemByIndex(0)
+  static debounces = ['search']
 
-    let index = 0
-
-    if (this.selectedValue) {
-      const item = this.itemTargets.find(
-        (i) => i.dataset.value === this.selectedValue,
-      )
-
-      if (item && !item.dataset.disabled) {
-        index = this.items.indexOf(item)
-      }
-    }
-
-    this.highlightItemByIndex(index)
-
-    setTimeout(() => {
-      this.searchInputTarget.focus()
-    }, ON_OPEN_FOCUS_DELAY)
+  connect() {
+    this.orderedItems = [...this.itemTargets]
+    this.itemsInnerText = this.itemTargets.map((i) => i.innerText.trim())
+    this.fuse = new Fuse(this.itemsInnerText)
+    this.filteredItemIndexesValue = Array.from(
+      { length: this.itemTargets.length },
+      (_, i) => i,
+    )
+    this.isLoading = false
+    this.filteredItems = this.itemTargets
+    this.isDirty = false
+    this.searchPath = this.element.dataset.searchPath
+    setGroupLabelsId(this)
+    setItemsGroupId(this)
+    useDebounce(this)
+    useClickOutside(this, { element: this.contentTarget, dispatchEvent: false })
+    this.DOMKeydownListener = this.onDOMKeydown.bind(this)
   }
 
   toggle() {
@@ -67,8 +106,85 @@ export default class extends CommandRootController {
     }
   }
 
-  onSelect(value: string): void {
+  open() {
+    this.isOpenValue = true
+
+    setTimeout(() => {
+      this.searchInputTarget.focus()
+
+      let index = 0
+
+      if (this.selectedValue) {
+        const item = this.orderedItems.find(
+          (i) => i.dataset.value === this.selectedValue,
+        )
+
+        if (item && !item.dataset.disabled) {
+          index = this.orderedItems.indexOf(item)
+        }
+      }
+
+      this.highlightItemByIndex(index)
+    }, ON_OPEN_FOCUS_DELAY)
+  }
+
+  close() {
+    this.isOpenValue = false
+  }
+
+  scrollToItem(index: number) {
+    scrollToItem(this, index)
+  }
+
+  highlightItem(
+    event: MouseEvent | KeyboardEvent | null = null,
+    index: number | null = null,
+  ) {
+    highlightItem(this, event, index)
+  }
+
+  highlightItemByIndex(index: number) {
+    highlightItemByIndex(this, index)
+  }
+
+  select(event: MouseEvent | KeyboardEvent) {
+    let value = ''
+
+    if (event instanceof KeyboardEvent) {
+      const item = this.filteredItems.find(
+        (i) => i.dataset.highlighted === 'true',
+      )
+
+      if (item) {
+        value = item.dataset.value as string
+      }
+    } else {
+      // mouse event
+      const item = event.currentTarget as HTMLElement
+      value = item.dataset.value as string
+    }
+
     this.selectedValue = value
+    this.close()
+  }
+
+  inputKeydown(event: KeyboardEvent) {
+    if (event.key === ' ' && this.searchInputTarget.value.length === 0) {
+      event.preventDefault()
+    }
+
+    this.hideError()
+    this.showList()
+  }
+
+  search(event: InputEvent) {
+    this.isDirty = true
+    clearRemoteResults(this)
+    search(this, event)
+  }
+
+  clickOutside(event: MouseEvent) {
+    onClickOutside(this, event)
   }
 
   selectedValueChanged(value: string) {
@@ -99,7 +215,7 @@ export default class extends CommandRootController {
 
   isOpenValueChanged(isOpen: boolean, previousIsOpen: boolean) {
     if (isOpen) {
-      lockScroll()
+      lockScroll(this.contentTarget.id)
 
       showContent({
         trigger: this.triggerTarget,
@@ -118,7 +234,7 @@ export default class extends CommandRootController {
 
       this.setupEventListeners()
     } else {
-      unlockScroll()
+      unlockScroll(this.contentTarget.id)
 
       hideContent({
         trigger: this.triggerTarget,
@@ -126,21 +242,92 @@ export default class extends CommandRootController {
         contentContainer: this.contentContainerTarget,
       })
 
-      this.cleanupEventListeners()
-
-      // Only focus trigger when is previously opened
       if (previousIsOpen) {
         focusTrigger(this.triggerTarget)
       }
+
+      this.cleanupEventListeners()
     }
   }
 
-  clickOutside(event: MouseEvent) {
-    const target = event.target as HTMLElement
-    // Let #toggle to handle state when clicked on trigger
-    if (target === this.triggerTarget) return
-    if (this.triggerTarget.contains(target)) return
+  filteredItemIndexesValueChanged(filteredItemIndexes: number[]) {
+    filteredItemsChanged(this, filteredItemIndexes)
+  }
 
-    this.close()
+  disconnect() {
+    this.cleanupEventListeners()
+    this.searchInputTarget.value = ''
+
+    if (this.searchPath) {
+      clearRemoteResults(this)
+    }
+
+    this.filteredItemIndexesValue = Array.from(
+      { length: this.orderedItems.length },
+      (_, i) => i,
+    )
+  }
+
+  showLoading() {
+    this.isLoading = true
+    this.loadingTarget.classList.remove('hidden')
+  }
+
+  hideLoading() {
+    this.isLoading = false
+    this.loadingTarget.classList.add('hidden')
+  }
+
+  showList() {
+    this.listTarget.classList.remove('hidden')
+  }
+
+  hideList() {
+    this.listTarget.classList.add('hidden')
+  }
+
+  showError() {
+    this.errorTarget.classList.remove('hidden')
+  }
+
+  hideError() {
+    this.errorTarget.classList.add('hidden')
+  }
+
+  showEmpty() {
+    this.emptyTarget.classList.remove('hidden')
+  }
+
+  hideEmpty() {
+    this.emptyTarget.classList.add('hidden')
+  }
+
+  protected setupEventListeners() {
+    document.addEventListener('keydown', this.DOMKeydownListener)
+  }
+
+  protected cleanupEventListeners() {
+    document.removeEventListener('keydown', this.DOMKeydownListener)
+
+    if (this.abortController) {
+      this.abortController.abort()
+    }
+  }
+
+  protected onDOMKeydown(event: KeyboardEvent) {
+    if (!this.isOpenValue) return
+
+    const key = event.key
+
+    if (['Tab', 'Enter'].includes(key)) event.preventDefault()
+
+    if (key === 'Escape') {
+      this.close()
+    }
   }
 }
+
+type Combobox = InstanceType<typeof ComboboxController>
+
+export { ComboboxController }
+export type { Combobox }

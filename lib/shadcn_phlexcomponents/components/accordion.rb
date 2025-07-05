@@ -81,6 +81,7 @@ module ShadcnPhlexcomponents
         },
         data: {
           state: "closed",
+          accordion_target: "trigger",
           action: <<~HEREDOC,
             click->accordion#toggle
             keydown.up->accordion#focusTrigger:prevent
@@ -119,7 +120,7 @@ module ShadcnPhlexcomponents
         },
         data: {
           state: "closed",
-          shadcn_phlexcomponents: "accordion-content-container",
+          accordion_target: "content"
         },
       ) do
         div(**@attributes, &)

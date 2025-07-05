@@ -11,6 +11,7 @@ require_relative "form/form_checkbox_group"
 require_relative "form/form_date_picker"
 require_relative "form/form_date_range_picker"
 require_relative "form/form_select"
+require_relative "form/form_combobox"
 require_relative "form/form_radio_group"
 require_relative "form/form_slider"
 
@@ -72,6 +73,19 @@ module ShadcnPhlexcomponents
 
     def select(method = nil, collection = [], value_method:, text_method:, **attributes, &)
       FormSelect(
+        method,
+        model: @model,
+        object_name: @object_name,
+        collection: collection,
+        value_method: value_method,
+        text_method: text_method,
+        **attributes,
+        &
+      )
+    end
+
+    def combobox(method = nil, collection = [], value_method:, text_method:, **attributes, &)
+      FormCombobox(
         method,
         model: @model,
         object_name: @object_name,

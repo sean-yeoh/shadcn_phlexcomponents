@@ -10,6 +10,18 @@ import {
   arrow,
 } from '@floating-ui/dom'
 
+import type { DropdownMenu } from './controllers/dropdown_menu_controller'
+import type { Select } from './controllers/select_controller'
+import type { Popover } from './controllers/popover_controller'
+import type { Command } from './controllers/command_controller'
+import type { Combobox } from './controllers/combobox_controller'
+import type { Dialog } from './controllers/dialog_controller'
+import type { AlertDialog } from './controllers/alert_dialog_controller'
+import type { HoverCard } from './controllers/hover_card_controller'
+import type { Tooltip } from './controllers/tooltip_controller'
+import type { DatePicker } from './controllers/date_picker_controller'
+import type { DateRangePicker } from './controllers/date_range_picker_controller'
+
 const ANIMATION_OUT_DELAY = 100
 const ON_OPEN_FOCUS_DELAY = 100
 const ON_CLOSE_FOCUS_DELAY = 50
@@ -59,54 +71,7 @@ const getScrollbarWidth = () => {
   return scrollbarWidth
 }
 
-const showOverlay = ({
-  classNames = '',
-  elementId,
-}: {
-  classNames?: string
-  elementId: string
-}) => {
-  const element = document.createElement('div')
-
-  let defaultClassNames = [
-    'data-[state=open]:animate-in',
-    'data-[state=closed]:animate-out',
-    'data-[state=closed]:fade-out-0',
-    'data-[state=open]:fade-in-0',
-    'fixed',
-    'inset-0',
-    'z-[48]',
-    'bg-black/50',
-    'pointer-events-auto',
-  ]
-
-  defaultClassNames = defaultClassNames.concat(
-    classNames.split(' ').filter((c) => !!c),
-  )
-
-  element.classList.add(...defaultClassNames)
-  element.dataset.state = 'open'
-  element.dataset.shadcnPhlexcomponentsOverlay = elementId
-  element.ariaHidden = 'true'
-
-  document.body.appendChild(element)
-}
-
-const hideOverlay = (elementId: string) => {
-  const element = document.querySelector(
-    `[data-shadcn-phlexcomponents-overlay=${elementId}]`,
-  )
-
-  if (element && element instanceof HTMLElement) {
-    element.dataset.state = 'closed'
-
-    setTimeout(() => {
-      element.remove()
-    }, ANIMATION_OUT_DELAY)
-  }
-}
-
-const lockScroll = () => {
+const lockScroll = (contentId: string) => {
   if (window.innerHeight < document.documentElement.scrollHeight) {
     document.body.dataset.scrollLocked = '1'
     document.body.classList.add(
@@ -118,15 +83,24 @@ const lockScroll = () => {
       'data-[scroll-locked]:ml-0',
       'data-[scroll-locked]:mt-0',
     )
-    const style = getComputedStyle(document.body)
-    const originalMarginRight = style.marginRight
-    document.body.dataset.marginRight = originalMarginRight
     document.body.style.marginRight = `${getScrollbarWidth()}px`
+
+    const contentIdsString =
+      document.body.dataset.scrollLockedContentIds || '[]'
+    const contentIds = JSON.parse(contentIdsString)
+
+    contentIds.push(contentId)
+    document.body.dataset.scrollLockedContentIds = JSON.stringify(contentIds)
   }
 }
 
-const unlockScroll = () => {
-  if (document.body.dataset.scrollLocked) {
+const unlockScroll = (contentId: string) => {
+  const contentIdsString = document.body.dataset.scrollLockedContentIds || '[]'
+  const contentIds = JSON.parse(contentIdsString)
+  const newContentIds = contentIds.filter((id: string) => id !== contentId)
+  document.body.dataset.scrollLockedContentIds = JSON.stringify(newContentIds)
+
+  if (newContentIds.length === 0) {
     delete document.body.dataset.scrollLocked
     document.body.classList.remove(
       'data-[scroll-locked]:pointer-events-none',
@@ -138,26 +112,8 @@ const unlockScroll = () => {
       'data-[scroll-locked]:mt-0',
     )
 
-    const originalMarginRight = document.body.dataset.marginRight
-
-    if (originalMarginRight && parseInt(originalMarginRight) === 0) {
-      document.body.style.marginRight = ''
-    } else {
-      document.body.style.marginRight = `${originalMarginRight}`
-    }
-
-    delete document.body.dataset.marginRight
+    document.body.style.marginRight = ''
   }
-}
-
-const openWithOverlay = (elementId: string) => {
-  showOverlay({ elementId })
-  lockScroll()
-}
-
-const closeWithOverlay = (elementId: string) => {
-  hideOverlay(elementId)
-  unlockScroll()
 }
 
 const initFloatingUi = ({
@@ -336,6 +292,14 @@ const focusTrigger = (triggerTarget: HTMLElement) => {
   }, ON_CLOSE_FOCUS_DELAY)
 }
 
+const focusElement = (element?: HTMLElement | null) => {
+  setTimeout(() => {
+    if (element) {
+      element.focus()
+    }
+  }, ON_OPEN_FOCUS_DELAY)
+}
+
 const getFocusableElements = (container: HTMLElement) => {
   return Array.from(
     container.querySelectorAll(
@@ -353,7 +317,7 @@ const getSameLevelItems = ({
   items: HTMLElement[]
   closestContentSelector: string
 }) => {
-  let sameLevelItems = [] as HTMLElement[]
+  const sameLevelItems = [] as HTMLElement[]
 
   items.forEach((i) => {
     if (
@@ -372,13 +336,16 @@ const showContent = ({
   content,
   contentContainer,
   setEqualWidth,
+  overlay,
 }: {
   trigger?: HTMLElement
   content: HTMLElement
   contentContainer: HTMLElement
+  overlay?: HTMLElement
   setEqualWidth?: boolean
+  appendToBody?: boolean
 }) => {
-  contentContainer.classList.remove('hidden')
+  contentContainer.style.display = ''
 
   if (trigger) {
     if (setEqualWidth) {
@@ -395,16 +362,24 @@ const showContent = ({
   }
 
   content.dataset.state = 'open'
+
+  if (overlay) {
+    overlay.style.display = ''
+    overlay.dataset.state = 'open'
+    lockScroll(content.id)
+  }
 }
 
 const hideContent = ({
   trigger,
   content,
   contentContainer,
+  overlay,
 }: {
   trigger?: HTMLElement
   content: HTMLElement
   contentContainer: HTMLElement
+  overlay?: HTMLElement
 }) => {
   if (trigger) {
     trigger.ariaExpanded = 'false'
@@ -414,24 +389,225 @@ const hideContent = ({
   content.dataset.state = 'closed'
 
   setTimeout(() => {
-    contentContainer.classList.add('hidden')
+    contentContainer.style.display = 'none'
+
+    if (overlay) {
+      overlay.style.display = 'none'
+      overlay.dataset.state = 'closed'
+      unlockScroll(content.id)
+    }
   }, ANIMATION_OUT_DELAY)
+}
+
+const getStimulusInstance = <T>(
+  controller: string,
+  element: HTMLElement | null,
+) => {
+  if (!element) return
+
+  return window.Stimulus.getControllerForElementAndIdentifier(
+    element,
+    controller,
+  ) as T
+}
+
+type NestedComponent =
+  | DropdownMenu
+  | Select
+  | Popover
+  | Command
+  | Combobox
+  | Dialog
+  | AlertDialog
+  | HoverCard
+  | Tooltip
+  | DatePicker
+  | DateRangePicker
+const anyNestedComponentsOpen = (element: HTMLElement) => {
+  const components = [] as NestedComponent[]
+
+  const componentNames = [
+    'dialog',
+    'alert-dialog',
+    'dropdown-menu',
+    'popover',
+    'select',
+    'combobox',
+    'command',
+    'hover-card',
+    'tooltip',
+    'date-picker',
+    'date-range-picker',
+  ]
+
+  componentNames.forEach((name) => {
+    const triggers = Array.from(
+      element.querySelectorAll(
+        `[data-shadcn-phlexcomponents="${name}-trigger"]`,
+      ),
+    )
+
+    const controllerElements = Array.from(
+      element.querySelectorAll(`[data-controller="${name}"]`),
+    ) as HTMLElement[]
+
+    controllerElements.forEach((controller) => {
+      const stimulusInstance = getStimulusInstance<NestedComponent>(
+        name,
+        controller,
+      )
+
+      if (stimulusInstance) {
+        components.push(stimulusInstance)
+      }
+    })
+
+    triggers.forEach((trigger) => {
+      const stimulusInstance = getStimulusInstance<NestedComponent>(
+        name,
+        document.querySelector(`#${trigger.getAttribute('aria-controls')}`),
+      )
+
+      if (stimulusInstance) {
+        components.push(stimulusInstance)
+      }
+    })
+  })
+
+  return components.some((c) => c.isOpenValue)
+}
+
+const onClickOutside = (
+  controller: DropdownMenu | Select | Popover | Combobox,
+  event: MouseEvent,
+) => {
+  const target = event.target as HTMLElement
+  // Let trigger handle state
+  if (target === controller.triggerTarget) return
+  if (controller.triggerTarget.contains(target)) return
+
+  controller.close()
+}
+
+const setGroupLabelsId = (controller: Select | Command | Combobox) => {
+  controller.groupTargets.forEach((g) => {
+    const label = g.querySelector(
+      `[data-shadcn-phlexcomponents="${controller.identifier}-label"]`,
+    ) as HTMLElement
+
+    if (label) {
+      label.id = g.getAttribute('aria-labelledby') as string
+    }
+  })
+}
+
+const getNextEnabledIndex = ({
+  items,
+  currentIndex,
+  wrapAround,
+  filterFn,
+}: {
+  items: HTMLElement[]
+  currentIndex: number
+  wrapAround: boolean
+  filterFn?: (item: HTMLElement) => boolean
+}) => {
+  let newIndex = null as number | null
+
+  if (filterFn) {
+    newIndex = items.findIndex(
+      (item, index) => index > currentIndex && filterFn(item),
+    )
+
+    if (newIndex === -1) {
+      newIndex = currentIndex
+    }
+  } else {
+    newIndex = currentIndex + 1
+  }
+
+  if (newIndex > items.length - 1) {
+    if (wrapAround) {
+      newIndex = 0
+    } else {
+      newIndex = items.length - 1
+    }
+  }
+
+  return newIndex
+}
+
+const getPreviousEnabledIndex = ({
+  items,
+  currentIndex,
+  wrapAround,
+  filterFn,
+}: {
+  items: HTMLElement[]
+  currentIndex: number
+  wrapAround: boolean
+  filterFn?: (item: HTMLElement) => boolean
+}) => {
+  let newIndex = null as number | null
+
+  if (filterFn) {
+    newIndex = items.findLastIndex(
+      (item, index) => index < currentIndex && filterFn(item),
+    )
+
+    if (newIndex === -1) {
+      newIndex = currentIndex
+    }
+  } else {
+    newIndex = currentIndex - 1
+  }
+
+  if (newIndex < 0) {
+    if (wrapAround) {
+      newIndex = items.length - 1
+    } else {
+      newIndex = 0
+    }
+  }
+
+  return newIndex
+}
+
+const handleTabNavigation = (element: HTMLElement, event: KeyboardEvent) => {
+  const focusableElements = getFocusableElements(element)
+  const firstElement = focusableElements[0]
+  const lastElement = focusableElements[focusableElements.length - 1]
+
+  // If Shift + Tab pressed on first element, go to last element
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault()
+    lastElement.focus()
+  }
+  // If Tab pressed on last element, go to first element
+  else if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault()
+    firstElement.focus()
+  }
 }
 
 export {
   ANIMATION_OUT_DELAY,
   ON_CLOSE_FOCUS_DELAY,
   ON_OPEN_FOCUS_DELAY,
-  showOverlay,
-  hideOverlay,
   lockScroll,
   unlockScroll,
-  openWithOverlay,
-  closeWithOverlay,
   initFloatingUi,
   focusTrigger,
+  focusElement,
   getFocusableElements,
   getSameLevelItems,
   showContent,
   hideContent,
+  getStimulusInstance,
+  anyNestedComponentsOpen,
+  onClickOutside,
+  setGroupLabelsId,
+  getNextEnabledIndex,
+  getPreviousEnabledIndex,
+  handleTabNavigation,
 }

@@ -1,18 +1,22 @@
 import { Controller } from '@hotwired/stimulus'
 import { useHover } from 'stimulus-use'
-import { initFloatingUi, ANIMATION_OUT_DELAY } from '../utils'
+import { initFloatingUi, showContent, hideContent } from '../utils'
 
-export default class extends Controller<HTMLElement> {
+const TooltipController = class extends Controller<HTMLElement> {
+  // targets
   static targets = ['trigger', 'content', 'contentContainer', 'arrow']
-  static values = {
-    isOpen: Boolean,
-  }
-
-  declare isOpenValue: boolean
   declare readonly triggerTarget: HTMLElement
   declare readonly contentTarget: HTMLElement
   declare readonly contentContainerTarget: HTMLElement
   declare readonly arrowTarget: HTMLElement
+
+  // values
+  static values = {
+    isOpen: Boolean,
+  }
+  declare isOpenValue: boolean
+
+  // custom properties
   declare closeTimeout: number
   declare cleanup: () => void
   declare DOMKeydownListener: (event: KeyboardEvent) => void
@@ -47,22 +51,13 @@ export default class extends Controller<HTMLElement> {
     this.close()
   }
 
-  onDOMKeydown(event: KeyboardEvent) {
-    if (!this.isOpenValue) return
-
-    const key = event.key
-
-    if (['Escape', 'Enter', ' '].includes(key)) {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-      this.closeImmediately()
-    }
-  }
-
   isOpenValueChanged(isOpen: boolean) {
     if (isOpen) {
-      this.contentContainerTarget.classList.remove('hidden')
-      this.contentTarget.dataset.state = 'open'
+      showContent({
+        content: this.contentTarget,
+        contentContainer: this.contentContainerTarget,
+      })
+
       this.setupEventListeners()
 
       this.cleanup = initFloatingUi({
@@ -74,25 +69,41 @@ export default class extends Controller<HTMLElement> {
         sideOffset: 8,
       })
     } else {
-      this.contentTarget.dataset.state = 'closed'
+      hideContent({
+        content: this.contentTarget,
+        contentContainer: this.contentContainerTarget,
+      })
       this.cleanupEventListeners()
-
-      setTimeout(() => {
-        this.contentContainerTarget.classList.add('hidden')
-      }, ANIMATION_OUT_DELAY)
     }
-  }
-
-  setupEventListeners() {
-    document.addEventListener('keydown', this.DOMKeydownListener)
-  }
-
-  cleanupEventListeners() {
-    if (this.cleanup) this.cleanup()
-    document.removeEventListener('keydown', this.DOMKeydownListener)
   }
 
   disconnect() {
     this.cleanupEventListeners()
   }
+
+  protected onDOMKeydown(event: KeyboardEvent) {
+    if (!this.isOpenValue) return
+
+    const key = event.key
+
+    if (['Escape', 'Enter', ' '].includes(key)) {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      this.closeImmediately()
+    }
+  }
+
+  protected setupEventListeners() {
+    document.addEventListener('keydown', this.DOMKeydownListener)
+  }
+
+  protected cleanupEventListeners() {
+    if (this.cleanup) this.cleanup()
+    document.removeEventListener('keydown', this.DOMKeydownListener)
+  }
 }
+
+type Tooltip = InstanceType<typeof TooltipController>
+
+export { TooltipController }
+export type { Tooltip }

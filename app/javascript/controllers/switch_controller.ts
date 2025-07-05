@@ -1,13 +1,15 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller<HTMLElement> {
+const SwitchController = class extends Controller<HTMLElement> {
+  // targets
   static targets = ['input', 'thumb']
+  declare readonly inputTarget: HTMLInputElement
+  declare readonly thumbTarget: HTMLElement
+
+  // values
   static values = {
     isChecked: Boolean,
   }
-
-  declare readonly inputTarget: HTMLInputElement
-  declare readonly thumbTarget: HTMLElement
   declare isCheckedValue: boolean
 
   toggle() {
@@ -28,3 +30,8 @@ export default class extends Controller<HTMLElement> {
     }
   }
 }
+
+type Switch = InstanceType<typeof SwitchController>
+
+export { SwitchController }
+export type { Switch }

@@ -1,14 +1,16 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller<HTMLElement> {
+const RadioGroupController = class extends Controller<HTMLElement> {
+  // targets
   static targets = ['item', 'input', 'indicator']
-  static values = {
-    selected: String,
-  }
-
   declare readonly itemTargets: HTMLInputElement[]
   declare readonly inputTargets: HTMLInputElement[]
   declare readonly indicatorTargets: HTMLInputElement[]
+
+  // values
+  static values = {
+    selected: String,
+  }
   declare selectedValue: string
 
   connect() {
@@ -20,10 +22,6 @@ export default class extends Controller<HTMLElement> {
   select(event: MouseEvent) {
     const item = event.currentTarget as HTMLInputElement
     this.selectedValue = item.dataset.value as string
-  }
-
-  preventDefault(event: KeyboardEvent) {
-    event.preventDefault()
   }
 
   selectItem(event: KeyboardEvent) {
@@ -51,6 +49,10 @@ export default class extends Controller<HTMLElement> {
     }
 
     this.selectedValue = focusableItems[newIndex].dataset.value as string
+  }
+
+  preventDefault(event: KeyboardEvent) {
+    event.preventDefault()
   }
 
   focusItem() {
@@ -104,3 +106,8 @@ export default class extends Controller<HTMLElement> {
     this.focusItem()
   }
 }
+
+type RadioGroup = InstanceType<typeof RadioGroupController>
+
+export { RadioGroupController }
+export type { RadioGroup }

@@ -23,7 +23,6 @@ module ShadcnPhlexcomponents
         data: {
           controller: "popover",
           popover_is_open_value: @open.to_s,
-          side: @side,
         },
       }
     end
@@ -92,7 +91,8 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(
-        class: "hidden fixed top-0 left-0 w-max z-50",
+        style: { display: "none" },
+        class: "fixed top-0 left-0 w-max z-50",
         data: { popover_target: "contentContainer" },
       ) do
         div(**@attributes, &)

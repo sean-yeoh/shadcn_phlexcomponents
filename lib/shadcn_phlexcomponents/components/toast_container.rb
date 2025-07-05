@@ -3,7 +3,7 @@
 module ShadcnPhlexcomponents
   class ToastContainer < Base
     class_variants(
-      base: "fixed z-[100] hidden has-[li]:flex flex-col gap-2",
+      base: "fixed z-50 hidden has-[li]:flex flex-col gap-2",
       variants: {
         side: {
           top_center: "top-6 left-1/2 -translate-x-1/2",
