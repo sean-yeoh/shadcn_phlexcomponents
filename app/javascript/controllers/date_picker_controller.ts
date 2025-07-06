@@ -1,7 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 import { useClickOutside } from 'stimulus-use'
 import {
-  initFloatingUi,
   focusTrigger,
   getFocusableElements,
   showContent,
@@ -11,7 +10,7 @@ import {
   handleTabNavigation,
   focusElement,
 } from '../utils'
-
+import { initFloatingUi } from '../utils/floating_ui'
 import { Calendar, Options } from 'vanilla-calendar-pro'
 import Inputmask from 'inputmask'
 import dayjs from 'dayjs'

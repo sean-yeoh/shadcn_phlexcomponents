@@ -151,8 +151,8 @@ module ShadcnPhlexcomponents
         },
         data: {
           state: "closed",
-          "#{component}-target" => "overlay",
-        },
+          "#{component}-target" => "overlay"
+        }
       )
     end
   end

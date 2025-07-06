@@ -2,10 +2,10 @@ import { DropdownMenuSub } from './dropdown_menu_sub_controller'
 import { Select } from './select_controller'
 import { Controller } from '@hotwired/stimulus'
 import { useClickOutside } from 'stimulus-use'
+import { initFloatingUi } from '../utils/floating_ui'
 import {
   getSameLevelItems,
   focusTrigger,
-  initFloatingUi,
   hideContent,
   showContent,
   lockScroll,

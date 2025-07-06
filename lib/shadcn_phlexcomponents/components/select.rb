@@ -10,7 +10,6 @@ module ShadcnPhlexcomponents
       value: nil,
       placeholder: nil,
       native: false,
-      dir: "ltr",
       include_blank: false,
       disabled: false,
       **attributes
@@ -20,7 +19,6 @@ module ShadcnPhlexcomponents
       @value = value
       @placeholder = placeholder
       @native = native
-      @dir = dir
       @include_blank = include_blank
       @disabled = disabled
       @aria_id = "select-#{SecureRandom.hex(5)}"
@@ -39,7 +37,6 @@ module ShadcnPhlexcomponents
       SelectTrigger(
         id: @id,
         aria_id: @aria_id,
-        dir: @dir,
         value: @value,
         placeholder: @placeholder,
         disabled: @disabled,
@@ -49,7 +46,7 @@ module ShadcnPhlexcomponents
 
     def content(**attributes, &)
       SelectContent(
-        aria_id: @aria_id, dir: @dir, include_blank: @include_blank, native: @native, **attributes, &
+        aria_id: @aria_id, include_blank: @include_blank, native: @native, **attributes, &
       )
     end
 
@@ -75,13 +72,12 @@ module ShadcnPhlexcomponents
       SelectTrigger(
         id: @id,
         aria_id: @aria_id,
-        dir: @dir,
         value: @value,
         placeholder: @placeholder,
         disabled: @disabled,
       )
 
-      SelectContent(aria_id: @aria_id, dir: @dir, include_blank: @include_blank, native: @native) do
+      SelectContent(aria_id: @aria_id, include_blank: @include_blank, native: @native) do
         collection.each do |item|
           value = item.public_send(value_method)
           text = item.public_send(text_method)
@@ -151,7 +147,7 @@ module ShadcnPhlexcomponents
         next if content_child.is_a?(Nokogiri::XML::Text) || content_child.is_a?(Nokogiri::XML::Comment)
 
         if content_child.attributes["data-select-target"]&.value == "group"
-          group_label = content_child.at_css('[data-select-target="label"]')&.text
+          group_label = content_child.at_css('[data-shadcn-phlexcomponents="select-label"]')&.text
 
           optgroup(label: group_label, class: NATIVE_OPTION_STYLES) do
             content_child.css('[data-select-target="item"]').each do |i|
@@ -195,11 +191,10 @@ module ShadcnPhlexcomponents
       HEREDOC
     )
 
-    def initialize(id: nil, value: nil, placeholder: nil, dir: "ltr", aria_id: nil, **attributes)
+    def initialize(id: nil, value: nil, placeholder: nil, aria_id: nil, **attributes)
       @id = id
       @value = value
       @placeholder = placeholder
-      @dir = dir
       @aria_id = aria_id
       super(**attributes)
     end
@@ -218,7 +213,6 @@ module ShadcnPhlexcomponents
       {
         type: "button",
         id: @id,
-        dir: @dir,
         role: "combobox",
         aria: {
           autocomplete: "none",
@@ -252,10 +246,9 @@ module ShadcnPhlexcomponents
       HEREDOC
     )
 
-    def initialize(include_blank: false, native: false, dir: "ltr", side: :bottom, align: :center, aria_id: nil, **attributes)
+    def initialize(include_blank: false, native: false, side: :bottom, align: :center, aria_id: nil, **attributes)
       @include_blank = include_blank
       @native = native
-      @dir = dir
       @side = side
       @align = align
       @aria_id = aria_id
@@ -283,7 +276,6 @@ module ShadcnPhlexcomponents
     def default_attributes
       {
         id: "#{@aria_id}-content",
-        dir: @dir,
         tabindex: -1,
         role: "listbox",
         aria: {

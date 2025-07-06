@@ -15,7 +15,7 @@ module ShadcnPhlexcomponents
     end
 
     def content(**attributes, &)
-      AlertDialogContent(aria_id: @aria_id, open: @open, **attributes, &)
+      AlertDialogContent(aria_id: @aria_id, **attributes, &)
     end
 
     def header(**attributes, &)
@@ -50,9 +50,9 @@ module ShadcnPhlexcomponents
       {
         data: {
           controller: "alert-dialog",
-          alert_dialog_is_open_value: @open.to_s,
-        },
-      }
+          alert_dialog_is_open_value: @open.to_s
+        }
+      }  
     end
 
     def view_template(&)
@@ -79,10 +79,10 @@ module ShadcnPhlexcomponents
           expanded: "false",
           controls: "#{@aria_id}-content",
         },
-        data: {
+        data: { 
           as_child: @as_child.to_s,
           alert_dialog_target: "trigger",
-          action: "click->alert-dialog#open",
+          action: "click->alert-dialog#open"
         },
       }
     end
@@ -114,8 +114,7 @@ module ShadcnPhlexcomponents
       HEREDOC
     )
 
-    def initialize(open: false, aria_id: nil, **attributes)
-      @open = open
+    def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
       super(**attributes)
     end
@@ -131,7 +130,7 @@ module ShadcnPhlexcomponents
         },
         data: {
           state: "closed",
-          alert_dialog_target: "content",
+          alert_dialog_target: "content"
         },
       }
     end

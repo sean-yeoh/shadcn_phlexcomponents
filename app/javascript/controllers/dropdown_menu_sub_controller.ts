@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
+import { initFloatingUi } from '../utils/floating_ui'
 import {
-  initFloatingUi,
   ON_OPEN_FOCUS_DELAY,
   getSameLevelItems,
   showContent,

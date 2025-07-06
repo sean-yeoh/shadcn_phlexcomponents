@@ -42,7 +42,7 @@ module ShadcnPhlexcomponents
         data: {
           controller: "toggle",
           toggle_is_on_value: @on.to_s,
-          action: "click->toggle#toggle",
+          action: "click->toggle#toggle"
         },
       }
     end

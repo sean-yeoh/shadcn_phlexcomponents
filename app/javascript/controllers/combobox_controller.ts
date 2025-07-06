@@ -2,13 +2,13 @@ import {
   ON_OPEN_FOCUS_DELAY,
   lockScroll,
   showContent,
-  initFloatingUi,
   unlockScroll,
   hideContent,
   focusTrigger,
   setGroupLabelsId,
   onClickOutside,
 } from '../utils'
+import { initFloatingUi } from '../utils/floating_ui'
 import { Controller } from '@hotwired/stimulus'
 import Fuse from 'fuse.js'
 import {
@@ -19,7 +19,9 @@ import {
   setItemsGroupId,
   search,
   clearRemoteResults,
-} from './command_controller'
+  resetState,
+} from '../utils/command'
+
 import { useClickOutside, useDebounce } from 'stimulus-use'
 
 const ComboboxController = class extends Controller<HTMLElement> {
@@ -43,7 +45,7 @@ const ComboboxController = class extends Controller<HTMLElement> {
   declare readonly triggerTextTarget: HTMLElement
   declare readonly contentContainerTarget: HTMLElement
   declare readonly contentTarget: HTMLElement
-  declare readonly itemTargets: HTMLInputElement[]
+  declare readonly itemTargets: HTMLElement[]
   declare readonly groupTargets: HTMLElement[]
   declare readonly hiddenInputTarget: HTMLInputElement
   declare readonly searchInputTarget: HTMLInputElement
@@ -113,14 +115,14 @@ const ComboboxController = class extends Controller<HTMLElement> {
       this.searchInputTarget.focus()
 
       let index = 0
-
+      console.log('this.selectedValue', this.selectedValue)
       if (this.selectedValue) {
-        const item = this.orderedItems.find(
+        const item = this.filteredItems.find(
           (i) => i.dataset.value === this.selectedValue,
         )
 
         if (item && !item.dataset.disabled) {
-          index = this.orderedItems.indexOf(item)
+          index = this.filteredItems.indexOf(item)
         }
       }
 
@@ -130,6 +132,7 @@ const ComboboxController = class extends Controller<HTMLElement> {
 
   close() {
     this.isOpenValue = false
+    resetState(this)
   }
 
   scrollToItem(index: number) {
@@ -148,24 +151,23 @@ const ComboboxController = class extends Controller<HTMLElement> {
   }
 
   select(event: MouseEvent | KeyboardEvent) {
-    let value = ''
+    let item = undefined as HTMLElement | undefined
 
     if (event instanceof KeyboardEvent) {
-      const item = this.filteredItems.find(
-        (i) => i.dataset.highlighted === 'true',
-      )
-
-      if (item) {
-        value = item.dataset.value as string
-      }
+      item = this.filteredItems.find((i) => i.dataset.highlighted === 'true')
     } else {
       // mouse event
-      const item = event.currentTarget as HTMLElement
-      value = item.dataset.value as string
+      item = event.currentTarget as HTMLElement
     }
 
-    this.selectedValue = value
-    this.close()
+    if (item) {
+      this.selectedValue = item.dataset.value as string
+
+      // setTimeout is needed for selectedValueChanged to finish executing
+      setTimeout(() => {
+        this.close()
+      }, 100)
+    }
   }
 
   inputKeydown(event: KeyboardEvent) {
@@ -256,16 +258,7 @@ const ComboboxController = class extends Controller<HTMLElement> {
 
   disconnect() {
     this.cleanupEventListeners()
-    this.searchInputTarget.value = ''
-
-    if (this.searchPath) {
-      clearRemoteResults(this)
-    }
-
-    this.filteredItemIndexesValue = Array.from(
-      { length: this.orderedItems.length },
-      (_, i) => i,
-    )
+    resetState(this)
   }
 
   showLoading() {
@@ -300,6 +293,56 @@ const ComboboxController = class extends Controller<HTMLElement> {
 
   hideEmpty() {
     this.emptyTarget.classList.add('hidden')
+  }
+
+  showSelectedRemoteItems() {
+    const remoteItems = Array.from(
+      this.element.querySelectorAll(
+        `[data-shadcn-phlexcomponents="${this.identifier}-item"][data-remote='true']`,
+      ),
+    )
+
+    remoteItems.forEach((i) => {
+      const isInsideGroup =
+        i.parentElement?.dataset?.shadcnPhlexcomponents ===
+        `${this.identifier}-group`
+
+      if (isInsideGroup) {
+        const isRemoteGroup = i.parentElement.dataset.remote === 'true'
+
+        if (isRemoteGroup) {
+          i.parentElement.classList.remove('hidden')
+        }
+      }
+
+      i.ariaHidden = 'false'
+      i.classList.remove('hidden')
+    })
+  }
+
+  hideSelectedRemoteItems() {
+    const remoteItems = Array.from(
+      this.element.querySelectorAll(
+        `[data-shadcn-phlexcomponents="${this.identifier}-item"][data-remote='true']`,
+      ),
+    )
+
+    remoteItems.forEach((i) => {
+      const isInsideGroup =
+        i.parentElement?.dataset?.shadcnPhlexcomponents ===
+        `${this.identifier}-group`
+
+      if (isInsideGroup) {
+        const isRemoteGroup = i.parentElement.dataset.remote === 'true'
+
+        if (isRemoteGroup) {
+          i.parentElement.classList.add('hidden')
+        }
+      }
+
+      i.ariaHidden = 'true'
+      i.classList.add('hidden')
+    })
   }
 
   protected setupEventListeners() {

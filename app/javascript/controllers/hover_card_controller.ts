@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 import { useHover } from 'stimulus-use'
-import { initFloatingUi, showContent, hideContent } from '../utils'
+import { initFloatingUi } from '../utils/floating_ui'
+import { showContent, hideContent } from '../utils'
 
 const HoverCardController = class extends Controller<HTMLElement> {
   // targets

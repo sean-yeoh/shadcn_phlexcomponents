@@ -1,9 +1,9 @@
 import { useClickOutside } from 'stimulus-use'
 import { onKeydown, focusItemByIndex } from './dropdown_menu_controller'
+import { initFloatingUi } from '../utils/floating_ui'
 import {
   getSameLevelItems,
   focusTrigger,
-  initFloatingUi,
   hideContent,
   showContent,
   lockScroll,

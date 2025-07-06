@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 import { useClickOutside } from 'stimulus-use'
+import { initFloatingUi } from '../utils/floating_ui'
 import {
-  initFloatingUi,
   focusTrigger,
   getFocusableElements,
   showContent,
