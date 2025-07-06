@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Command < Base
-    class_variants(base: "inline-block max-w-fit")
+    class_variants(base: "inline-flex max-w-fit")
 
     MODIFIER_KEYS = [
       :ctrl,
@@ -10,7 +10,16 @@ module ShadcnPhlexcomponents
       :shift,
     ]
 
-    def initialize(modifier_key: nil, shortcut_key: nil, search_path: nil, open: false, **attributes)
+    def initialize(
+      open: false, 
+      modifier_key: nil, 
+      shortcut_key: nil, 
+      search_path: nil,
+      search_error_text: "Something went wrong, please try again.",
+      search_empty_text: "No results found",
+      search_placeholder_text: "Search...",
+      **attributes
+    )
       if modifier_key && !MODIFIER_KEYS.include?(modifier_key)
         raise ArgumentError, "Expected one of #{MODIFIER_KEYS} for \"modifier_key\", got #{modifier_key}"
       end
@@ -19,6 +28,9 @@ module ShadcnPhlexcomponents
       @modifier_key = modifier_key
       @shortcut_key = shortcut_key
       @search_path = search_path
+      @search_error_text = search_error_text
+      @search_empty_text = search_empty_text
+      @search_placeholder_text = search_placeholder_text
       @aria_id = "command-#{SecureRandom.hex(5)}"
       super(**attributes)
     end
@@ -28,7 +40,14 @@ module ShadcnPhlexcomponents
     end
 
     def content(**attributes, &)
-      CommandContent(aria_id: @aria_id, **attributes, &)
+      CommandContent(
+        search_error_text: @search_error_text,
+        search_empty_text: @search_empty_text,
+        search_placeholder_text: @search_placeholder_text,
+        aria_id: @aria_id, 
+        **attributes, 
+        &
+      )
     end
 
     def item(**attributes, &)
@@ -43,24 +62,24 @@ module ShadcnPhlexcomponents
       CommandGroup(aria_id: @aria_id, **attributes, &)
     end
 
-    def empty(**attributes, &)
-      CommandEmpty(**attributes, &)
-    end
-
     def default_attributes
       {
         data: {
           controller: "command",
+          command_is_open_value: @open.to_s,
           modifier_key: @modifier_key,
           shortcut_key: @shortcut_key,
-          search_path: @search_path,
-          command_is_open_value: @open.to_s,
-        },
+          search_path: @search_path
+        }
       }
     end
 
     def view_template(&)
-      div(**@attributes, &)
+      div(**@attributes) do
+        overlay("command")
+
+        yield
+      end
     end
   end
 
@@ -91,9 +110,8 @@ module ShadcnPhlexcomponents
           controls: "#{@aria_id}-content",
         },
         data: {
-          action: "click->command#open",
           command_target: "trigger",
-          as_child: @as_child.to_s,
+          action: "click->command#open"
         },
       }
     end
@@ -123,18 +141,27 @@ module ShadcnPhlexcomponents
         bg-background bg-clip-padding dark:bg-neutral-900 dark:ring-neutral-800 data-[state=closed]:animate-out#{" "}
         data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0
         data-[state=open]:zoom-in-95 duration-200 fixed gap-4 grid left-[50%] max-w-[calc(100%-2rem)] p-2 pb-11 ring-4 ring-neutral-200/80
-        rounded-xl shadow-2xl sm:max-w-lg top-[50%] translate-x-[-50%] translate-y-[-50%] w-full z-50 pointer-events-auto
+        rounded-xl shadow-2xl sm:max-w-lg top-[50%] translate-x-[-50%] translate-y-[-50%] w-full z-50 pointer-events-auto outline-none
       HEREDOC
     )
 
-    def initialize(search_placeholder: "Search...", aria_id: nil, **attributes)
-      @search_placeholder = search_placeholder
+    def initialize(
+      search_error_text: nil,
+      search_empty_text: nil,
+      search_placeholder_text: nil,
+      aria_id: nil, 
+      **attributes
+    )
+      @search_error_text = search_error_text
+      @search_empty_text = search_empty_text
+      @search_placeholder_text = search_placeholder_text
       @aria_id = aria_id
       super(**attributes)
     end
 
     def default_attributes
       {
+        style: { display: "none" },
         id: "#{@aria_id}-content",
         tabindex: -1,
         role: "dialog",
@@ -143,26 +170,29 @@ module ShadcnPhlexcomponents
           labelledby: "#{@aria_id}-title",
         },
         data: {
-          command_target: "content",
           state: "closed",
+          command_target: "content",
           action: <<~HEREDOC,
-            command:click:outside->command#close
+            command:click:outside->command#clickOutside
             keydown.up->command#highlightItem:prevent
             keydown.down->command#highlightItem:prevent
             keydown.enter->command#select
           HEREDOC
-
         },
       }
     end
 
     def view_template(&)
-      @class = @attributes.delete(:class)
+      div(**@attributes) do
+        template do
+          CommandGroup do
+            CommandLabel { "" }
+          end 
+        end
 
-      div(class: "#{@class} hidden", **@attributes) do
         div(class: "text-popover-foreground flex h-full w-full flex-col overflow-hidden bg-transparent") do
           div(class: "sr-only") do
-            h2(id: "#{@aria_id}-title") { @search_placeholder }
+            h2(id: "#{@aria_id}-title") { @search_placeholder_text }
             p(id: "#{@aria_id}-description") { "Search for a command to run..." }
           end
 
@@ -170,7 +200,7 @@ module ShadcnPhlexcomponents
             class: "sr-only",
             id: "#{@aria_id}-search-label",
             for: "#{@aria_id}-search",
-          ) { @search_placeholder }
+          ) { @search_placeholder_text }
 
           div(class: "flex h-9 items-center gap-2 border px-3 bg-input/50 border-input rounded-md") do
             icon("search", class: "size-4 shrink-0 opacity-50")
@@ -179,7 +209,7 @@ module ShadcnPhlexcomponents
               class: "placeholder:text-muted-foreground flex w-full rounded-md bg-transparent py-3 text-sm
               outline-hidden disabled:cursor-not-allowed disabled:opacity-50 h-9",
               id: "#{@aria_id}-search",
-              placeholder: @search_placeholder,
+              placeholder: @search_placeholder_text,
               type: :text,
               autocomplete: "off",
               autocorrect: "off",
@@ -193,13 +223,21 @@ module ShadcnPhlexcomponents
               },
               data: {
                 command_target: "searchInput",
-                action: "input->command#search",
+                action: "keydown->command#inputKeydown input->command#search",
               },
             )
           end
 
-          div(class: "p-1 max-h-80 min-h-80 overflow-y-auto", id: "#{@aria_id}-list", data: { command_target: "list" }) do
-            div(data: { command_target: "results" }, &)
+          div(class: "mt-3 p-1 max-h-80 min-h-80 overflow-y-auto", data: { command_target: "listContainer"})  do
+            CommandText(target: "empty") { @search_empty_text }
+            CommandText(target: "error") { @search_error_text }
+            CommandText(target: "loading") do
+              div(class: "flex justify-center", aria: { label: "Loading" }) do
+                icon("loader-circle", class: "animate-spin")
+              end
+            end
+
+            div(id: "#{@aria_id}-list", data: { command_target: "list" }, &)
           end
 
           CommandFooter()
@@ -251,30 +289,21 @@ module ShadcnPhlexcomponents
   end
 
   class CommandLabel < Base
-    class_variants(base: "text-muted-foreground text-xs p-3 pb-1 text-xs font-medium")
+    class_variants(base: "text-muted-foreground text-xs px-3 pb-1 text-xs font-medium")
 
-    def initialize(aria_id: nil, **attributes)
-      @aria_id = aria_id
+    def initialize( **attributes)
       super(**attributes)
     end
 
     def view_template(&)
       div(**@attributes, &)
     end
-
-    def default_attributes
-      {
-        data: {
-          command_target: "label",
-        },
-      }
-    end
   end
 
   class CommandGroup < Base
-    class_variants(base: "scroll-mt-16")
+    class_variants(base: "scroll-mt-16 first:pt-0 pt-3")
 
-    def initialize(aria_id:, **attributes)
+    def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
       super(**attributes)
     end
@@ -296,22 +325,23 @@ module ShadcnPhlexcomponents
     end
   end
 
-  class CommandEmpty < Base
+  class CommandText < Base
     class_variants(base: "py-6 text-center text-sm hidden")
+    
+    def initialize(target:, **attributes)
+      @target = target
+      super(**attributes)
+    end
 
     def default_attributes
       {
         role: "presentation",
-        data: { command_target: "empty" },
+        data: { command_target: @target },
       }
     end
 
     def view_template(&)
-      if block_given?
-        div(**@attributes, &)
-      else
-        div(**@attributes) { "No results found" }
-      end
+      div(**@attributes, &)
     end
   end
 

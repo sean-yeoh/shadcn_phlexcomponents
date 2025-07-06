@@ -84,8 +84,7 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      @class = @attributes.delete(:class)
-      div(class: "#{@class} hidden", **@attributes, &)
+      div(style: { display: "none" }, **@attributes, &)
     end
   end
 end

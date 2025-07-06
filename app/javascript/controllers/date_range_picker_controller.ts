@@ -1,5 +1,5 @@
 import { Calendar, Options } from 'vanilla-calendar-pro'
-import DatePickerController from './date_picker_controller'
+import { DatePickerController } from './date_picker_controller'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import utc from 'dayjs/plugin/utc'
@@ -9,26 +9,28 @@ dayjs.extend(utc)
 const DELIMITER = ' - '
 const DAYJS_FORMAT = 'YYYY-MM-DD'
 
-export default class extends DatePickerController {
+const DateRangePickerController = class extends DatePickerController {
+  // targets
   static targets = [
     'trigger',
     'triggerText',
-    'contentWrapper',
+    'contentContainer',
     'content',
     'input',
     'hiddenInput',
     'endHiddenInput',
     'inputContainer',
     'calendar',
+    'overlay',
   ]
+  declare readonly endHiddenInputTarget: HTMLInputElement
 
+  // values
   static values = {
     isOpen: Boolean,
     date: String,
     endDate: String,
   }
-
-  declare readonly endHiddenInputTarget: HTMLInputElement
   declare endDateValue: string
 
   inputBlur() {
@@ -86,80 +88,6 @@ export default class extends DatePickerController {
       this.dateValue = ''
       this.endDateValue = ''
     }
-  }
-
-  getOptions() {
-    let options = {
-      type: 'multiple',
-      selectionDatesMode: 'multiple-ranged',
-      displayMonthsCount: 2,
-      monthsToSwitch: 1,
-      displayDatesOutside: false,
-      enableJumpToSelectedDate: true,
-      onClickDate: this.onClickDateListener,
-    } as Options
-
-    const selectedDates = []
-
-    const startDate = this.element.dataset.value
-    const endDate = this.element.dataset.endValue
-
-    if (startDate && dayjs(startDate).isValid()) {
-      const date = dayjs(startDate).format(DAYJS_FORMAT)
-      selectedDates.push(date)
-    }
-
-    if (endDate && dayjs(endDate).isValid()) {
-      const date = dayjs(endDate).format(DAYJS_FORMAT)
-      selectedDates.push(date)
-    }
-
-    options.selectedDates = selectedDates
-
-    try {
-      options = {
-        ...options,
-        ...JSON.parse(this.element.dataset.options || ''),
-      }
-    } catch {
-      options = options
-    }
-
-    if (options.selectedDates && options.selectedDates.length > 0) {
-      this.dateValue = `${options.selectedDates[0]}`
-      this.endDateValue = `${options.selectedDates[1]}`
-    }
-
-    return options
-  }
-
-  onClickDate(self: Calendar) {
-    const dates = self.context.selectedDates
-
-    if (dates.length > 0) {
-      const startDate = dates[0]
-      const endDate = dates[1]
-
-      this.dateValue = startDate
-
-      if (endDate) {
-        this.endDateValue = endDate
-        this.close()
-      } else {
-        this.endDateValue = ''
-      }
-    } else {
-      this.dateValue = ''
-      this.endDateValue = ''
-    }
-  }
-
-  setupInputMask() {
-    const pattern = this.format.replace(/[^\/]/g, '9')
-    const im = new Inputmask(`${pattern}${DELIMITER}${pattern}`, {
-      showMaskOnHover: false,
-    })
-    im.mask(this.inputTarget)
   }
 
   dateValueChanged(value: string) {
@@ -228,6 +156,7 @@ export default class extends DatePickerController {
     }
 
     if (this.hasInputTarget) this.inputTarget.value = datesDisplay
+
     if (this.hasTriggerTextTarget) {
       const hasValue = (!!value && value.length > 0) || !!startDate
       this.triggerTarget.dataset.hasValue = `${hasValue}`
@@ -240,4 +169,85 @@ export default class extends DatePickerController {
       }
     }
   }
+
+  protected getOptions() {
+    let options = {
+      type: 'multiple',
+      selectionDatesMode: 'multiple-ranged',
+      displayMonthsCount: 2,
+      monthsToSwitch: 1,
+      displayDatesOutside: false,
+      enableJumpToSelectedDate: true,
+      onClickDate: this.onClickDateListener,
+    } as Options
+
+    const selectedDates = []
+
+    const startDate = this.element.dataset.value
+    const endDate = this.element.dataset.endValue
+
+    if (startDate && dayjs(startDate).isValid()) {
+      const date = dayjs(startDate).format(DAYJS_FORMAT)
+      selectedDates.push(date)
+    }
+
+    if (endDate && dayjs(endDate).isValid()) {
+      const date = dayjs(endDate).format(DAYJS_FORMAT)
+      selectedDates.push(date)
+    }
+
+    options.selectedDates = selectedDates
+
+    try {
+      options = {
+        ...options,
+        ...JSON.parse(this.element.dataset.options || ''),
+      }
+    } catch {
+      // noop
+    }
+
+    if (options.selectedDates && options.selectedDates.length > 0) {
+      this.dateValue = `${options.selectedDates[0]}`
+      if (options.selectedDates[1]) {
+        this.endDateValue = `${options.selectedDates[1]}`
+      }
+    }
+
+    return options
+  }
+
+  protected onClickDate(self: Calendar) {
+    const dates = self.context.selectedDates
+
+    if (dates.length > 0) {
+      const startDate = dates[0]
+      const endDate = dates[1]
+
+      this.dateValue = startDate
+
+      if (endDate) {
+        this.endDateValue = endDate
+        this.close()
+      } else {
+        this.endDateValue = ''
+      }
+    } else {
+      this.dateValue = ''
+      this.endDateValue = ''
+    }
+  }
+
+  protected setupInputMask() {
+    const pattern = this.format.replace(/[^\/]/g, '9')
+    const im = new Inputmask(`${pattern}${DELIMITER}${pattern}`, {
+      showMaskOnHover: false,
+    })
+    im.mask(this.inputTarget)
+  }
 }
+
+type DateRangePicker = InstanceType<typeof DateRangePickerController>
+
+export { DateRangePickerController }
+export type { DateRangePicker }

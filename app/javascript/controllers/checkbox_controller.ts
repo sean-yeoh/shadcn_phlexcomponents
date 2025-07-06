@@ -1,13 +1,15 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller<HTMLElement> {
+const CheckboxController = class extends Controller<HTMLElement> {
+  // targets
   static targets = ['input', 'indicator']
+  declare readonly inputTarget: HTMLInputElement
+  declare readonly indicatorTarget: HTMLInputElement
+
+  // values
   static values = {
     isChecked: Boolean,
   }
-
-  declare readonly inputTarget: HTMLInputElement
-  declare readonly indicatorTarget: HTMLInputElement
   declare isCheckedValue: boolean
 
   toggle() {
@@ -32,3 +34,8 @@ export default class extends Controller<HTMLElement> {
     }
   }
 }
+
+type Checkbox = InstanceType<typeof CheckboxController>
+
+export { CheckboxController }
+export type { Checkbox }

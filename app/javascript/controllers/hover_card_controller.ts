@@ -1,20 +1,25 @@
 import { Controller } from '@hotwired/stimulus'
 import { useHover } from 'stimulus-use'
-import { initFloatingUi, showContent, hideContent } from '../utils'
+import { initFloatingUi } from '../utils/floating_ui'
+import { showContent, hideContent } from '../utils'
 
-export default class extends Controller<HTMLElement> {
+const HoverCardController = class extends Controller<HTMLElement> {
+  // targets
   static targets = ['trigger', 'content', 'contentContainer']
-  static values = {
-    isOpen: Boolean,
-  }
-
-  declare isOpenValue: boolean
   declare readonly triggerTarget: HTMLElement
   declare readonly contentTarget: HTMLElement
   declare readonly contentContainerTarget: HTMLElement
-  declare cleanup: () => void
+
+  // values
+  static values = {
+    isOpen: Boolean,
+  }
+  declare isOpenValue: boolean
+
+  // custom properties
   declare closeTimeout: number
   declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare cleanup: () => void
 
   connect() {
     this.DOMKeydownListener = this.onDOMKeydown.bind(this)
@@ -40,25 +45,6 @@ export default class extends Controller<HTMLElement> {
   // for useHover
   mouseLeave() {
     this.close()
-  }
-
-  setupEventListeners() {
-    document.addEventListener('keydown', this.DOMKeydownListener)
-  }
-
-  cleanupEventListeners() {
-    if (this.cleanup) this.cleanup()
-    document.removeEventListener('keydown', this.DOMKeydownListener)
-  }
-
-  onDOMKeydown(event: KeyboardEvent) {
-    if (!this.isOpenValue) return
-
-    const key = event.key
-
-    if (key === 'Escape') {
-      this.close()
-    }
   }
 
   isOpenValueChanged(isOpen: boolean) {
@@ -90,4 +76,28 @@ export default class extends Controller<HTMLElement> {
   disconnect() {
     this.cleanupEventListeners()
   }
+
+  protected setupEventListeners() {
+    document.addEventListener('keydown', this.DOMKeydownListener)
+  }
+
+  protected cleanupEventListeners() {
+    if (this.cleanup) this.cleanup()
+    document.removeEventListener('keydown', this.DOMKeydownListener)
+  }
+
+  protected onDOMKeydown(event: KeyboardEvent) {
+    if (!this.isOpenValue) return
+
+    const key = event.key
+
+    if (key === 'Escape') {
+      this.close()
+    }
+  }
 }
+
+type HoverCard = InstanceType<typeof HoverCardController>
+
+export { HoverCardController }
+export type { HoverCard }

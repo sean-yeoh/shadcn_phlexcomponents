@@ -1,8 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller {
+const AvatarController = class extends Controller {
+  // targets
   static targets = ['image', 'fallback']
-
   declare readonly imageTarget: HTMLElement
   declare readonly fallbackTarget: HTMLElement
   declare readonly hasFallbackTarget: boolean
@@ -17,3 +17,8 @@ export default class extends Controller {
     }
   }
 }
+
+type Avatar = InstanceType<typeof AvatarController>
+
+export { AvatarController }
+export type { Avatar }

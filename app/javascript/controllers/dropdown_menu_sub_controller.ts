@@ -1,27 +1,31 @@
 import { Controller } from '@hotwired/stimulus'
+import { initFloatingUi } from '../utils/floating_ui'
 import {
-  initFloatingUi,
   ON_OPEN_FOCUS_DELAY,
   getSameLevelItems,
   showContent,
   hideContent,
+  getStimulusInstance,
 } from '../utils'
 
-export default class extends Controller<HTMLElement> {
+const DropdownMenuSubController = class extends Controller<HTMLElement> {
+  // targets
   static targets = ['trigger', 'contentContainer', 'content']
-
-  static values = {
-    isOpen: Boolean,
-  }
-
-  declare isOpenValue: boolean
   declare readonly triggerTarget: HTMLElement
   declare readonly contentContainerTarget: HTMLElement
   declare readonly contentTarget: HTMLElement
-  declare DOMKeydownListener: (event: KeyboardEvent) => void
-  declare cleanup: () => void
+
+  // values
+  static values = {
+    isOpen: Boolean,
+  }
+  declare isOpenValue: boolean
+
+  // custom properties
   declare closeTimeout: number
   declare items: HTMLElement[]
+  declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare cleanup: () => void
 
   connect() {
     this.items = getSameLevelItems({
@@ -31,12 +35,8 @@ export default class extends Controller<HTMLElement> {
           '[data-dropdown-menu-target="item"], [data-dropdown-menu-sub-target="trigger"]',
         ),
       ),
-      closestContentSelector: this.closestContentSelector(),
+      closestContentSelector: '[data-dropdown-menu-sub-target="content"]',
     })
-  }
-
-  closestContentSelector() {
-    return '[data-dropdown-menu-sub-target="content"]'
   }
 
   open(event: MouseEvent | KeyboardEvent | null = null) {
@@ -60,7 +60,7 @@ export default class extends Controller<HTMLElement> {
     }, 250)
   }
 
-  closeOnLeftKeydown(event: KeyboardEvent) {
+  closeOnLeftKeydown() {
     this.closeImmediately()
     this.triggerTarget.focus()
   }
@@ -87,22 +87,17 @@ export default class extends Controller<HTMLElement> {
     if (parentContent) {
       const subMenu = parentContent.closest(
         '[data-shadcn-phlexcomponents="dropdown-menu-sub"]',
-      )
+      ) as HTMLElement
 
       if (subMenu) {
-        const subMenuController =
-          window.Stimulus.getControllerForElementAndIdentifier(
-            subMenu,
-            'dropdown-menu-sub',
-          )
+        const subMenuController = getStimulusInstance<DropdownMenuSub>(
+          'dropdown-menu-sub',
+          subMenu,
+        )
 
         if (subMenuController) {
-          // @ts-ignore
           subMenuController.closeImmediately()
           setTimeout(() => {
-            // @ts-ignore
-            // weird bug where focus goes to body element after closing, and setting focus
-            // manually doesn't work
             subMenuController.triggerTarget.focus()
           }, 100)
         }
@@ -114,11 +109,7 @@ export default class extends Controller<HTMLElement> {
     this.isOpenValue = false
   }
 
-  cleanupEventListeners() {
-    if (this.cleanup) this.cleanup()
-  }
-
-  isOpenValueChanged(isOpen: boolean, previousIsOpen: boolean) {
+  isOpenValueChanged(isOpen: boolean) {
     if (isOpen) {
       showContent({
         trigger: this.triggerTarget,
@@ -141,10 +132,21 @@ export default class extends Controller<HTMLElement> {
           contentContainer: this.contentContainerTarget,
         })
       })
+
+      this.cleanupEventListeners()
     }
   }
 
   disconnect() {
     this.cleanupEventListeners()
   }
+
+  protected cleanupEventListeners() {
+    if (this.cleanup) this.cleanup()
+  }
 }
+
+type DropdownMenuSub = InstanceType<typeof DropdownMenuSubController>
+
+export { DropdownMenuSubController }
+export type { DropdownMenuSub }

@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class HoverCard < Base
-    class_variants(base: "inline-block max-w-fit")
+    class_variants(base: "inline-flex max-w-fit")
 
     def initialize(open: false, **attributes)
       @open = open
@@ -88,7 +88,8 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(
-        class: "hidden fixed top-0 left-0 w-max z-50",
+        style: { display: "none" },
+        class: "fixed top-0 left-0 w-max z-50",
         data: { hover_card_target: "contentContainer" },
       ) do
         div(**@attributes, &)

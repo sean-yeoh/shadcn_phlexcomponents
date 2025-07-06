@@ -24,6 +24,16 @@ module ShadcnPhlexcomponents
         raise ArgumentError, "Expected an array for \"value\", got #{value.class}"
       end
 
+      if value
+        value = value.map do |v|
+          if v.is_a?(String)
+            DateTime.parse(v) rescue nil
+          else
+            v
+          end
+        end 
+      end
+
       @name = name ? name[0] : nil
       @end_name = name ? name[1] : nil
       @value = (value ? value[0] : nil)&.utc&.iso8601
@@ -35,8 +45,7 @@ module ShadcnPhlexcomponents
       @disabled = disabled
       @mask = mask
       @aria_id = "date-range-picker-#{SecureRandom.hex(5)}"
-      @date_picker_styles = DatePicker.date_picker_styles
-      @options = options.merge(styles: @date_picker_styles[:calendar])
+      @options = options
       super(**attributes)
     end
 
@@ -55,6 +64,8 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(**@attributes) do
+        overlay('date-range-picker')
+
         input(
           type: :hidden,
           name: @name,
@@ -81,14 +92,20 @@ module ShadcnPhlexcomponents
           )
         else
           div(
-            class: @date_picker_styles[:input_container],
+            class: <<~HEREDOC,
+              focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]
+              data-[focus=true]:border-ring data-[focus=true]:ring-ring/50 data-[focus=true]:ring-[3px]
+              data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 flex shadow-xs transition-[color,box-shadow]
+              rounded-md border bg-transparent dark:bg-input/30 border-input outline-none h-9 flex items-center
+              aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive
+            HEREDOC
             data: { date_range_picker_target: "inputContainer", disabled: @disabled },
           ) do
             input(
               id: @id,
               placeholder: @placeholder || "#{@format} - #{@format}",
               type: :text,
-              class: @date_picker_styles[:input],
+              class: "md:text-sm placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 text-base outline-none px-3 py-1",
               disabled: @disabled,
               data: {
                 date_range_picker_target: "input",

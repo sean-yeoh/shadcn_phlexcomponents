@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller {
+const FormFieldController = class extends Controller {
   connect() {
     const hintContainer = this.element.querySelector('[data-remove-label]')
     const labelContainer = this.element.querySelector('[data-remove-hint]')
@@ -20,3 +20,8 @@ export default class extends Controller {
     }
   }
 }
+
+type FormField = InstanceType<typeof FormFieldController>
+
+export { FormFieldController }
+export type { FormField }

@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller {
+const ThemeSwitcherController = class extends Controller {
   initialize() {
     if (
       localStorage.theme === 'dark' ||
@@ -33,3 +33,8 @@ export default class extends Controller {
     document.documentElement.style.colorScheme = 'dark'
   }
 }
+
+type ThemeSwitcher = InstanceType<typeof ThemeSwitcherController>
+
+export { ThemeSwitcherController }
+export type { ThemeSwitcher }

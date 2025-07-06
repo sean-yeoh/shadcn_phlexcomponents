@@ -4,74 +4,6 @@ module ShadcnPhlexcomponents
   class DatePicker < Base
     class_variants(base: "w-full")
 
-    class << self
-      button = Button.new
-
-      {
-        input_container: <<~HEREDOC,
-          focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]
-          data-[focus=true]:border-ring data-[focus=true]:ring-ring/50 data-[focus=true]:ring-[3px]
-          data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 flex shadow-xs transition-[color,box-shadow]
-          rounded-md border bg-transparent dark:bg-input/30 border-input outline-none h-9 flex items-center
-          aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive
-        HEREDOC
-        input: <<~HEREDOC,
-          md:text-sm placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground
-          flex h-9 w-full min-w-0 text-base outline-none px-3 py-1#{" "}
-        HEREDOC
-        calendar: {
-          calendar: "relative flex flex-col outline-none",
-          controls: "absolute z-20 -left-1 -right-1 -top-1.5 flex justify-between items-center pt-1.5 px-1 pointer-events-none box-content",
-          grid: "grid gap-4 grid-cols-1 md:grid-cols-2",
-          column: "flex flex-col",
-          header: "relative flex items-center mb-4",
-          headerContent: "grid grid-flow-col gap-x-1 auto-cols-max items-center justify-center px-4 whitespace-pre-wrap grow",
-          month: button.class_variants(variant: :outline, size: :sm, class: "text-xs h-7 bg-transparent"),
-          year: button.class_variants(variant: :outline, size: :sm, class: "text-xs h-7 bg-transparent"),
-          arrowPrev: button.class_variants(variant: :outline, size: :icon, class: "pointer-events-auto size-7 bg-transparent p-0 opacity-50 hover:opacity-100"),
-          arrowNext: button.class_variants(variant: :outline, size: :icon, class: "pointer-events-auto size-7 bg-transparent p-0 opacity-50 hover:opacity-100"),
-          wrapper: "flex items-center content-center h-full",
-          content: "flex flex-col grow h-full",
-          months: "grid gap-2 grid-cols-4 items-center grow",
-          monthsMonth: button.class_variants(variant: :ghost, class: "aria-[selected=true]:text-primary-foreground aria-[selected=true]:bg-primary aria-[selected=true]:hover:text-primary-foreground aria-[selected=true]:hover:bg-primary"),
-          years: "grid gap-2 grid-cols-5 items-center grow",
-          yearsYear: button.class_variants(variant: :ghost, class: "aria-[selected=true]:text-primary-foreground aria-[selected=true]:bg-primary aria-[selected=true]:hover:text-primary-foreground aria-[selected=true]:hover:bg-primary"),
-          week: "grid mb-2 grid-cols-[repeat(7,_1fr)] justify-items-center items-center text-center",
-          weekDay: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
-          weekNumbers: "vc-week-numbers",
-          weekNumbersTitle: "vc-week-numbers__title",
-          weekNumbersContent: "vc-week-numbers__content",
-          weekNumber: "vc-week-number",
-          dates: "grid gap-y-2 grid-cols-[repeat(7,_1fr)] justify-items-center items-center",
-          date: <<~HEREDOC,
-            vc-date data-[vc-date-selected]:[&_button]:bg-primary#{" "}
-            data-[vc-date-selected]:[&_button]:text-primary-foreground#{" "}
-            data-[vc-date-selected]:[&_button]:hover:bg-primary#{" "}
-            data-[vc-date-selected]:[&_button]:hover:text-primary-foreground#{" "}
-            data-[vc-date-selected]:[&_button]:focus:bg-primary#{" "}
-            data-[vc-date-selected]:[&_button]:focus:text-primary-foreground
-            data-[vc-date-today]:[&_button]:bg-accent
-            data-[vc-date-today]:[&_button]:text-accent-foreground
-            data-[vc-date-month=prev]:[&_button]:text-muted-foreground
-            data-[vc-date-month=next]:[&_button]:text-muted-foreground
-            data-[vc-date-selected='middle']:data-[vc-date-selected]:[&_button]:bg-accent
-            data-[vc-date-selected='middle']:data-[vc-date-selected]:[&_button]:text-accent-foreground
-            data-[vc-date-hover]:[&_button]:bg-accent data-[vc-date-hover]:[&_button]:text-accent-foreground
-          HEREDOC
-          dateBtn: button.class_variants(variant: :ghost, class: "size-8 p-0 font-normal aria-[disabled]:text-muted-foreground aria-[disabled]:opacity-50 aria-[disabled]:pointer-events-none"),
-          datePopup: "vc-date__popup",
-          dateRangeTooltip: "vc-date-range-tooltip",
-          time: "vc-time",
-          timeContent: "vc-time__content",
-          timeHour: "vc-time__hour",
-          timeMinute: "vc-time__minute",
-          timeKeeping: "vc-time__keeping",
-          timeRanges: "vc-time__ranges",
-          timeRange: "vc-time__range",
-        },
-      }
-    end
-
     def initialize(
       name: nil,
       id: nil,
@@ -86,6 +18,15 @@ module ShadcnPhlexcomponents
     )
       @name = name
       @id = id
+
+      if value
+       value = if value.is_a?(String)
+          DateTime.parse(value) rescue nil
+        else
+          value
+        end
+      end
+
       @value = value&.utc&.iso8601
       @format = format
       @select_only = select_only
@@ -93,8 +34,7 @@ module ShadcnPhlexcomponents
       @disabled = disabled
       @mask = mask
       @aria_id = "date-picker-#{SecureRandom.hex(5)}"
-      @date_picker_styles = self.class.date_picker_styles
-      @options = options.merge(styles: @date_picker_styles[:calendar])
+      @options = options
       super(**attributes)
     end
 
@@ -112,6 +52,8 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(**@attributes) do
+        overlay("date-picker")
+
         input(
           type: :hidden,
           name: @name,
@@ -130,12 +72,19 @@ module ShadcnPhlexcomponents
             placeholder: @placeholder,
           )
         else
-          div(class: @date_picker_styles[:input_container], data: { date_picker_target: "inputContainer", disabled: @disabled }) do
+          div(class: <<~HEREDOC,
+            focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]
+            data-[focus=true]:border-ring data-[focus=true]:ring-ring/50 data-[focus=true]:ring-[3px]
+            data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 flex shadow-xs transition-[color,box-shadow]
+            rounded-md border bg-transparent dark:bg-input/30 border-input outline-none h-9 flex items-center
+            aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive
+          HEREDOC
+          data: { date_picker_target: "inputContainer", disabled: @disabled }) do
             input(
               id: @id,
               placeholder: @placeholder || @format,
               type: :text,
-              class: @date_picker_styles[:input],
+              class: "md:text-sm placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 text-base outline-none px-3 py-1",
               disabled: @disabled,
               data: {
                 date_picker_target: "input",
@@ -223,13 +172,7 @@ module ShadcnPhlexcomponents
     end
 
     def class_variants(**args)
-      PopoverContent.new.class_variants(
-        class: <<~HEREDOC,
-          fixed left-1/2 top-1/2 shadow-lg -translate-x-1/2 -translate-y-1/2 pointer-events-auto w-max
-          md:relative md:left-[unset] md:top-[unset] md:shadow-md md:translate-x-[unset] md:translate-y-[unset] md:pointer-events-[unset]
-          #{args[:class]}
-        HEREDOC
-      )
+      PopoverContent.new.class_variants(class: "w-fit #{args[:class]}")
     end
 
     def default_attributes
@@ -252,7 +195,8 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(
-        class: "hidden fixed top-0 left-0 w-max z-50",
+        style: { display: "none" },
+        class: "fixed z-50 top-1/4 left-1/2 -translate-x-1/2 pointer-events-auto md:top-auto md:left-auto md:translate-none md:pointer-events-[unset]",
         data: { "#{stimulus_controller_name}-target" => "contentContainer" },
       ) do
         div(**@attributes) do

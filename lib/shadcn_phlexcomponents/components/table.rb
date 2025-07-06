@@ -10,7 +10,7 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      div(class: "relative w-full overflow-x-auto", data: { shadcn_phlexcomponents: "table-container" }) do
+      div(class: "relative w-full overflow-x-auto") do
         table(**@attributes, &)
       end
     end

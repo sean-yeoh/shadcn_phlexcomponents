@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-export default class extends Controller<HTMLButtonElement> {
+const LoadingButtonController = class extends Controller<HTMLButtonElement> {
   connect() {
     const el = this.element
     const form = el.closest('form')
@@ -13,3 +13,8 @@ export default class extends Controller<HTMLButtonElement> {
     }
   }
 }
+
+type LoadingButton = InstanceType<typeof LoadingButtonController>
+
+export { LoadingButtonController }
+export type { LoadingButton }

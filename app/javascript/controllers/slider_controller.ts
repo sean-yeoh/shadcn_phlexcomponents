@@ -1,17 +1,19 @@
 import { Controller } from '@hotwired/stimulus'
 import noUiSlider, { API, Options } from 'nouislider'
 
-export default class extends Controller<HTMLElement> {
+const SliderController = class extends Controller<HTMLElement> {
+  // targets
   static targets = ['slider', 'hiddenInput', 'endHiddenInput']
-
   declare readonly sliderTarget: HTMLInputElement
   declare readonly hiddenInputTarget: HTMLInputElement
   declare readonly endHiddenInputTarget: HTMLInputElement
   declare readonly hasEndHiddenInputTarget: boolean
-  declare onUpdateValuesListener: (values: (string | number)[]) => void
-  declare DOMClickListener: (event: MouseEvent) => void
+
+  // custom properties
   declare range: boolean
   declare slider: API
+  declare onUpdateValuesListener: (values: (string | number)[]) => void
+  declare DOMClickListener: (event: MouseEvent) => void
 
   connect() {
     this.range = this.element.dataset.range === 'true'
@@ -35,15 +37,11 @@ export default class extends Controller<HTMLElement> {
     document.addEventListener('click', this.DOMClickListener)
   }
 
-  onUpdateValues(values: (string | number)[]) {
-    this.hiddenInputTarget.value = `${values[0]}`
-
-    if (this.range && this.hasEndHiddenInputTarget) {
-      this.endHiddenInputTarget.value = `${values[1]}`
-    }
+  disconnect() {
+    document.removeEventListener('click', this.DOMClickListener)
   }
 
-  getOptions() {
+  protected getOptions() {
     const defaultOptions = {
       connect: this.range ? true : 'lower',
       tooltips: true,
@@ -84,7 +82,15 @@ export default class extends Controller<HTMLElement> {
     }
   }
 
-  onDOMClick(event: MouseEvent) {
+  protected onUpdateValues(values: (string | number)[]) {
+    this.hiddenInputTarget.value = `${values[0]}`
+
+    if (this.range && this.hasEndHiddenInputTarget) {
+      this.endHiddenInputTarget.value = `${values[1]}`
+    }
+  }
+
+  protected onDOMClick(event: MouseEvent) {
     const target = event.target
 
     // Focus handle of slider when label is clicked.
@@ -100,8 +106,9 @@ export default class extends Controller<HTMLElement> {
       }
     }
   }
-
-  disconnect() {
-    document.removeEventListener('click', this.DOMClickListener)
-  }
 }
+
+type Slider = InstanceType<typeof SliderController>
+
+export { SliderController }
+export type { Slider }

@@ -1,7 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 import { ANIMATION_OUT_DELAY } from '../utils'
 
-export default class extends Controller<HTMLElement> {
+const ToastController = class extends Controller<HTMLElement> {
+  // custom properties
   declare duration: number
   declare closeTimeout: number
 
@@ -26,3 +27,8 @@ export default class extends Controller<HTMLElement> {
     }
   }
 }
+
+type Toast = InstanceType<typeof ToastController>
+
+export { ToastController }
+export type { Toast }

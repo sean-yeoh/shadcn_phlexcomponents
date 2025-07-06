@@ -2,7 +2,7 @@
 
 module ShadcnPhlexcomponents
   class Dialog < Base
-    class_variants(base: "inline-block max-w-fit")
+    class_variants(base: "inline-flex max-w-fit")
 
     def initialize(open: false, **attributes)
       @open = open
@@ -42,13 +42,17 @@ module ShadcnPhlexcomponents
       {
         data: {
           controller: "dialog",
-          dialog_is_open_value: @open.to_s,
-        },
+          dialog_is_open_value: @open.to_s
+        }
       }
     end
 
     def view_template(&)
-      div(**@attributes, &)
+      div(**@attributes) do
+        overlay("dialog")
+        
+        yield
+      end
     end
   end
 
@@ -67,10 +71,10 @@ module ShadcnPhlexcomponents
           expanded: "false",
           controls: "#{@aria_id}-content",
         },
-        data: {
-          action: "click->dialog#open",
-          dialog_target: "trigger",
+        data: { 
           as_child: @as_child.to_s,
+          dialog_target: "trigger",
+          action: "click->dialog#open"
         },
       }
     end
@@ -98,7 +102,7 @@ module ShadcnPhlexcomponents
         data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95
         data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)]
         translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg
-        pointer-events-auto
+        pointer-events-auto outline-none
       HEREDOC
     )
 
@@ -117,16 +121,14 @@ module ShadcnPhlexcomponents
           labelledby: "#{@aria_id}-title",
         },
         data: {
-          dialog_target: "content",
           state: "closed",
-          action: "dialog:click:outside->dialog#close",
+          dialog_target: "content"
         },
       }
     end
 
     def view_template(&)
-      @class = @attributes.delete(:class)
-      div(class: "#{@class} hidden", **@attributes) do
+      div(style: { display: "none" }, **@attributes) do
         yield
 
         button(

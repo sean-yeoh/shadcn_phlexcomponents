@@ -1,47 +1,88 @@
 import { Controller } from '@hotwired/stimulus'
-import { useClickOutside } from 'stimulus-use'
 import {
-  ON_OPEN_FOCUS_DELAY,
-  openWithOverlay,
-  closeWithOverlay,
+  focusElement,
   focusTrigger,
   showContent,
   hideContent,
   getFocusableElements,
+  anyNestedComponentsOpen,
+  handleTabNavigation,
 } from '../utils'
 
-export default class extends Controller<HTMLElement> {
-  static targets = ['trigger', 'content']
+const DialogController = class extends Controller<HTMLElement> {
+  // targets
+  static targets = ['trigger', 'content', 'overlay']
+  declare readonly triggerTarget: HTMLElement
+  declare readonly contentTarget: HTMLElement
+  declare readonly overlayTarget: HTMLElement
+
+  // values
   static values = {
     isOpen: Boolean,
   }
-
-  declare readonly triggerTarget: HTMLElement
-  declare readonly contentTarget: HTMLElement
-  declare readonly hasContentTarget: boolean
   declare isOpenValue: boolean
+
+  // custom properties
+  declare trigger: HTMLElement
   declare DOMKeydownListener: (event: KeyboardEvent) => void
+  declare DOMClickListener: (event: MouseEvent) => void
 
   connect() {
     this.DOMKeydownListener = this.onDOMKeydown.bind(this)
-    useClickOutside(this, { element: this.contentTarget })
+    this.DOMClickListener = this.onDOMClick.bind(this)
   }
 
   open() {
     this.isOpenValue = true
-
-    setTimeout(() => {
-      this.onOpenFocusedElement().focus()
-    }, ON_OPEN_FOCUS_DELAY)
-  }
-
-  onOpenFocusedElement() {
-    const focusableElements = getFocusableElements(this.contentTarget)
-    return focusableElements[0]
   }
 
   close() {
     this.isOpenValue = false
+  }
+
+  isOpenValueChanged(isOpen: boolean, previousIsOpen: boolean) {
+    if (isOpen) {
+      showContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentTarget,
+        appendToBody: true,
+        overlay: this.overlayTarget,
+      })
+
+      const focusableElements = getFocusableElements(this.contentTarget)
+      focusElement(focusableElements[0])
+
+      this.setupEventListeners()
+    } else {
+      hideContent({
+        trigger: this.triggerTarget,
+        content: this.contentTarget,
+        contentContainer: this.contentTarget,
+        overlay: this.overlayTarget,
+      })
+
+      if (previousIsOpen) {
+        focusTrigger(this.triggerTarget)
+      }
+
+      this.cleanupEventListeners()
+    }
+  }
+
+  disconnect() {
+    this.cleanupEventListeners()
+  }
+
+  protected onDOMClick(event: MouseEvent) {
+    if (!this.isOpenValue) return
+
+    const target = event.target as HTMLElement
+    if (target === this.triggerTarget) return
+    if (this.contentTarget.contains(target)) return
+
+    const shouldClose = !anyNestedComponentsOpen(this.contentTarget)
+    if (shouldClose) this.close()
   }
 
   onDOMKeydown(event: KeyboardEvent) {
@@ -50,64 +91,25 @@ export default class extends Controller<HTMLElement> {
     const key = event.key
 
     if (key === 'Escape') {
-      this.close()
+      const shouldClose = !anyNestedComponentsOpen(this.contentTarget)
+      if (shouldClose) this.close()
     } else if (key === 'Tab') {
-      const focusableElements = getFocusableElements(this.contentTarget)
-
-      const firstElement = focusableElements[0]
-      const lastElement = focusableElements[focusableElements.length - 1]
-
-      // If Shift + Tab pressed on first element, go to last element
-      if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault()
-        lastElement.focus()
-      }
-      // If Tab pressed on last element, go to first element
-      else if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault()
-        firstElement.focus()
-      }
-    }
-  }
-
-  isOpenValueChanged(isOpen: boolean, previousIsOpen: boolean) {
-    if (isOpen) {
-      openWithOverlay(this.contentTarget.id)
-
-      showContent({
-        trigger: this.triggerTarget,
-        content: this.contentTarget,
-        contentContainer: this.contentTarget,
-      })
-
-      this.setupEventListeners()
-    } else {
-      closeWithOverlay(this.contentTarget.id)
-
-      hideContent({
-        trigger: this.triggerTarget,
-        content: this.contentTarget,
-        contentContainer: this.contentTarget,
-      })
-
-      this.cleanupEventListeners()
-
-      // Only focus trigger when is previously opened
-      if (previousIsOpen) {
-        focusTrigger(this.triggerTarget)
-      }
+      handleTabNavigation(this.contentTarget, event)
     }
   }
 
   setupEventListeners() {
     document.addEventListener('keydown', this.DOMKeydownListener)
+    document.addEventListener('pointerdown', this.DOMClickListener)
   }
 
   cleanupEventListeners() {
     document.removeEventListener('keydown', this.DOMKeydownListener)
-  }
-
-  disconnect() {
-    this.cleanupEventListeners()
+    document.removeEventListener('pointerdown', this.DOMClickListener)
   }
 }
+
+type Dialog = InstanceType<typeof DialogController>
+
+export { DialogController }
+export type { Dialog }

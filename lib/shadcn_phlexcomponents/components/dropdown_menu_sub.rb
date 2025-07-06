@@ -125,7 +125,8 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       div(
-        class: "hidden fixed top-0 left-0 w-max z-50",
+        style: { display: "none" },
+        class: "fixed top-0 left-0 w-max z-50",
         data: { dropdown_menu_sub_target: "contentContainer" },
       ) do
         div(**@attributes, &)
