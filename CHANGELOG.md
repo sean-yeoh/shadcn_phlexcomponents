@@ -1,16 +1,8 @@
-## [Unreleased] - YYYY-MM-DD
-
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
+## [0.1.16] - 2025-07-08
 
 ### Fixed
 
-### Security
+- Build step
 
 ## [0.1.15] - 2025-07-08
 
