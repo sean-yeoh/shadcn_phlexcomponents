@@ -9,3 +9,4 @@
 log/*
 *.gem
 Gemfile.lock
+/node_modules

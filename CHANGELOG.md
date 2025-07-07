@@ -1,3 +1,9 @@
+## [0.1.15] - 2025-07-08
+
+### Added
+
+- Prompt for typescript or javascript during installation
+
 ## [0.1.13] - 2025-07-06
 
 ### Added
