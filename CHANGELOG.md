@@ -1,3 +1,15 @@
+## [0.1.16] - 2025-07-08
+
+### Fixed
+
+- Build step
+
+## [0.1.15] - 2025-07-08
+
+### Added
+
+- Prompt for typescript or javascript during installation
+
 ## [0.1.15] - 2025-07-08
 
 ### Added
