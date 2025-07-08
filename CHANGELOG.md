@@ -1,3 +1,10 @@
+## [0.1.17] - 2025-07-08
+
+### Fixed
+
+- Combobox search_placeholder_text
+
+
 ## [0.1.16] - 2025-07-08
 
 ### Fixed
