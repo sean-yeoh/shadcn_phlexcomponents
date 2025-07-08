@@ -66,10 +66,6 @@ module ShadcnPhlexcomponents
       ComboboxGroup(aria_id: @aria_id, **attributes, &)
     end
 
-    def empty(**attributes, &)
-      ComboboxEmpty(**attributes, &)
-    end
-
     def items(collection, value_method:, text_method:, disabled_items: nil, &)
       vanish(&)
 
@@ -229,7 +225,7 @@ module ShadcnPhlexcomponents
             class: "sr-only",
             id: "#{@aria_id}-search-label",
             for: "#{@aria_id}-search",
-          ) { @search_placeholder }
+          ) { @search_placeholder_text }
 
           div(class: "flex h-9 items-center gap-2 border-b px-3") do
             icon("search", class: "size-4 shrink-0 opacity-50")
@@ -238,7 +234,7 @@ module ShadcnPhlexcomponents
               class: "placeholder:text-muted-foreground flex w-full rounded-md bg-transparent py-3 text-sm
               outline-hidden disabled:cursor-not-allowed disabled:opacity-50 h-9",
               id: "#{@aria_id}-search",
-              placeholder: @search_placeholder,
+              placeholder: @search_placeholder_text,
               type: :text,
               autocomplete: "off",
               autocorrect: "off",
