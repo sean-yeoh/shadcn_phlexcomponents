@@ -1,3 +1,11 @@
+## [Unreleased] - YYYY-MM-DD
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
 ## [0.1.17] - 2025-07-08
 
 ### Fixed
