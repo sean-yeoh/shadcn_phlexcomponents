@@ -115,7 +115,6 @@ const ComboboxController = class extends Controller<HTMLElement> {
       this.searchInputTarget.focus()
 
       let index = 0
-      console.log('this.selectedValue', this.selectedValue)
       if (this.selectedValue) {
         const item = this.filteredItems.find(
           (i) => i.dataset.value === this.selectedValue,

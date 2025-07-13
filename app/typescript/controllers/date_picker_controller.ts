@@ -19,6 +19,12 @@ import utc from 'dayjs/plugin/utc'
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
+const SMALL_SCREEN_BREAKPOINT = 768
+
+const isSmallScreen = () => {
+  return window.innerWidth < SMALL_SCREEN_BREAKPOINT
+}
+
 const DAYJS_FORMAT = 'YYYY-MM-DD'
 
 const DatePickerController = class extends Controller<HTMLElement> {
@@ -55,7 +61,6 @@ const DatePickerController = class extends Controller<HTMLElement> {
   declare format: string
   declare mask: boolean
   declare calendar: Calendar
-  declare isMobile: boolean
   declare DOMKeydownListener: (event: KeyboardEvent) => void
   declare cleanup: () => void
   declare onClickDateListener: (self: Calendar) => void
@@ -81,9 +86,23 @@ const DatePickerController = class extends Controller<HTMLElement> {
   }
 
   contentContainerTargetConnected() {
-    // Datepicker is shown as a dialog on small screens
-    const styles = window.getComputedStyle(this.contentContainerTarget)
-    this.isMobile = styles.translate === '-50%'
+    if (isSmallScreen()) {
+      const windowHeight = window.innerHeight
+      const datePickerHeight = this.identifier === 'date-picker' ? 300 : 600
+
+      let topOffset = 0
+
+      if (windowHeight > datePickerHeight) {
+        topOffset = (windowHeight - datePickerHeight) / 2
+      }
+
+      Object.assign(this.contentContainerTarget.style, {
+        top: `${topOffset}px`,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        pointerEvents: 'auto',
+      })
+    }
   }
 
   toggle() {
@@ -154,12 +173,11 @@ const DatePickerController = class extends Controller<HTMLElement> {
       if (!this.contentTarget.dataset.width) {
         const contentWidth = this.contentTarget.offsetWidth
         this.contentTarget.dataset.width = `${contentWidth}`
-
         this.contentTarget.style.maxWidth = `${contentWidth}px`
         this.contentTarget.style.minWidth = `${contentWidth}px`
       }
 
-      if (this.isMobile) {
+      if (isSmallScreen()) {
         lockScroll(this.contentTarget.id)
         this.overlayTarget.style.display = ''
         this.overlayTarget.dataset.state = 'open'
@@ -206,7 +224,7 @@ const DatePickerController = class extends Controller<HTMLElement> {
         contentContainer: this.contentContainerTarget,
       })
 
-      if (this.isMobile) {
+      if (isSmallScreen()) {
         unlockScroll(this.contentTarget.id)
         this.overlayTarget.style.display = 'none'
         this.overlayTarget.dataset.state = 'closed'

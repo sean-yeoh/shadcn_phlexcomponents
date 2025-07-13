@@ -196,7 +196,7 @@ module ShadcnPhlexcomponents
     def view_template(&)
       div(
         style: { display: "none" },
-        class: "fixed z-50 top-1/4 left-1/2 -translate-x-1/2 pointer-events-auto md:top-auto md:left-auto md:translate-none md:pointer-events-[unset]",
+        class: "fixed top-0 left-0 w-max z-50",
         data: { "#{stimulus_controller_name}-target" => "contentContainer" },
       ) do
         div(**@attributes) do

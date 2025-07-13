@@ -1,7 +1,7 @@
-import { DialogController } from "./dialog_controller";
+import { DialogController } from './dialog_controller';
 const AlertDialogController = class extends DialogController {
-  onDOMClick() {
-    return;
-  }
+    onDOMClick() {
+        return;
+    }
 };
 export { AlertDialogController };

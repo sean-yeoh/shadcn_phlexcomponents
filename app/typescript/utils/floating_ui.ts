@@ -8,7 +8,10 @@ import {
   Placement,
   Middleware,
   arrow,
+  limitShift,
 } from '@floating-ui/dom'
+
+// https://github.com/radix-ui/primitives/blob/13e76f08f7afdea623aebfd3c55a7e41ae8d8078/packages/react/popper/src/popper.tsx
 
 const OPPOSITE_SIDE = {
   top: 'bottom',
@@ -62,8 +65,14 @@ const initFloatingUi = ({
   }
 
   const middleware = [
+    offset({ mainAxis: sideOffset + arrowHeight, alignmentAxis: alignOffset }),
+    shift({
+      mainAxis: true,
+      crossAxis: false,
+      limiter: limitShift(),
+    }),
+    flip({ crossAxis: 'alignment', fallbackAxisSideDirection: 'end' }),
     transformOrigin({ arrowHeight, arrowWidth }),
-    offset({ mainAxis: sideOffset, alignmentAxis: alignOffset }),
     size({
       apply: ({ elements, rects, availableWidth, availableHeight }) => {
         const { width: anchorWidth, height: anchorHeight } = rects.reference
@@ -86,26 +95,8 @@ const initFloatingUi = ({
         )
       },
     }),
+    arrowElement && arrow({ element: arrowElement, padding: 0 }),
   ]
-
-  const flipMiddleware = flip({
-    // Ensure we flip to the perpendicular axis if it doesn't fit
-    // on narrow viewports.
-    crossAxis: 'alignment',
-    fallbackAxisSideDirection: 'end', // or 'start'
-  })
-  const shiftMiddleware = shift()
-
-  // Prioritize flip over shift for edge-aligned placements only.
-  if (placement.includes('-')) {
-    middleware.push(flipMiddleware, shiftMiddleware)
-  } else {
-    middleware.push(shiftMiddleware, flipMiddleware)
-  }
-
-  if (arrowElement) {
-    middleware.push(arrow({ element: arrowElement, padding: 0 }))
-  }
 
   return autoUpdate(referenceElement, floatingElement, () => {
     computePosition(referenceElement, floatingElement, {
