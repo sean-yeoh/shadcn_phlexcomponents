@@ -50,9 +50,9 @@ module ShadcnPhlexcomponents
       {
         data: {
           controller: "alert-dialog",
-          alert_dialog_is_open_value: @open.to_s
-        }
-      }  
+          alert_dialog_is_open_value: @open.to_s,
+        },
+      }
     end
 
     def view_template(&)
@@ -79,10 +79,10 @@ module ShadcnPhlexcomponents
           expanded: "false",
           controls: "#{@aria_id}-content",
         },
-        data: { 
+        data: {
           as_child: @as_child.to_s,
           alert_dialog_target: "trigger",
-          action: "click->alert-dialog#open"
+          action: "click->alert-dialog#open",
         },
       }
     end
@@ -130,7 +130,7 @@ module ShadcnPhlexcomponents
         },
         data: {
           state: "closed",
-          alert_dialog_target: "content"
+          alert_dialog_target: "content",
         },
       }
     end

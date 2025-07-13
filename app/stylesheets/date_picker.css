@@ -54,7 +54,7 @@
 }
 
 [data-vc='wrapper'] {
-  @apply flex items-center content-center h-full;
+  @apply flex items-center h-full;
 }
 
 [data-vc='content'] {

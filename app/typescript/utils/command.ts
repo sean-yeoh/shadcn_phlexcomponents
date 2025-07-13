@@ -320,7 +320,6 @@ const renderRemoteResults = (
   controller: Command | Combobox,
   data: { html: string; group?: string }[],
 ) => {
-  console.log('data', data)
   data.forEach((item) => {
     const tempDiv = document.createElement('div')
     tempDiv.innerHTML = item.html
@@ -391,7 +390,6 @@ const renderRemoteResults = (
 
   controller.highlightItemByIndex(0)
 
-  console.log('controller.filteredItems', controller.filteredItems)
   if (controller.filteredItems.length > 0) {
     hideEmpty(controller)
   } else {

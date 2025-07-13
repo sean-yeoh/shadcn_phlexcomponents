@@ -67,7 +67,7 @@ const TooltipController = class extends Controller<HTMLElement> {
         arrowElement: this.arrowTarget,
         side: this.contentTarget.dataset.side,
         align: this.contentTarget.dataset.align,
-        sideOffset: 8,
+        sideOffset: 4,
       })
     } else {
       hideContent({

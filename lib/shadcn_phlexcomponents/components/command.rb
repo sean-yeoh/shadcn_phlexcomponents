@@ -11,9 +11,9 @@ module ShadcnPhlexcomponents
     ]
 
     def initialize(
-      open: false, 
-      modifier_key: nil, 
-      shortcut_key: nil, 
+      open: false,
+      modifier_key: nil,
+      shortcut_key: nil,
       search_path: nil,
       search_error_text: "Something went wrong, please try again.",
       search_empty_text: "No results found",
@@ -44,8 +44,8 @@ module ShadcnPhlexcomponents
         search_error_text: @search_error_text,
         search_empty_text: @search_empty_text,
         search_placeholder_text: @search_placeholder_text,
-        aria_id: @aria_id, 
-        **attributes, 
+        aria_id: @aria_id,
+        **attributes,
         &
       )
     end
@@ -69,8 +69,8 @@ module ShadcnPhlexcomponents
           command_is_open_value: @open.to_s,
           modifier_key: @modifier_key,
           shortcut_key: @shortcut_key,
-          search_path: @search_path
-        }
+          search_path: @search_path,
+        },
       }
     end
 
@@ -111,7 +111,7 @@ module ShadcnPhlexcomponents
         },
         data: {
           command_target: "trigger",
-          action: "click->command#open"
+          action: "click->command#open",
         },
       }
     end
@@ -149,7 +149,7 @@ module ShadcnPhlexcomponents
       search_error_text: nil,
       search_empty_text: nil,
       search_placeholder_text: nil,
-      aria_id: nil, 
+      aria_id: nil,
       **attributes
     )
       @search_error_text = search_error_text
@@ -187,7 +187,7 @@ module ShadcnPhlexcomponents
         template do
           CommandGroup do
             CommandLabel { "" }
-          end 
+          end
         end
 
         div(class: "text-popover-foreground flex h-full w-full flex-col overflow-hidden bg-transparent") do
@@ -228,7 +228,7 @@ module ShadcnPhlexcomponents
             )
           end
 
-          div(class: "mt-3 p-1 max-h-80 min-h-80 overflow-y-auto", data: { command_target: "listContainer"})  do
+          div(class: "mt-3 p-1 max-h-80 min-h-80 overflow-y-auto", data: { command_target: "listContainer" }) do
             CommandText(target: "empty") { @search_empty_text }
             CommandText(target: "error") { @search_error_text }
             CommandText(target: "loading") do
@@ -291,7 +291,7 @@ module ShadcnPhlexcomponents
   class CommandLabel < Base
     class_variants(base: "text-muted-foreground text-xs px-3 pb-1 text-xs font-medium")
 
-    def initialize( **attributes)
+    def initialize(**attributes)
       super(**attributes)
     end
 
@@ -327,7 +327,7 @@ module ShadcnPhlexcomponents
 
   class CommandText < Base
     class_variants(base: "py-6 text-center text-sm hidden")
-    
+
     def initialize(target:, **attributes)
       @target = target
       super(**attributes)

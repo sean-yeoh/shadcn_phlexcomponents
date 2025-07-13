@@ -42,15 +42,15 @@ module ShadcnPhlexcomponents
       {
         data: {
           controller: "dialog",
-          dialog_is_open_value: @open.to_s
-        }
-      }  
+          dialog_is_open_value: @open.to_s,
+        },
+      }
     end
 
     def view_template(&)
       div(**@attributes) do
         overlay("dialog")
-        
+
         yield
       end
     end
@@ -71,10 +71,10 @@ module ShadcnPhlexcomponents
           expanded: false,
           controls: "#{@aria_id}-content",
         },
-        data: { 
+        data: {
           as_child: @as_child.to_s,
           dialog_target: "trigger",
-          action: "click->dialog#open"
+          action: "click->dialog#open",
         },
       }
     end
@@ -150,7 +150,7 @@ module ShadcnPhlexcomponents
         },
         data: {
           state: "closed",
-          dialog_target: "content"
+          dialog_target: "content",
         },
       }
     end
