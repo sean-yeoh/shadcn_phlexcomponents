@@ -48,8 +48,8 @@ module ShadcnPhlexcomponents
         search_error_text: @search_error_text,
         search_empty_text: @search_empty_text,
         search_placeholder_text: @search_placeholder_text,
-        aria_id: @aria_id, 
-        **attributes, 
+        aria_id: @aria_id,
+        **attributes,
         &
       )
     end
@@ -82,11 +82,11 @@ module ShadcnPhlexcomponents
       )
 
       ComboboxContent(
-        aria_id: @aria_id, 
-        include_blank: @include_blank, 
-        search_error_text: @search_error_text, 
+        aria_id: @aria_id,
+        include_blank: @include_blank,
+        search_error_text: @search_error_text,
         search_empty_text: @search_empty_text,
-        search_placeholder_text: @search_placeholder_text
+        search_placeholder_text: @search_placeholder_text,
       ) do
         collection.each do |item|
           value = item.public_send(value_method)
@@ -189,10 +189,10 @@ module ShadcnPhlexcomponents
     )
 
     def initialize(
-      include_blank: false, 
-      side: :bottom, 
-      align: :center, 
-      aria_id: nil, 
+      include_blank: false,
+      side: :bottom,
+      align: :center,
+      aria_id: nil,
       search_error_text: nil,
       search_empty_text: nil,
       search_placeholder_text: nil,
@@ -218,7 +218,7 @@ module ShadcnPhlexcomponents
           template do
             ComboboxGroup do
               ComboboxLabel { "" }
-            end 
+            end
           end
 
           label(
@@ -253,7 +253,7 @@ module ShadcnPhlexcomponents
             )
           end
 
-          div(class: "p-1 max-h-80 overflow-y-auto", data: { combobox_target: "listContainer"})  do
+          div(class: "p-1 max-h-80 overflow-y-auto", data: { combobox_target: "listContainer" }) do
             ComboboxText(target: "empty") { @search_empty_text }
             ComboboxText(target: "error") { @search_error_text }
             ComboboxText(target: "loading") do
@@ -392,7 +392,7 @@ module ShadcnPhlexcomponents
 
   class ComboboxText < Base
     class_variants(base: "py-6 text-center text-sm hidden")
-    
+
     def initialize(target:, **attributes)
       @target = target
       super(**attributes)
