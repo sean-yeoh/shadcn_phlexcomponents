@@ -2,6 +2,8 @@ import { Controller } from '@hotwired/stimulus'
 import noUiSlider, { API, Options } from 'nouislider'
 
 const SliderController = class extends Controller<HTMLElement> {
+  static name = 'slider'
+
   // targets
   static targets = ['slider', 'hiddenInput', 'endHiddenInput']
   declare readonly sliderTarget: HTMLInputElement

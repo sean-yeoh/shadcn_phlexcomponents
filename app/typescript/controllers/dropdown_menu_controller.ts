@@ -49,6 +49,8 @@ const focusItemByIndex = (
 }
 
 const DropdownMenuController = class extends Controller<HTMLElement> {
+  static name = 'dropdown-menu'
+
   // targets
   static targets = ['trigger', 'contentContainer', 'content', 'item']
   declare readonly triggerTarget: HTMLElement

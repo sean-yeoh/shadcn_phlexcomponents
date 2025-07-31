@@ -28,6 +28,8 @@ const isSmallScreen = () => {
 const DAYJS_FORMAT = 'YYYY-MM-DD'
 
 const DatePickerController = class extends Controller<HTMLElement> {
+  static name = 'date-picker'
+
   // targets
   static targets = [
     'trigger',

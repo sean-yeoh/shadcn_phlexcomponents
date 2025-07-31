@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class CheckboxGroup < Base
-    class_variants(base: "space-y-1.5")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.checkbox_group&.dig(:root) ||
+        {
+          base: "space-y-1.5",
+        }
+      ),
+    )
 
     def initialize(name:, value: [], include_hidden: true, **attributes)
       @name = name
@@ -24,8 +31,6 @@ module ShadcnPhlexcomponents
     def items(collection, value_method:, text_method:, container_class: nil, disabled_items: nil, id_prefix: nil, &)
       vanish(&)
 
-      container_class = TAILWIND_MERGER.merge("flex flex-row items-center gap-2 #{container_class}")
-
       if collection.first&.is_a?(Hash)
         collection = convert_collection_hash_to_struct(collection, value_method: value_method, text_method: text_method)
       end
@@ -40,7 +45,7 @@ module ShadcnPhlexcomponents
           "#{@name.parameterize.underscore}_#{value}"
         end
 
-        div(class: container_class) do
+        CheckboxGroupItemContainer(class: container_class) do
           Checkbox(
             name: "#{@name}[]",
             id: id,
@@ -71,6 +76,21 @@ module ShadcnPhlexcomponents
           input(type: "hidden", name: "#{@name}[]", autocomplete: "off")
         end
       end
+    end
+  end
+
+  class CheckboxGroupItemContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.checkbox_group&.dig(:item_container) ||
+        {
+          base: "flex flex-row items-center gap-2",
+        }
+      ),
+    )
+
+    def view_template(&)
+      div(**@attributes, &)
     end
   end
 end

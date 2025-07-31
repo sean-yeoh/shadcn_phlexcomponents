@@ -2,6 +2,8 @@ import { Controller } from '@hotwired/stimulus'
 import { getNextEnabledIndex, getPreviousEnabledIndex } from '../utils'
 
 const TabsController = class extends Controller {
+  static name = 'tabs'
+
   // targets
   static targets = ['trigger', 'content']
   declare readonly triggerTargets: HTMLButtonElement[]

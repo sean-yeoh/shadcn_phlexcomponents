@@ -9,6 +9,8 @@ import {
 } from '../utils'
 
 const DropdownMenuSubController = class extends Controller<HTMLElement> {
+  static name = 'dropdown-menu-sub'
+
   // targets
   static targets = ['trigger', 'contentContainer', 'content']
   declare readonly triggerTarget: HTMLElement

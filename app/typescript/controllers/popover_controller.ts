@@ -12,6 +12,8 @@ import {
 } from '../utils'
 
 const PopoverController = class extends Controller<HTMLElement> {
+  static name = 'popover'
+
   // targets
   static targets = ['trigger', 'contentContainer', 'content']
   declare readonly triggerTarget: HTMLElement

@@ -37,7 +37,14 @@ module ShadcnPhlexcomponents
   end
 
   class AccordionItem < Base
-    class_variants(base: "border-b last:border-b-0")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.accordion&.dig(:item) ||
+        {
+          base: "border-b last:border-b-0",
+        }
+      ),
+    )
 
     def initialize(value:, **attributes)
       @value = value
@@ -60,12 +67,18 @@ module ShadcnPhlexcomponents
 
   class AccordionTrigger < Base
     class_variants(
-      base: <<~HEREDOC,
-        focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between
-        gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline
-        focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.accordion&.dig(:trigger) ||
+        {
+          base: <<~HEREDOC,
+            focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between
+            gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline
+            focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180
+          HEREDOC
+        }
+      ),
     )
+
     def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
       super(**attributes)
@@ -103,7 +116,14 @@ module ShadcnPhlexcomponents
   end
 
   class AccordionContent < Base
-    class_variants(base: "pt-0 pb-4")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.accordion&.dig(:content) ||
+        {
+          base: "pt-0 pb-4",
+        }
+      ),
+    )
 
     def initialize(aria_id: :nil, **attributes)
       @aria_id = aria_id
@@ -111,8 +131,29 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      div(
-        class: "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm",
+      AccordionContentContainer(aria_id: @aria_id) do
+        div(**@attributes, &)
+      end
+    end
+  end
+
+  class AccordionContentContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.accordion&.dig(:content_container) ||
+        {
+          base: "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm",
+        }
+      ),
+    )
+
+    def initialize(aria_id: :nil, **attributes)
+      @aria_id = aria_id
+      super(**attributes)
+    end
+
+    def default_attributes
+      {
         id: "#{@aria_id}-content",
         role: "region",
         aria: {
@@ -122,9 +163,11 @@ module ShadcnPhlexcomponents
           state: "closed",
           accordion_target: "content",
         },
-      ) do
-        div(**@attributes, &)
-      end
+      }
+    end
+
+    def view_template(&)
+      div(**@attributes, &)
     end
   end
 end

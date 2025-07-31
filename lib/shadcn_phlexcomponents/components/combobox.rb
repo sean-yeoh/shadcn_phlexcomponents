@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Combobox < Base
-    class_variants(base: "w-full")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:root) ||
+        {
+          base: "w-full",
+        }
+      ),
+    )
 
     def initialize(
       id: nil,
@@ -124,15 +131,20 @@ module ShadcnPhlexcomponents
 
   class ComboboxTrigger < Base
     class_variants(
-      base: <<~HEREDOC,
-        border-input [&_svg:not([class*='text-'])]:text-muted-foreground
-        focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40
-        aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex items-center
-        justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs
-        transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50
-        h-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
-        data-[placeholder]:data-[has-value=false]:text-muted-foreground w-full disabled:dark:hover:bg-input/30
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:trigger) ||
+        {
+          base: <<~HEREDOC,
+            border-input [&_svg:not([class*='text-'])]:text-muted-foreground
+            focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40
+            aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex items-center
+            justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs
+            transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50
+            h-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
+            data-[placeholder]:data-[has-value=false]:text-muted-foreground w-full disabled:dark:hover:bg-input/30
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(id: nil, value: nil, placeholder: nil, aria_id: nil, **attributes)
@@ -145,9 +157,7 @@ module ShadcnPhlexcomponents
 
     def view_template
       button(**@attributes) do
-        span(class: "pointer-events-none line-clamp-1 flex items-center gap-2", data: { combobox_target: "triggerText" }) do
-          @value || @placeholder
-        end
+        ComboboxTriggerText(value: @value, placeholder: @placeholder)
 
         icon("chevron-down", class: "size-4 opacity-50 text-foreground")
       end
@@ -178,14 +188,19 @@ module ShadcnPhlexcomponents
 
   class ComboboxContent < Base
     class_variants(
-      base: <<~HEREDOC,
-        bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out
-        data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95
-        data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2
-        data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50
-        min-w-[8rem] origin-(--radix-popper-transform-origin)
-        rounded-md border shadow-md pointer-events-auto outline-none
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:content) ||
+        {
+          base: <<~HEREDOC,
+            bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out
+            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95
+            data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2
+            data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50
+            min-w-[8rem] origin-(--radix-popper-transform-origin)
+            rounded-md border shadow-md pointer-events-auto outline-none
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(
@@ -209,11 +224,7 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      div(
-        style: { display: "none" },
-        class: "fixed top-0 left-0 w-max z-50",
-        data: { combobox_target: "contentContainer" },
-      ) do
+      ComboboxContentContainer do
         div(**@attributes) do
           template do
             ComboboxGroup do
@@ -227,33 +238,12 @@ module ShadcnPhlexcomponents
             for: "#{@aria_id}-search",
           ) { @search_placeholder_text }
 
-          div(class: "flex h-9 items-center gap-2 border-b px-3") do
+          ComboboxSearchInputContainer do
             icon("search", class: "size-4 shrink-0 opacity-50")
-
-            input(
-              class: "placeholder:text-muted-foreground flex w-full rounded-md bg-transparent py-3 text-sm
-              outline-hidden disabled:cursor-not-allowed disabled:opacity-50 h-9",
-              id: "#{@aria_id}-search",
-              placeholder: @search_placeholder_text,
-              type: :text,
-              autocomplete: "off",
-              autocorrect: "off",
-              role: "combobox",
-              spellcheck: "false",
-              aria: {
-                autocomplete: "list",
-                expanded: "false",
-                controls: "#{@aria_id}-list",
-                labelledby: "#{@aria_id}-search-label",
-              },
-              data: {
-                combobox_target: "searchInput",
-                action: "keydown->combobox#inputKeydown input->combobox#search",
-              },
-            )
+            ComboboxSearchInput(aria_id: @aria_id, search_placeholder_text: @search_placeholder_text)
           end
 
-          div(class: "p-1 max-h-80 overflow-y-auto", data: { combobox_target: "listContainer" }) do
+          ComboboxListContainer do
             ComboboxText(target: "empty") { @search_empty_text }
             ComboboxText(target: "error") { @search_error_text }
             ComboboxText(target: "loading") do
@@ -303,12 +293,13 @@ module ShadcnPhlexcomponents
 
   class ComboboxLabel < Base
     class_variants(
-      base: "text-muted-foreground px-2 py-1.5 text-xs",
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:label) ||
+        {
+          base: "text-muted-foreground px-2 py-1.5 text-xs",
+        }
+      ),
     )
-
-    def initialize(**attributes)
-      super(**attributes)
-    end
 
     def view_template(&)
       div(**@attributes, &)
@@ -317,13 +308,18 @@ module ShadcnPhlexcomponents
 
   class ComboboxItem < Base
     class_variants(
-      base: <<~HEREDOC,
-        data-[highlighted=true]:bg-accent data-[highlighted=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground
-        relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm
-        outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50
-        [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
-        *:[span]:last:items-center *:[span]:last:gap-2 group/item
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:item) ||
+        {
+          base: <<~HEREDOC,
+            data-[highlighted=true]:bg-accent data-[highlighted=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground
+            relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm
+            outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50
+            [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
+            *:[span]:last:items-center *:[span]:last:gap-2 group/item
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(value: nil, disabled: false, aria_id: nil, **attributes)
@@ -373,10 +369,6 @@ module ShadcnPhlexcomponents
       super(**attributes)
     end
 
-    def view_template(&)
-      div(**@attributes, &)
-    end
-
     def default_attributes
       {
         role: "group",
@@ -388,10 +380,21 @@ module ShadcnPhlexcomponents
         },
       }
     end
+
+    def view_template(&)
+      div(**@attributes, &)
+    end
   end
 
   class ComboboxText < Base
-    class_variants(base: "py-6 text-center text-sm hidden")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:text) ||
+        {
+          base: "py-6 text-center text-sm hidden",
+        }
+      ),
+    )
 
     def initialize(target:, **attributes)
       @target = target
@@ -411,14 +414,154 @@ module ShadcnPhlexcomponents
   end
 
   class ComboboxSeparator < Base
-    class_variants(base: "bg-border pointer-events-none -mx-1 my-1 h-px")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:separator) ||
+        {
+          base: "bg-border pointer-events-none -mx-1 my-1 h-px",
+        }
+      ),
+    )
+
+    def default_attributes
+      { aria: { hidden: "true" } }
+    end
 
     def view_template(&)
       div(**@attributes, &)
     end
+  end
+
+  class ComboboxTriggerText < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:trigger_text) ||
+        {
+          base: "pointer-events-none line-clamp-1 flex items-center gap-2",
+        }
+      ),
+    )
+
+    def initialize(value: nil, placeholder: nil, **attributes)
+      @value = value
+      @placeholder = placeholder
+      super(**attributes)
+    end
 
     def default_attributes
-      { aria: { hidden: "true" } }
+      { data: { combobox_target: "triggerText" } }
+    end
+
+    def view_template(&)
+      span(**@attributes) do
+        @value || @placeholder
+      end
+    end
+  end
+
+  class ComboboxContentContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:content_container) ||
+        {
+          base: "fixed top-0 left-0 w-max z-50",
+        }
+      ),
+    )
+
+    def default_attributes
+      {
+        style: { display: "none" },
+        data: { combobox_target: "contentContainer" },
+      }
+    end
+
+    def view_template(&)
+      div(**@attributes, &)
+    end
+  end
+
+  class ComboboxSearchInputContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:search_input_container) ||
+        {
+          base: "flex h-9 items-center gap-2 border-b px-3",
+        }
+      ),
+    )
+
+    def view_template(&)
+      div(**@attributes, &)
+    end
+  end
+
+  class ComboboxSearchInput < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:search_input) ||
+        {
+          base: "placeholder:text-muted-foreground flex w-full rounded-md bg-transparent py-3 text-sm
+              outline-hidden disabled:cursor-not-allowed disabled:opacity-50 h-9",
+        }
+      ),
+    )
+
+    def initialize(aria_id: nil, search_placeholder_text: nil, **attributes)
+      @aria_id = aria_id
+      @search_placeholder_text = search_placeholder_text
+      super(**attributes)
+    end
+
+    def default_attributes
+      {
+        id: "#{@aria_id}-search",
+        placeholder: @search_placeholder_text,
+        type: :text,
+        autocomplete: "off",
+        autocorrect: "off",
+        role: "combobox",
+        spellcheck: "false",
+        aria: {
+          autocomplete: "list",
+          expanded: "false",
+          controls: "#{@aria_id}-list",
+          labelledby: "#{@aria_id}-search-label",
+        },
+        data: {
+          combobox_target: "searchInput",
+          action: "keydown->combobox#inputKeydown input->combobox#search",
+        },
+      }
+    end
+
+    def view_template
+      input(**@attributes)
+    end
+  end
+
+  class ComboboxListContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.combobox&.dig(:list_container) ||
+        {
+          base: "p-1 max-h-80 overflow-y-auto",
+        }
+      ),
+    )
+
+    def initialize(aria_id: nil, search_placeholder_text: nil, **attributes)
+      @aria_id = aria_id
+      @search_placeholder_text = search_placeholder_text
+      super(**attributes)
+    end
+
+    def default_attributes
+      { data: { combobox_target: "listContainer" } }
+    end
+
+    def view_template(&)
+      div(**@attributes, &)
     end
   end
 end

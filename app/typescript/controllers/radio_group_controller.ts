@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const RadioGroupController = class extends Controller<HTMLElement> {
+  static name = 'radio-group'
+
   // targets
   static targets = ['item', 'input', 'indicator']
   declare readonly itemTargets: HTMLInputElement[]

@@ -25,6 +25,8 @@ import {
 import { useClickOutside, useDebounce } from 'stimulus-use'
 
 const ComboboxController = class extends Controller<HTMLElement> {
+  static name = 'combobox'
+
   // targets
   static targets = [
     'trigger',

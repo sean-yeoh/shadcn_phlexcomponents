@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Tabs < Base
-    class_variants(base: "flex flex-col gap-2")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.tabs&.dig(:root) ||
+        {
+          base: "flex flex-col gap-2",
+        }
+      ),
+    )
 
     def initialize(value: nil, dir: "ltr", **attributes)
       @dir = dir
@@ -40,7 +47,12 @@ module ShadcnPhlexcomponents
 
   class TabsList < Base
     class_variants(
-      base: "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+      **(
+        ShadcnPhlexcomponents.configuration.tabs&.dig(:list) ||
+        {
+          base: "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+        }
+      ),
     )
 
     def view_template(&)
@@ -60,15 +72,20 @@ module ShadcnPhlexcomponents
 
   class TabsTrigger < Base
     class_variants(
-      base: <<~HEREDOC,
-        data-[state=active]:bg-background dark:data-[state=active]:text-foreground focus-visible:border-ring
-        focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input
-        dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)]
-        flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm
-        font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1
-        disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm [&_svg]:pointer-events-none
-        [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.tabs&.dig(:trigger) ||
+        {
+          base: <<~HEREDOC,
+            data-[state=active]:bg-background dark:data-[state=active]:text-foreground focus-visible:border-ring
+            focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input
+            dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)]
+            flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm
+            font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1
+            disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm [&_svg]:pointer-events-none
+            [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(value: nil, aria_id: nil, **attributes)
@@ -105,7 +122,14 @@ module ShadcnPhlexcomponents
   end
 
   class TabsContent < Base
-    class_variants(base: "flex-1 outline-none")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.tabs&.dig(:content) ||
+        {
+          base: "flex-1 outline-none",
+        }
+      ),
+    )
 
     def initialize(value: nil, aria_id: nil, **attributes)
       @value = value

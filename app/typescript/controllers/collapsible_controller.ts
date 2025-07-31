@@ -2,6 +2,8 @@ import { Controller } from '@hotwired/stimulus'
 import { hideContent, showContent } from '../utils'
 
 const CollapsibleController = class extends Controller {
+  static name = 'collapsible'
+
   // targets
   static targets = ['trigger', 'content']
   declare readonly triggerTarget: HTMLElement

@@ -19,13 +19,14 @@ module ShadcnPhlexcomponents
   class Form < Base
     include Phlex::Rails::Helpers::FormWith
 
-    def initialize(model: false, scope: nil, url: nil, format: nil, loading: false, **options)
+    def initialize(
+      model: false,
+      loading: false,
+      **options
+    )
       @model = model
-      @scope = scope
-      @url = url
-      @format = format
-      @options = options
       @loading = loading
+      @options = options
       @object_name = model ? model.to_model.model_name.param_key : nil
     end
 
@@ -133,7 +134,7 @@ module ShadcnPhlexcomponents
       @form_class = @options[:class]
       @options[:class] = "#{@options[:class]} #{"group" if @loading}"
       # rubocop:disable Style/ExplicitBlockArgument
-      form_with(model: @model, scope: @scope, url: @url, format: @format, **@options) do
+      form_with(model: @model, **@options) do
         yield
       end
       # rubocop:enable Style/ExplicitBlockArgument
@@ -166,6 +167,21 @@ module ShadcnPhlexcomponents
       defaults << "#{key.to_s.humanize} #{model}"
 
       I18n.t(defaults.shift, model: model, default: defaults)
+    end
+  end
+
+  class FormField < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.form&.dig(:field) ||
+        {
+          base: "space-y-2",
+        }
+      ),
+    )
+
+    def view_template(&)
+      div(**@attributes, &)
     end
   end
 end

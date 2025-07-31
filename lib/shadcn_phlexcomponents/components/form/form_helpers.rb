@@ -25,12 +25,13 @@ module ShadcnPhlexcomponents
 
     def hint(text = nil, **attributes, &)
       @yield_hint = true
+      @hint = true
       attrs = hint_attributes(**attributes)
 
       if text
-        FormHint(text, **attrs)
+        FormHint(text, aria_id: @aria_id, **attrs)
       else
-        FormHint(**attrs, &)
+        FormHint(aria_id: @aria_id, **attrs, &)
       end
     end
 

@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class DateRangePicker < Base
-    class_variants(base: "w-full")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.date_picker&.dig(:root) ||
+        {
+          base: "w-full",
+        }
+      ),
+    )
 
     def initialize(
       name: nil,
@@ -87,61 +94,31 @@ module ShadcnPhlexcomponents
         if @select_only
           # For select_only date picker, id is passed to button so that clicking on its
           # label will trigger the popover to appear
-          DateRangePickerTrigger(
+          DatePickerTrigger(
             disabled: @disabled,
-            aria_id: @aria_id,
             select_only: @select_only,
             id: @id,
             placeholder: @placeholder,
+            stimulus_controller_name: "date-range-picker",
+            aria_id: @aria_id,
           )
         else
-          div(
-            class: <<~HEREDOC,
-              focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]
-              data-[focus=true]:border-ring data-[focus=true]:ring-ring/50 data-[focus=true]:ring-[3px]
-              data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 flex shadow-xs transition-[color,box-shadow]
-              rounded-md border bg-transparent dark:bg-input/30 border-input outline-none h-9 flex items-center
-              aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive
-            HEREDOC
-            data: { date_range_picker_target: "inputContainer", disabled: @disabled },
-          ) do
-            input(
-              id: @id,
-              placeholder: @placeholder || "#{@format} - #{@format}",
-              type: :text,
-              class: "md:text-sm placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 text-base outline-none px-3 py-1",
-              disabled: @disabled,
-              data: {
-                date_range_picker_target: "input",
-                action: "input->date-range-picker#inputDate
-                          blur->date-range-picker#inputBlur
-                          focus->date-range-picker#setContainerFocus",
-              },
-            )
 
-            DateRangePickerTrigger(
+          DatePickerInputContainer(disabled: @disabled, stimulus_controller_name: "date-range-picker") do
+            DatePickerInput(id: @id, placeholder: @placeholder, format: "#{@format} - #{@format}", disabled: @disabled, stimulus_controller_name: "date-range-picker", aria_id: @aria_id)
+
+            DatePickerTrigger(
               disabled: @disabled,
-              aria_id: @aria_id,
               select_only: @select_only,
               placeholder: @placeholder,
+              stimulus_controller_name: "date-range-picker",
+              aria_id: @aria_id,
             )
           end
         end
 
-        DateRangePickerContent(aria_id: @aria_id)
+        DatePickerContent(stimulus_controller_name: "date-range-picker", aria_id: @aria_id)
       end
-    end
-  end
-
-  class DateRangePickerTrigger < DatePickerTrigger
-    def stimulus_controller_name
-      "date-range-picker"
-    end
-  end
-
-  class DateRangePickerContent < DatePickerContent
-    def stimulus_controller_name
-      "date-range-picker"
     end
   end
 end

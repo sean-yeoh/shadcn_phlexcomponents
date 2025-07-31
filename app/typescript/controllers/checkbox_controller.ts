@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const CheckboxController = class extends Controller<HTMLElement> {
+  static name = 'checkbox'
+
   // targets
   static targets = ['input', 'indicator']
   declare readonly inputTarget: HTMLInputElement

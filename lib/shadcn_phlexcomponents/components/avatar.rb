@@ -2,11 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Avatar < Base
-    class_variants(base: "relative flex size-8 shrink-0 overflow-hidden rounded-full")
-
-    def initialize(**attributes)
-      super(**attributes)
-    end
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.avatar&.dig(:root) ||
+        {
+          base: "relative flex size-8 shrink-0 overflow-hidden rounded-full",
+        }
+      ),
+    )
 
     def image(**attributes, &)
       AvatarImage(**attributes, &)
@@ -30,7 +33,14 @@ module ShadcnPhlexcomponents
   end
 
   class AvatarImage < Base
-    class_variants(base: "aspect-square size-full")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.avatar&.dig(:image) ||
+        {
+          base: "aspect-square size-full",
+        }
+      ),
+    )
 
     def default_attributes
       {
@@ -46,7 +56,14 @@ module ShadcnPhlexcomponents
   end
 
   class AvatarFallback < Base
-    class_variants(base: "bg-muted flex size-full items-center justify-center rounded-full")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.avatar&.dig(:fallback) ||
+        {
+          base: "bg-muted flex size-full items-center justify-center rounded-full",
+        }
+      ),
+    )
 
     def default_attributes
       {

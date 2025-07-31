@@ -2,6 +2,8 @@ import { Controller } from '@hotwired/stimulus'
 import DOMPurify from 'dompurify'
 
 const ToastContainerController = class extends Controller<HTMLElement> {
+  static name = 'toast-container'
+
   addToast({
     title,
     description,

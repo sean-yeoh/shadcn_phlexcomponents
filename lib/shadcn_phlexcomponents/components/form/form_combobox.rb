@@ -49,7 +49,7 @@ module ShadcnPhlexcomponents
       @id ||= field_id(@object_name, @method)
       @name ||= field_name(@object_name, @method)
 
-      div(class: "space-y-2", data: label_and_hint_container_attributes) do
+      FormField(data: label_and_hint_container_attributes) do
         render_label(&)
 
         Combobox(id: @id, name: @name, value: @value, aria: aria_attributes, **@attributes) do |c|

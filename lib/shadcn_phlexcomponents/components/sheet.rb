@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Sheet < Base
-    class_variants(base: "inline-flex max-w-fit")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.sheet&.dig(:root) ||
+        {
+          base: "inline-flex max-w-fit",
+        }
+      ),
+    )
 
     def initialize(open: false, **attributes)
       @open = open
@@ -97,22 +104,27 @@ module ShadcnPhlexcomponents
 
   class SheetContent < Base
     class_variants(
-      base: <<~HEREDOC,
-        bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4
-        shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500
-        pointer-events-auto outline-none
-      HEREDOC
-      variants: {
-        side: {
-          top: "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b",
-          left: "h-screen data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 w-3/4 border-r sm:max-w-sm",
-          right: "h-screen data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 w-3/4 border-l sm:max-w-sm",
-          bottom: "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t",
-        },
-      },
-      defaults: {
-        side: :right,
-      },
+      **(
+        ShadcnPhlexcomponents.configuration.sheet&.dig(:content) ||
+        {
+          base: <<~HEREDOC,
+            bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4
+            shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500
+            pointer-events-auto outline-none
+          HEREDOC
+          variants: {
+            side: {
+              top: "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b",
+              left: "h-screen data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 w-3/4 border-r sm:max-w-sm",
+              right: "h-screen data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 w-3/4 border-l sm:max-w-sm",
+              bottom: "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t",
+            },
+          },
+          defaults: {
+            side: :right,
+          },
+        }
+      ),
     )
 
     def initialize(side: :right, aria_id: nil, **attributes)
@@ -157,7 +169,14 @@ module ShadcnPhlexcomponents
   end
 
   class SheetHeader < Base
-    class_variants(base: "flex flex-col gap-1.5 p-4")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.sheet&.dig(:header) ||
+        {
+          base: "flex flex-col gap-1.5 p-4",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
@@ -165,7 +184,14 @@ module ShadcnPhlexcomponents
   end
 
   class SheetTitle < Base
-    class_variants(base: "text-foreground font-semibold")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.sheet&.dig(:title) ||
+        {
+          base: "text-foreground font-semibold",
+        }
+      ),
+    )
 
     def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
@@ -184,7 +210,14 @@ module ShadcnPhlexcomponents
   end
 
   class SheetDescription < Base
-    class_variants(base: "text-muted-foreground text-sm")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.sheet&.dig(:description) ||
+        {
+          base: "text-muted-foreground text-sm",
+        }
+      ),
+    )
 
     def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
@@ -203,7 +236,14 @@ module ShadcnPhlexcomponents
   end
 
   class SheetFooter < Base
-    class_variants(base: "mt-auto flex flex-col gap-2 p-4")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.sheet&.dig(:footer) ||
+        {
+          base: "mt-auto flex flex-col gap-2 p-4",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
@@ -238,6 +278,32 @@ module ShadcnPhlexcomponents
           action: "click->dialog#close",
         },
       }
+    end
+  end
+
+  class SheetCloseIcon < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.sheet&.dig(:close_icon) ||
+        {
+          base: <<~HEREDOC,
+            ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs
+            opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden
+            disabled:pointer-events-none
+          HEREDOC
+        }
+      ),
+    )
+
+    def default_attributes
+      { data: { action: "click->dialog#close" } }
+    end
+
+    def view_template
+      button(**@attributes) do
+        icon("x", class: "size-4")
+        span(class: "sr-only") { "close" }
+      end
     end
   end
 end

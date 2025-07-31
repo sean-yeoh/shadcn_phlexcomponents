@@ -7,6 +7,8 @@ import {
 } from '../utils'
 
 const AccordionController = class extends Controller<HTMLElement> {
+  static name = 'accordion'
+
   // targets
   static targets = ['item', 'trigger', 'content']
   declare itemTargets: HTMLElement[]

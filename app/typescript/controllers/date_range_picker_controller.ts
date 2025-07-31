@@ -10,6 +10,8 @@ const DELIMITER = ' - '
 const DAYJS_FORMAT = 'YYYY-MM-DD'
 
 const DateRangePickerController = class extends DatePickerController {
+  static name = 'date-range-picker'
+
   // targets
   static targets = [
     'trigger',

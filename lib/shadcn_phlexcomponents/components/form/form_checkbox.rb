@@ -55,7 +55,7 @@ module ShadcnPhlexcomponents
       @id ||= field_id(@object_name, @method)
       @name ||= field_name(@object_name, @method)
 
-      div(class: "space-y-2") do
+      FormField do
         div(class: "flex items-top space-x-2") do
           div(class: "grid gap-1.5 relative", data: label_and_hint_container_attributes) do
             @attributes[:class] = "#{@attributes[:class]} -mt-[1.5px] absolute top-0 left-0"

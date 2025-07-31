@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Command < Base
-    class_variants(base: "inline-flex max-w-fit")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:root) ||
+        {
+          base: "inline-flex max-w-fit",
+        }
+      ),
+    )
 
     MODIFIER_KEYS = [
       :ctrl,
@@ -137,12 +144,17 @@ module ShadcnPhlexcomponents
 
   class CommandContent < Base
     class_variants(
-      base: <<~HEREDOC,
-        bg-background bg-clip-padding dark:bg-neutral-900 dark:ring-neutral-800 data-[state=closed]:animate-out#{" "}
-        data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0
-        data-[state=open]:zoom-in-95 duration-200 fixed gap-4 grid left-[50%] max-w-[calc(100%-2rem)] p-2 pb-11 ring-4 ring-neutral-200/80
-        rounded-xl shadow-2xl sm:max-w-lg top-[50%] translate-x-[-50%] translate-y-[-50%] w-full z-50 pointer-events-auto outline-none
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:content) ||
+        {
+          base: <<~HEREDOC,
+            bg-background bg-clip-padding dark:bg-neutral-900 dark:ring-neutral-800 data-[state=closed]:animate-out#{" "}
+            data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0
+            data-[state=open]:zoom-in-95 duration-200 fixed gap-4 grid left-[50%] max-w-[calc(100%-2rem)] p-2 pb-11 ring-4 ring-neutral-200/80
+            rounded-xl shadow-2xl sm:max-w-lg top-[50%] translate-x-[-50%] translate-y-[-50%] w-full z-50 pointer-events-auto outline-none
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(
@@ -202,33 +214,13 @@ module ShadcnPhlexcomponents
             for: "#{@aria_id}-search",
           ) { @search_placeholder_text }
 
-          div(class: "flex h-9 items-center gap-2 border px-3 bg-input/50 border-input rounded-md") do
+          CommandSearchInputContainer do
             icon("search", class: "size-4 shrink-0 opacity-50")
 
-            input(
-              class: "placeholder:text-muted-foreground flex w-full rounded-md bg-transparent py-3 text-sm
-              outline-hidden disabled:cursor-not-allowed disabled:opacity-50 h-9",
-              id: "#{@aria_id}-search",
-              placeholder: @search_placeholder_text,
-              type: :text,
-              autocomplete: "off",
-              autocorrect: "off",
-              role: "combobox",
-              spellcheck: "false",
-              aria: {
-                autocomplete: "list",
-                expanded: "false",
-                controls: "#{@aria_id}-list",
-                labelledby: "#{@aria_id}-search-label",
-              },
-              data: {
-                command_target: "searchInput",
-                action: "keydown->command#inputKeydown input->command#search",
-              },
-            )
+            CommandSearchInput(aria_id: @aria_id, search_placeholder_text: @search_placeholder_text)
           end
 
-          div(class: "mt-3 p-1 max-h-80 min-h-80 overflow-y-auto", data: { command_target: "listContainer" }) do
+          CommandListContainer do
             CommandText(target: "empty") { @search_empty_text }
             CommandText(target: "error") { @search_error_text }
             CommandText(target: "loading") do
@@ -248,13 +240,18 @@ module ShadcnPhlexcomponents
 
   class CommandItem < Base
     class_variants(
-      base: <<~HEREDOC,
-        data-[highlighted=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex
-        cursor-default items-center gap-2 px-3 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none
-        data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
-        data-[highlighted=true]:border-input data-[highlighted=true]:bg-input/50 h-9 rounded-md border border-transparent
-        font-medium
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:item) ||
+        {
+          base: <<~HEREDOC,
+            data-[highlighted=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex
+            cursor-default items-center gap-2 px-3 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none
+            data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
+            data-[highlighted=true]:border-input data-[highlighted=true]:bg-input/50 h-9 rounded-md border border-transparent
+            font-medium
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(value: nil, aria_id: nil, **attributes)
@@ -289,11 +286,14 @@ module ShadcnPhlexcomponents
   end
 
   class CommandLabel < Base
-    class_variants(base: "text-muted-foreground text-xs px-3 pb-1 text-xs font-medium")
-
-    def initialize(**attributes)
-      super(**attributes)
-    end
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:label) ||
+        {
+          base: "text-muted-foreground text-xs px-3 pb-1 text-xs font-medium",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
@@ -301,7 +301,14 @@ module ShadcnPhlexcomponents
   end
 
   class CommandGroup < Base
-    class_variants(base: "scroll-mt-16 first:pt-0 pt-3")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:group) ||
+        {
+          base: "scroll-mt-16 first:pt-0 pt-3",
+        }
+      ),
+    )
 
     def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
@@ -326,7 +333,14 @@ module ShadcnPhlexcomponents
   end
 
   class CommandText < Base
-    class_variants(base: "py-6 text-center text-sm hidden")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:text) ||
+        {
+          base: "py-6 text-center text-sm hidden",
+        }
+      ),
+    )
 
     def initialize(target:, **attributes)
       @target = target
@@ -347,10 +361,15 @@ module ShadcnPhlexcomponents
 
   class CommandKbd < Base
     class_variants(
-      base: <<~HEREDOC,
-        bg-background text-muted-foreground pointer-events-none flex h-5 items-center justify-center gap-1 rounded
-        border px-1 font-sans text-[0.7rem] font-medium select-none [&_svg:not([class*='size-'])]:size-3
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:kbd) ||
+        {
+          base: <<~HEREDOC,
+            bg-background text-muted-foreground pointer-events-none flex h-5 items-center justify-center gap-1 rounded
+            border px-1 font-sans text-[0.7rem] font-medium select-none [&_svg:not([class*='size-'])]:size-3
+          HEREDOC
+        }
+      ),
     )
 
     def view_template(&)
@@ -360,10 +379,15 @@ module ShadcnPhlexcomponents
 
   class CommandFooter < Base
     class_variants(
-      base: <<~HEREDOC,
-        text-muted-foreground absolute inset-x-0 bottom-0 z-20 flex h-10 items-center gap-2 rounded-b-xl border-t#{" "}
-        border-t-neutral-100 bg-neutral-50 px-4 text-xs font-medium dark:border-t-neutral-700 dark:bg-neutral-800
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:footer) ||
+        {
+          base: <<~HEREDOC,
+            text-muted-foreground absolute inset-x-0 bottom-0 z-20 flex h-10 items-center gap-2 rounded-b-xl border-t#{" "}
+            border-t-neutral-100 bg-neutral-50 px-4 text-xs font-medium dark:border-t-neutral-700 dark:bg-neutral-800
+          HEREDOC
+        }
+      ),
     )
 
     def view_template
@@ -376,6 +400,86 @@ module ShadcnPhlexcomponents
           plain("Go to Page")
         end
       end
+    end
+  end
+
+  class CommandSearchInputContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:search_input_container) ||
+        {
+          base: "flex h-9 items-center gap-2 border px-3 bg-input/50 border-input rounded-md",
+        }
+      ),
+    )
+
+    def view_template(&)
+      div(**@attributes, &)
+    end
+  end
+
+  class CommandSearchInput < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:search_input) ||
+        {
+          base: <<~HEREDOC,
+            placeholder:text-muted-foreground flex w-full rounded-md bg-transparent py-3 text-sm
+            outline-hidden disabled:cursor-not-allowed disabled:opacity-50 h-9
+          HEREDOC
+        }
+      ),
+    )
+
+    def initialize(aria_id: nil, search_placeholder_text: nil, **attributes)
+      @aria_id = aria_id
+      @search_placeholder_text = search_placeholder_text
+      super(**attributes)
+    end
+
+    def default_attributes
+      {
+        id: "#{@aria_id}-search",
+        placeholder: @search_placeholder_text,
+        type: :text,
+        autocomplete: "off",
+        autocorrect: "off",
+        role: "combobox",
+        spellcheck: "false",
+        aria: {
+          autocomplete: "list",
+          expanded: "false",
+          controls: "#{@aria_id}-list",
+          labelledby: "#{@aria_id}-search-label",
+        },
+        data: {
+          command_target: "searchInput",
+          action: "keydown->command#inputKeydown input->command#search",
+        },
+      }
+    end
+
+    def view_template(&)
+      input(**@attributes)
+    end
+  end
+
+  class CommandListContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.command&.dig(:list_container) ||
+        {
+          base: "mt-3 p-1 max-h-80 min-h-80 overflow-y-auto",
+        }
+      ),
+    )
+
+    def default_attributes
+      { data: { command_target: "listContainer" } }
+    end
+
+    def view_template(&)
+      div(**@attributes, &)
     end
   end
 end

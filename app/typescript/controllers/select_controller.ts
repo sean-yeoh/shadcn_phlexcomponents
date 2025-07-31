@@ -17,6 +17,8 @@ import {
 import { Controller } from '@hotwired/stimulus'
 
 const SelectController = class extends Controller<HTMLElement> {
+  static name = 'select'
+
   // targets
   static targets = [
     'trigger',

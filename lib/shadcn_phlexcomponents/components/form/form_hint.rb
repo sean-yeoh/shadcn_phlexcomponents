@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class FormHint < Base
-    class_variants(base: "text-muted-foreground text-sm")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.form&.dig(:hint) ||
+        {
+          base: "text-muted-foreground text-sm",
+        }
+      ),
+    )
 
     def initialize(message = nil, aria_id: nil, **attributes)
       @message = message

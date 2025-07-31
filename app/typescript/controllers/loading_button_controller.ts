@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const LoadingButtonController = class extends Controller<HTMLButtonElement> {
+  static name = 'loading-button'
+
   connect() {
     const el = this.element
     const form = el.closest('form')

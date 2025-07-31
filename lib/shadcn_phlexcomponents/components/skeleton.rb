@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Skeleton < Base
-    class_variants(base: "bg-accent animate-pulse rounded-md")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.skeleton ||
+        {
+          base: "bg-accent animate-pulse rounded-md",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
