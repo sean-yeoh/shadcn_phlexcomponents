@@ -54,6 +54,19 @@ jobs:
           bundler: latest
       - run: test/integration/user_install_test.sh
         shell: bash
+
+  user-upgrade:
+    strategy:
+      fail-fast: false
+      matrix:
+        plat: ['ubuntu', 'macos']
+    runs-on: ${{matrix.plat}}-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler: latest
       - run: test/integration/user_upgrade_test.sh
         shell: bash
 
