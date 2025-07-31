@@ -1,3 +1,4 @@
+import { Application } from '@hotwired/stimulus'
 import type { DropdownMenu } from '../controllers/dropdown_menu_controller'
 import type { Select } from '../controllers/select_controller'
 import type { Popover } from '../controllers/popover_controller'
@@ -9,6 +10,12 @@ import type { HoverCard } from '../controllers/hover_card_controller'
 import type { Tooltip } from '../controllers/tooltip_controller'
 import type { DatePicker } from '../controllers/date_picker_controller'
 import type { DateRangePicker } from '../controllers/date_range_picker_controller'
+
+declare global {
+  interface Window {
+    Stimulus: Application
+  }
+}
 
 const ANIMATION_OUT_DELAY = 100
 const ON_OPEN_FOCUS_DELAY = 100
