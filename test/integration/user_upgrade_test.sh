@@ -28,17 +28,15 @@ bundle add rails --skip-install ${RAILSOPTS:-}
 
 # bundle add shadcn_phlexcomponents
 echo 'gem "shadcn_phlexcomponents", path: "../../"' >> Gemfile
-# bundle add tailwindcss-ruby --skip-install ${TAILWINDCSSOPTS:-}
 bundle install --prefer-local
 bundle binstubs --all
 
 # install shadcn_phlexcomponents
-ENVIRONMENT=test rake shadcn_phlexcomponents:install
+ENVIRONMENT=test rake shadcn_phlexcomponents:upgrade
 
 # TEST: presence of the generated file
 grep -q "tailwindcss-animate" vendor/shadcn_phlexcomponents/stylesheets/tw-animate.css
 grep -q "@hotwired/stimulus" vendor/shadcn_phlexcomponents/javascript/controllers/theme_switcher_controller.js
 grep -q "class Base < Phlex::HTML" vendor/shadcn_phlexcomponents/components/base.rb
-grep -q "# Require base.rb first" config/initializers/shadcn_phlexcomponents.rb
 
 echo "OK"

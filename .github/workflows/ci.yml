@@ -45,7 +45,6 @@ jobs:
       fail-fast: false
       matrix:
         plat: ['ubuntu', 'macos']
-        # plat: ['ubuntu', 'windows', 'macos']
     runs-on: ${{matrix.plat}}-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +53,8 @@ jobs:
           ruby-version: '3.4'
           bundler: latest
       - run: test/integration/user_install_test.sh
+        shell: bash
+      - run: test/integration/user_upgrade_test.sh
         shell: bash
 
   check-release-version:
