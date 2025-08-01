@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Pagination < Base
-    class_variants(base: "mx-auto flex w-full justify-center")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.pagination&.dig(:root) ||
+        {
+          base: "mx-auto flex w-full justify-center",
+        }
+      ),
+    )
 
     def item(**attributes, &)
       PaginationItem(**attributes, &)
@@ -47,7 +54,14 @@ module ShadcnPhlexcomponents
   end
 
   class PaginationPrevious < Base
-    class_variants(base: "gap-1 px-2.5 sm:pl-2.5")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.pagination&.dig(:previous) ||
+        {
+          base: "gap-1 px-2.5 sm:pl-2.5",
+        }
+      ),
+    )
 
     def initialize(options = nil, html_options = nil)
       @options = options
@@ -65,7 +79,7 @@ module ShadcnPhlexcomponents
     def view_template
       @html_options ||= {}
       @html_options = mix(default_attributes, @html_options)
-      @html_options[:class] = class_variants(clase: @html_options[:class])
+      @html_options[:class] = class_variants(class: @html_options[:class])
       @html_options[:size] = :default
 
       PaginationLink(@options, @html_options) do
@@ -76,7 +90,14 @@ module ShadcnPhlexcomponents
   end
 
   class PaginationNext < Base
-    class_variants(base: "gap-1 px-2.5 sm:pr-2.5")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.pagination&.dig(:next) ||
+        {
+          base: "gap-1 px-2.5 sm:pr-2.5",
+        }
+      ),
+    )
 
     def initialize(options = nil, html_options = nil)
       @options = options
@@ -94,7 +115,7 @@ module ShadcnPhlexcomponents
     def view_template
       @html_options ||= {}
       @html_options = mix(default_attributes, @html_options)
-      @html_options[:class] = class_variants(clase: @html_options[:class])
+      @html_options[:class] = class_variants(class: @html_options[:class])
       @html_options[:size] = :default
 
       PaginationLink(@options, @html_options) do
@@ -146,7 +167,14 @@ module ShadcnPhlexcomponents
   end
 
   class PaginationEllipsis < Base
-    class_variants(base: "flex size-9 items-center justify-center")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.pagination&.dig(:ellipsis) ||
+        {
+          base: "flex size-9 items-center justify-center",
+        }
+      ),
+    )
 
     def default_attributes
       {

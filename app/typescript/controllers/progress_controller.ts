@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const ProgressController = class extends Controller {
+  static name = 'progress'
+
   // targets
   static targets = ['indicator']
   declare readonly indicatorTarget: HTMLElement

@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class FormError < Base
-    class_variants(base: "text-destructive text-sm")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.form&.dig(:error) ||
+        {
+          base: "text-destructive text-sm",
+        }
+      ),
+    )
 
     def initialize(message, aria_id: nil, **attributes)
       @message = message

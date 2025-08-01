@@ -3,23 +3,28 @@
 module ShadcnPhlexcomponents
   class Toast < Base
     class_variants(
-      base: <<~HEREDOC,
-        p-4 border shadow-lg text-[0.8rem] flex gap-1.5 items-center w-full sm:w-90 rounded-lg duration-200
-        data-[state=open]:animate-in data-[state=closed]:animate-out [&_svg]:size-4 [&_svg]:mr-1 [&_svg]:self-start [&_svg]:translate-y-0.5
-      HEREDOC
-      variants: {
-        variant: {
-          default: "bg-popover text-popover-foreground",
-          destructive: "bg-card text-destructive [&>svg]:text-current *:data-[shadcn-phlexcomponents=toast-description]:text-destructive/90",
-        },
-        side: {
-          top: "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
-          bottom: "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-        },
-      },
-      defaults: {
-        variant: :default,
-      },
+      **(
+        ShadcnPhlexcomponents.configuration.toast&.dig(:root) ||
+        {
+          base: <<~HEREDOC,
+            p-4 border shadow-lg text-[0.8rem] flex gap-1.5 items-center w-full sm:w-90 rounded-lg duration-200
+            data-[state=open]:animate-in data-[state=closed]:animate-out [&_svg]:size-4 [&_svg]:mr-1 [&_svg]:self-start [&_svg]:translate-y-0.5
+          HEREDOC
+          variants: {
+            variant: {
+              default: "bg-popover text-popover-foreground",
+              destructive: "bg-card text-destructive [&>svg]:text-current *:data-[shadcn-phlexcomponents=toast-description]:text-destructive/90",
+            },
+            side: {
+              top: "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+              bottom: "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+            },
+          },
+          defaults: {
+            variant: :default,
+          },
+        }
+      ),
     )
 
     def initialize(variant: :default, side: :top, duration: 5000, **attributes)
@@ -76,7 +81,14 @@ module ShadcnPhlexcomponents
   end
 
   class ToastContent < Base
-    class_variants(base: "flex flex-col gap-0.5")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.toast&.dig(:content) ||
+        {
+          base: "flex flex-col gap-0.5",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
@@ -84,7 +96,14 @@ module ShadcnPhlexcomponents
   end
 
   class ToastTitle < Base
-    class_variants(base: "font-medium leading-[1.5]")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.toast&.dig(:title) ||
+        {
+          base: "font-medium leading-[1.5]",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
@@ -92,7 +111,14 @@ module ShadcnPhlexcomponents
   end
 
   class ToastDescription < Base
-    class_variants(base: "leading-[1.4] opacity-90")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.toast&.dig(:description) ||
+        {
+          base: "leading-[1.4] opacity-90",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)

@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class RadioGroup < Base
-    class_variants(base: "grid gap-3 outline-none")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.radio_group&.dig(:root) ||
+        {
+          base: "grid gap-3 outline-none",
+        }
+      ),
+    )
 
     def initialize(name: nil, value: nil, dir: "ltr", include_hidden: true, **attributes)
       @name = name
@@ -87,12 +94,17 @@ module ShadcnPhlexcomponents
 
   class RadioGroupItem < Base
     class_variants(
-      base: <<~HEREDOC,
-        border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20
-        dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4
-        shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]
-        disabled:cursor-not-allowed disabled:opacity-50 relative
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.radio_group&.dig(:item) ||
+        {
+          base: <<~HEREDOC,
+            border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20
+            dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4
+            shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]
+            disabled:cursor-not-allowed disabled:opacity-50 relative
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(name: nil, value: nil, checked: false, **attributes)
@@ -104,14 +116,7 @@ module ShadcnPhlexcomponents
 
     def view_template(&)
       button(**@attributes) do
-        span(
-          class: "relative flex items-center justify-center",
-          data: {
-            radio_group_target: "indicator",
-          },
-        ) do
-          icon("circle", class: "fill-primary absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2")
-        end
+        RadioGroupItemIndicator()
 
         input(
           type: "radio",
@@ -150,6 +155,27 @@ module ShadcnPhlexcomponents
           HEREDOC
         },
       }
+    end
+  end
+
+  class RadioGroupItemIndicator < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.radio_group&.dig(:item_indicator) ||
+        {
+          base: "relative flex items-center justify-center",
+        }
+      ),
+    )
+
+    def default_attributes
+      { data: { radio_group_target: "indicator" } }
+    end
+
+    def view_template(&)
+      span(**@attributes) do
+        icon("circle", class: "fill-primary absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2")
+      end
     end
   end
 end

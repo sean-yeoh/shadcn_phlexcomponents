@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class AlertDialog < Base
-    class_variants(base: "inline-flex max-w-fit")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.alert_dialog&.dig(:root) ||
+        {
+          base: "inline-flex max-w-fit",
+        }
+      ),
+    )
 
     def initialize(open: false, **attributes)
       @open = open
@@ -105,13 +112,18 @@ module ShadcnPhlexcomponents
 
   class AlertDialogContent < Base
     class_variants(
-      base: <<~HEREDOC,
-        bg-background data-[state=open]:animate-in data-[state=closed]:animate-out
-        data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95
-        data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)]
-        translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg
-        pointer-events-auto outline-none
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.alert_dialog&.dig(:content) ||
+        {
+          base: <<~HEREDOC,
+            bg-background data-[state=open]:animate-in data-[state=closed]:animate-out
+            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95
+            data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)]
+            translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg
+            pointer-events-auto outline-none
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(aria_id: nil, **attributes)
@@ -141,7 +153,14 @@ module ShadcnPhlexcomponents
   end
 
   class AlertDialogHeader < Base
-    class_variants(base: "flex flex-col gap-2 text-center sm:text-left")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.alert_dialog&.dig(:header) ||
+        {
+          base: "flex flex-col gap-2 text-center sm:text-left",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
@@ -149,7 +168,14 @@ module ShadcnPhlexcomponents
   end
 
   class AlertDialogTitle < Base
-    class_variants(base: "text-lg font-semibold")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.alert_dialog&.dig(:title) ||
+        {
+          base: "text-lg font-semibold",
+        }
+      ),
+    )
 
     def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
@@ -168,7 +194,14 @@ module ShadcnPhlexcomponents
   end
 
   class AlertDialogDescription < Base
-    class_variants(base: "text-sm text-muted-foreground")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.alert_dialog&.dig(:description) ||
+        {
+          base: "text-sm text-muted-foreground",
+        }
+      ),
+    )
 
     def initialize(aria_id: nil, **attributes)
       @aria_id = aria_id
@@ -187,7 +220,14 @@ module ShadcnPhlexcomponents
   end
 
   class AlertDialogFooter < Base
-    class_variants(base: "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.alert_dialog&.dig(:footer) ||
+        {
+          base: "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)

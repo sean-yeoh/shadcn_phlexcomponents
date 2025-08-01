@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Link < Base
-    class_variants(base: "font-medium underline underline-offset-4")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.link ||
+        {
+          base: "font-medium underline underline-offset-4",
+        }
+      ),
+    )
 
     def initialize(name = nil, options = nil, html_options = nil)
       @name = name

@@ -80,7 +80,7 @@ module ShadcnPhlexcomponents
           end
       end
 
-      div(class: "space-y-2", data: label_and_hint_container_attributes) do
+      FormField(data: label_and_hint_container_attributes) do
         render_label(&)
         Slider(id: @id, name: @name, value: @value, aria: aria_attributes, range: @range, **@attributes)
         render_hint(&)

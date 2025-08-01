@@ -10,6 +10,8 @@ import {
 } from '../utils'
 
 const DialogController = class extends Controller<HTMLElement> {
+  static name = 'dialog'
+
   // targets
   static targets = ['trigger', 'content', 'overlay']
   declare readonly triggerTarget: HTMLElement

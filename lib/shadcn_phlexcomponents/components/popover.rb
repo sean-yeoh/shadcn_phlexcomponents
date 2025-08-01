@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Popover < Base
-    class_variants(base: "inline-flex max-w-fit")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.popover&.dig(:root) ||
+        {
+          base: "inline-flex max-w-fit",
+        }
+      ),
+    )
 
     def initialize(open: false, **attributes)
       @open = open
@@ -73,13 +80,18 @@ module ShadcnPhlexcomponents
 
   class PopoverContent < Base
     class_variants(
-      base: <<~HEREDOC,
-        bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out
-        data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
-        data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2
-        data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popper-transform-origin) rounded-md
-        border p-4 shadow-md outline-hidden
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.popover&.dig(:content) ||
+        {
+          base: <<~HEREDOC,
+            bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out
+            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
+            data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2
+            data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popper-transform-origin) rounded-md
+            border p-4 shadow-md outline-hidden
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(side: :bottom, align: :center, aria_id: nil, **attributes)
@@ -90,11 +102,7 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      div(
-        style: { display: "none" },
-        class: "fixed top-0 left-0 w-max z-50",
-        data: { popover_target: "contentContainer" },
-      ) do
+      PopoverContentContainer do
         div(**@attributes, &)
       end
     end
@@ -111,6 +119,28 @@ module ShadcnPhlexcomponents
           action: "popover:click:outside->popover#clickOutside",
         },
       }
+    end
+  end
+
+  class PopoverContentContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.popover&.dig(:content_container) ||
+        {
+          base: "fixed top-0 left-0 w-max z-50",
+        }
+      ),
+    )
+
+    def default_attributes
+      {
+        style: { display: "none" },
+        data: { popover_target: "contentContainer" },
+      }
+    end
+
+    def view_template(&)
+      div(**@attributes, &)
     end
   end
 end

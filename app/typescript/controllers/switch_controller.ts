@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const SwitchController = class extends Controller<HTMLElement> {
+  static name = 'switch'
+
   // targets
   static targets = ['input', 'thumb']
   declare readonly inputTarget: HTMLInputElement

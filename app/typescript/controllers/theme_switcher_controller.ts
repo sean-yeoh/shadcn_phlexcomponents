@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const ThemeSwitcherController = class extends Controller {
+  static name = 'theme-switcher'
+
   initialize() {
     if (
       localStorage.theme === 'dark' ||

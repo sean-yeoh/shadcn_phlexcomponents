@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const ToggleController = class extends Controller<HTMLElement> {
+  static name = 'toggle-group'
+
   // values
   static values = {
     isOn: Boolean,

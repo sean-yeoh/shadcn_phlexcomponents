@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const FormFieldController = class extends Controller {
+  static name = 'form-field'
+
   connect() {
     const hintContainer = this.element.querySelector('[data-remove-label]')
     const labelContainer = this.element.querySelector('[data-remove-hint]')

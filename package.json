@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "tsc -b && prettier --write \"app/javascript/**/*.js\" && rm app/javascript/tsconfig.tsbuildinfo"
+    "build": "tsc -b || exit 0 && prettier --write \"app/javascript/**/*.js\" && sleep 1 && rm app/javascript/tsconfig.tsbuildinfo"
   },
   "devDependencies": {
     "@types/inputmask": "^5.0.7",

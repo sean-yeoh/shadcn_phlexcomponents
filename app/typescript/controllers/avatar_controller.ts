@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus'
 
 const AvatarController = class extends Controller {
+  static name = 'avatar'
+
   // targets
   static targets = ['image', 'fallback']
   declare readonly imageTarget: HTMLElement

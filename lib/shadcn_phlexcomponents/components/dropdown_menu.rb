@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class DropdownMenu < Base
-    class_variants(base: "inline-flex max-w-fit")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.dropdown_menu&.dig(:root) ||
+        {
+          base: "inline-flex max-w-fit",
+        }
+      ),
+    )
 
     def initialize(open: false, **attributes)
       @aria_id = "dropdown-menu-#{SecureRandom.hex(5)}"
@@ -104,14 +111,19 @@ module ShadcnPhlexcomponents
 
   class DropdownMenuContent < Base
     class_variants(
-      base: <<~HEREDOC,
-        bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out
-        data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95
-        data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2
-        data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50
-        max-h-(--radix-popper-available-height) min-w-[8rem] origin-(--radix-popper-transform-origin)
-        overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md pointer-events-auto outline-none
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.dropdown_menu&.dig(:content) ||
+        {
+          base: <<~HEREDOC,
+            bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out
+            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95
+            data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2
+            data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50
+            max-h-(--radix-popper-available-height) min-w-[8rem] origin-(--radix-popper-transform-origin)
+            overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md pointer-events-auto outline-none
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(side: :bottom, align: :center, aria_id: nil, **attributes)
@@ -122,11 +134,7 @@ module ShadcnPhlexcomponents
     end
 
     def view_template(&)
-      div(
-        style: { display: "none" },
-        class: "fixed top-0 left-0 w-max z-50",
-        data: { dropdown_menu_target: "contentContainer" },
-      ) do
+      DropdownMenuContentContainer do
         div(**@attributes, &)
       end
     end
@@ -156,7 +164,14 @@ module ShadcnPhlexcomponents
   end
 
   class DropdownMenuLabel < Base
-    class_variants(base: "px-2 py-1.5 text-sm font-medium data-[inset]:pl-8")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.dropdown_menu&.dig(:label) ||
+        {
+          base: "px-2 py-1.5 text-sm font-medium data-[inset]:pl-8",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
@@ -165,15 +180,20 @@ module ShadcnPhlexcomponents
 
   class DropdownMenuItem < Base
     class_variants(
-      base: <<~HEREDOC,
-        focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive
-        data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20
-        data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive
-        [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2
-        rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none
-        data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0
-        [&_svg:not([class*='size-'])]:size-4
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.dropdown_menu&.dig(:item) ||
+        {
+          base: <<~HEREDOC,
+            focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive
+            data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20
+            data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive
+            [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2
+            rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none
+            data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0
+            [&_svg:not([class*='size-'])]:size-4
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(as_child: false, variant: :default, disabled: false, **attributes)
@@ -255,7 +275,14 @@ module ShadcnPhlexcomponents
   end
 
   class DropdownMenuSeparator < Base
-    class_variants(base: "bg-border -mx-1 my-1 h-px")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.dropdown_menu&.dig(:separator) ||
+        {
+          base: "bg-border -mx-1 my-1 h-px",
+        }
+      ),
+    )
 
     def view_template(&)
       div(**@attributes, &)
@@ -274,6 +301,28 @@ module ShadcnPhlexcomponents
   class DropdownMenuGroup < Base
     def default_attributes
       { role: "group" }
+    end
+
+    def view_template(&)
+      div(**@attributes, &)
+    end
+  end
+
+  class DropdownMenuContentContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.dropdown_menu&.dig(:content_container) ||
+        {
+          base: "fixed top-0 left-0 w-max z-50",
+        }
+      ),
+    )
+
+    def default_attributes
+      {
+        style: { display: "none" },
+        data: { dropdown_menu_target: "contentContainer" },
+      }
     end
 
     def view_template(&)

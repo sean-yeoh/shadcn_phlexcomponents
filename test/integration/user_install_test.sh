@@ -37,7 +37,7 @@ ENVIRONMENT=test rake shadcn_phlexcomponents:install
 
 # TEST: presence of the generated file
 grep -q "tailwindcss-animate" vendor/shadcn_phlexcomponents/stylesheets/tw-animate.css
-grep -q "@hotwired/stimulus" vendor/shadcn_phlexcomponents/javascript/controllers/theme_switcher_controller.ts
+grep -q "@hotwired/stimulus" vendor/shadcn_phlexcomponents/javascript/controllers/theme_switcher_controller.js
 grep -q "class Base < Phlex::HTML" vendor/shadcn_phlexcomponents/components/base.rb
 grep -q "# Require base.rb first" config/initializers/shadcn_phlexcomponents.rb
 

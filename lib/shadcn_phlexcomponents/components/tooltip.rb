@@ -2,7 +2,14 @@
 
 module ShadcnPhlexcomponents
   class Tooltip < Base
-    class_variants(base: "inline-flex max-w-fit")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.tooltip&.dig(:root) ||
+        {
+          base: "inline-flex max-w-fit",
+        }
+      ),
+    )
 
     def initialize(open: false, **attributes)
       @open = open
@@ -76,12 +83,17 @@ module ShadcnPhlexcomponents
 
   class TooltipContent < Base
     class_variants(
-      base: <<~HEREDOC,
-        bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out
-        data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2
-        data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2
-        z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.tooltip&.dig(:content) ||
+        {
+          base: <<~HEREDOC,
+            bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out
+            data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2
+            data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2
+            z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance
+          HEREDOC
+        }
+      ),
     )
 
     def initialize(side: :top, align: :center, aria_id: nil, **attributes)
@@ -100,13 +112,7 @@ module ShadcnPhlexcomponents
         div(**@attributes) do
           yield
 
-          span(data: { tooltip_target: "arrow" }) do
-            raw(safe(
-              '<svg class="bg-primary fill-primary z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" width="10" height="5" viewBox="0 0 30 10" preserveAspectRatio="none">
-                <polygon points="0,0 30,0 15,10"></polygon>
-              </svg>',
-            ))
-          end
+          TooltipArrow()
 
           span(
             id: "#{@aria_id}-content",
@@ -127,6 +133,35 @@ module ShadcnPhlexcomponents
           action: "mouseover->tooltip#open mouseout->tooltip#close",
         },
       }
+    end
+  end
+
+  class TooltipArrow < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.tooltip&.dig(:arrow) ||
+        {
+          base: "bg-primary fill-primary z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]",
+        }
+      ),
+    )
+
+    def default_attributes
+      {
+        width: 10,
+        height: 5,
+        viewBox: "0 0 30 10",
+        preserveAspectRatio: "none",
+      }
+    end
+
+    def view_template
+      span(data: { tooltip_target: "arrow" }) do
+        svg(**@attributes) do
+          # Weird bug with phlex where it's throwing a undefined method "polygon"
+          raw(safe('<polygon points="0,0 30,0 15,10"></polygon>'))
+        end
+      end
     end
   end
 end

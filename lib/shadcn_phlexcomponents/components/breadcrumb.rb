@@ -3,7 +3,12 @@
 module ShadcnPhlexcomponents
   class Breadcrumb < Base
     class_variants(
-      base: "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",
+      **(
+        ShadcnPhlexcomponents.configuration.breadcrumb&.dig(:root) ||
+        {
+          base: "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",
+        }
+      ),
     )
 
     def item(**attributes, &)
@@ -54,7 +59,14 @@ module ShadcnPhlexcomponents
   end
 
   class BreadcrumbItem < Base
-    class_variants(base: "inline-flex items-center gap-1.5")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.breadcrumb&.dig(:item) ||
+        {
+          base: "inline-flex items-center gap-1.5",
+        }
+      ),
+    )
 
     def view_template(&)
       li(**@attributes, &)
@@ -62,7 +74,14 @@ module ShadcnPhlexcomponents
   end
 
   class BreadcrumbLink < Base
-    class_variants(base: "transition-colors hover:text-foreground")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.breadcrumb&.dig(:link) ||
+        {
+          base: "transition-colors hover:text-foreground",
+        }
+      ),
+    )
 
     def initialize(name = nil, options = nil, html_options = nil)
       @name = name
@@ -88,7 +107,14 @@ module ShadcnPhlexcomponents
   end
 
   class BreadcrumbSeparator < Base
-    class_variants(base: "[&>svg]:size-3.5")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.breadcrumb&.dig(:separator) ||
+        {
+          base: "[&>svg]:size-3.5",
+        }
+      ),
+    )
 
     def default_attributes
       {
@@ -111,7 +137,14 @@ module ShadcnPhlexcomponents
   end
 
   class BreadcrumbPage < Base
-    class_variants(base: "font-normal text-foreground")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.breadcrumb&.dig(:page) ||
+        {
+          base: "font-normal text-foreground",
+        }
+      ),
+    )
 
     def default_attributes
       {
@@ -129,7 +162,14 @@ module ShadcnPhlexcomponents
   end
 
   class BreadcrumbEllipsis < Base
-    class_variants(base: "flex size-9 items-center justify-center")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.breadcrumb&.dig(:ellipsis) ||
+        {
+          base: "flex size-9 items-center justify-center",
+        }
+      ),
+    )
 
     def default_attributes
       {

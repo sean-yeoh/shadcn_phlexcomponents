@@ -4,6 +4,8 @@ import { initFloatingUi } from '../utils/floating_ui'
 import { showContent, hideContent } from '../utils'
 
 const HoverCardController = class extends Controller<HTMLElement> {
+  static name = 'hover-card'
+
   // targets
   static targets = ['trigger', 'content', 'contentContainer']
   declare readonly triggerTarget: HTMLElement

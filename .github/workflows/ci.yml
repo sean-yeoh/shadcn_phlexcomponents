@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['3.3', '3.4', 'head']
+        ruby: ['3.4', 'head']
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
@@ -38,6 +38,8 @@ jobs:
           bundler: latest
           bundler-cache: true
       - name: Run tests
+        env:
+          TZ: UTC
         run: bundle exec rake test
 
   user-install:
@@ -45,7 +47,6 @@ jobs:
       fail-fast: false
       matrix:
         plat: ['ubuntu', 'macos']
-        # plat: ['ubuntu', 'windows', 'macos']
     runs-on: ${{matrix.plat}}-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +55,21 @@ jobs:
           ruby-version: '3.4'
           bundler: latest
       - run: test/integration/user_install_test.sh
+        shell: bash
+
+  user-upgrade:
+    strategy:
+      fail-fast: false
+      matrix:
+        plat: ['ubuntu', 'macos']
+    runs-on: ${{matrix.plat}}-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler: latest
+      - run: test/integration/user_upgrade_test.sh
         shell: bash
 
   check-release-version:

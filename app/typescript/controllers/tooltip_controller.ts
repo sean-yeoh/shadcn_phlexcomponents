@@ -4,6 +4,8 @@ import { initFloatingUi } from '../utils/floating_ui'
 import { showContent, hideContent } from '../utils'
 
 const TooltipController = class extends Controller<HTMLElement> {
+  static name = 'tooltip'
+
   // targets
   static targets = ['trigger', 'content', 'contentContainer', 'arrow']
   declare readonly triggerTarget: HTMLElement

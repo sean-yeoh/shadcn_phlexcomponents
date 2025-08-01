@@ -65,7 +65,7 @@ module ShadcnPhlexcomponents
           field_name(@object_name, @end_method),
         ]
 
-      div(class: "space-y-2", data: label_and_hint_container_attributes) do
+      FormField(data: label_and_hint_container_attributes) do
         render_label(&)
         DateRangePicker(
           id: @id,

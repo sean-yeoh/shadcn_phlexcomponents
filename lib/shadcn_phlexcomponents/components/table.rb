@@ -2,17 +2,18 @@
 
 module ShadcnPhlexcomponents
   class Table < Base
-    class_variants(base: "w-full caption-bottom text-sm")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:root) ||
+        {
+          base: "w-full caption-bottom text-sm",
+        }
+      ),
+    )
 
     def initialize(**attributes)
       @columns = []
       super(**attributes)
-    end
-
-    def view_template(&)
-      div(class: "relative w-full overflow-x-auto") do
-        table(**@attributes, &)
-      end
     end
 
     def caption(**attributes, &)
@@ -73,10 +74,23 @@ module ShadcnPhlexcomponents
       @columns << { header:, head_class:, cell_class:, content: }
       nil
     end
+
+    def view_template(&)
+      TableContainer do
+        table(**@attributes, &)
+      end
+    end
   end
 
   class TableCaption < Base
-    class_variants(base: "text-muted-foreground mt-4 text-sm")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:caption) ||
+        {
+          base: "text-muted-foreground mt-4 text-sm",
+        }
+      ),
+    )
 
     def view_template(&)
       caption(**@attributes, &)
@@ -84,7 +98,14 @@ module ShadcnPhlexcomponents
   end
 
   class TableHeader < Base
-    class_variants(base: "[&_tr]:border-b")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:header) ||
+        {
+          base: "[&_tr]:border-b",
+        }
+      ),
+    )
 
     def view_template(&)
       thead(**@attributes, &)
@@ -92,7 +113,14 @@ module ShadcnPhlexcomponents
   end
 
   class TableRow < Base
-    class_variants(base: "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:row) ||
+        {
+          base: "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
+        }
+      ),
+    )
 
     def view_template(&)
       tr(**@attributes, &)
@@ -101,10 +129,15 @@ module ShadcnPhlexcomponents
 
   class TableHead < Base
     class_variants(
-      base: <<~HEREDOC,
-        text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0
-        [&>[role=checkbox]]:translate-y-[2px]"
-      HEREDOC
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:head) ||
+        {
+          base: <<~HEREDOC,
+            text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0
+            [&>[role=checkbox]]:translate-y-[2px]"
+          HEREDOC
+        }
+      ),
     )
 
     def view_template(&)
@@ -113,7 +146,14 @@ module ShadcnPhlexcomponents
   end
 
   class TableBody < Base
-    class_variants(base: "[&_tr:last-child]:border-0")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:body) ||
+        {
+          base: "[&_tr:last-child]:border-0",
+        }
+      ),
+    )
 
     def view_template(&)
       tbody(**@attributes, &)
@@ -122,7 +162,12 @@ module ShadcnPhlexcomponents
 
   class TableCell < Base
     class_variants(
-      base: "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:cell) ||
+        {
+          base: "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        }
+      ),
     )
 
     def view_template(&)
@@ -131,10 +176,32 @@ module ShadcnPhlexcomponents
   end
 
   class TableFooter < Base
-    class_variants(base: "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0")
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:footer) ||
+        {
+          base: "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
+        }
+      ),
+    )
 
     def view_template(&)
       tfoot(**@attributes, &)
+    end
+  end
+
+  class TableContainer < Base
+    class_variants(
+      **(
+        ShadcnPhlexcomponents.configuration.table&.dig(:container) ||
+        {
+          base: "relative w-full overflow-x-auto",
+        }
+      ),
+    )
+
+    def view_template(&)
+      div(**@attributes, &)
     end
   end
 end

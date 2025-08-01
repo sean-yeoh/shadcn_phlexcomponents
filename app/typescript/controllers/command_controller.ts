@@ -31,6 +31,8 @@ declare global {
 }
 
 const CommandController = class extends Controller<HTMLElement> {
+  static name = 'command'
+
   // targets
   static targets = [
     'trigger',

@@ -46,7 +46,7 @@ module ShadcnPhlexcomponents
       @id ||= field_id(@object_name, @method)
       @name ||= field_name(@object_name, @method)
 
-      div(class: "space-y-2", data: label_and_hint_container_attributes) do
+      FormField(data: label_and_hint_container_attributes) do
         div(class: "flex items-center gap-2") do
           Switch(
             id: @id,
