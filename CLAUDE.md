@@ -25,6 +25,7 @@ Components follow a dual-layer architecture:
 2. Stimulus controllers for JavaScript behavior and interactivity
 
 ### Key Dependencies
+- **Class Variants** (~> 1.1): For configuring different variants of css classes
 - **Phlex Rails** (~> 2.1): For component rendering
 - **Lucide Rails** (~> 0.5.1): For icons
 - **TailwindMerge** (~> 1.0): For CSS class merging
