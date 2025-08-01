@@ -35,7 +35,8 @@ module ShadcnPhlexcomponents
         value = value.map do |v|
           if v.is_a?(String)
             begin
-              Time.parse(v)
+              # Use Time.zone.parse to ensure consistent timezone handling
+              Time.zone ? Time.zone.parse(v) : Time.parse(v)
             rescue
               nil
             end

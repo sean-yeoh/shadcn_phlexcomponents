@@ -16,6 +16,8 @@ require "nokogiri"
 
 ENV["RAILS_ENV"] = "test"
 class App < Rails::Application
+  config.time_zone = "UTC"
+
   routes.append do
     resources :posts
   end

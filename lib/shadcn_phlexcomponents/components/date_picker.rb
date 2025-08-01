@@ -29,7 +29,8 @@ module ShadcnPhlexcomponents
       if value
         value = if value.is_a?(String)
           begin
-            Time.parse(value)
+            # Use Time.zone.parse to ensure consistent timezone handling
+            Time.zone ? Time.zone.parse(value) : Time.parse(value)
           rescue
             nil
           end

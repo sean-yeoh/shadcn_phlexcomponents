@@ -38,6 +38,8 @@ jobs:
           bundler: latest
           bundler-cache: true
       - name: Run tests
+        env:
+          TZ: UTC
         run: bundle exec rake test
 
   user-install:

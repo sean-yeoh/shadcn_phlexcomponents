@@ -271,8 +271,8 @@ class TestDateRangePicker < ComponentTest
       value: ["2024-01-01", nil],
     )
     start_output = render(start_only)
-    # Date may be parsed with timezone offset, 2024-01-01 becomes 2023-12-31 in UTC
-    assert_match(/data-value="202[34]-12-3[01]T\d{2}:\d{2}:\d{2}Z"/, start_output)
+    # With consistent UTC parsing, dates should be preserved as-is
+    assert_match(/data-value="2024-01-01T\d{2}:\d{2}:\d{2}Z"/, start_output)
     refute_includes(start_output, 'data-end-value="')
 
     # Only end date provided
@@ -442,16 +442,16 @@ class TestDateRangePickerIntegration < ComponentTest
 
     # Check main structure
     assert_includes(output, "vacation-date-selector")
-    # Dates may have timezone offset - 2024-07-01 becomes 2024-06-30 in UTC
-    assert_match(/data-value="2024-06-3[01]T\d{2}:\d{2}:\d{2}Z"/, output)
-    assert_match(/data-end-value="2024-07-1[34]T\d{2}:\d{2}:\d{2}Z"/, output)
+    # With consistent UTC parsing, dates should be preserved as-is
+    assert_match(/data-value="2024-07-01T\d{2}:\d{2}:\d{2}Z"/, output)
+    assert_match(/data-end-value="2024-07-14T\d{2}:\d{2}:\d{2}Z"/, output)
 
     # Check hidden inputs
     assert_includes(output, 'name="vacation_start"')
     assert_includes(output, 'name="vacation_end"')
-    # Dates may have timezone offset - 2024-07-01 becomes 2024-06-30 in UTC
-    assert_match(/value="2024-06-3[01]T\d{2}:\d{2}:\d{2}Z"/, output)
-    assert_match(/value="2024-07-1[34]T\d{2}:\d{2}:\d{2}Z"/, output)
+    # With consistent UTC parsing, dates should be preserved as-is
+    assert_match(/value="2024-07-01T\d{2}:\d{2}:\d{2}Z"/, output)
+    assert_match(/value="2024-07-14T\d{2}:\d{2}:\d{2}Z"/, output)
 
     # Check select-only trigger (gets the ID)
     assert_includes(output, 'id="vacation-date-button"')
@@ -520,9 +520,9 @@ class TestDateRangePickerIntegration < ComponentTest
     # Should handle gracefully and use first two names
     assert_includes(output, 'name="start"')
     assert_includes(output, 'name="end"')
-    # Dates may have timezone offset
-    assert_match(/data-value="202[34]-12-3[01]T\d{2}:\d{2}:\d{2}Z"/, output)
-    assert_match(/data-end-value="2024-01-0[12]T\d{2}:\d{2}:\d{2}Z"/, output)
+    # With consistent UTC parsing, dates should be preserved as-is
+    assert_match(/data-value="2024-01-01T\d{2}:\d{2}:\d{2}Z"/, output)
+    assert_match(/data-end-value="2024-01-02T\d{2}:\d{2}:\d{2}Z"/, output)
   end
 
   def test_date_range_picker_with_empty_arrays
