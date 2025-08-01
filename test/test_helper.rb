@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+# require "simplecov"
+# SimpleCov.start do
+#   add_filter "/test/"
+# end
+
 $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 
 require "shadcn_phlexcomponents"
@@ -12,6 +17,7 @@ require "lucide-rails"
 require "tailwind_merge"
 require "class_variants"
 require "debug"
+require "nokogiri"
 
 ENV["RAILS_ENV"] = "test"
 class App < Rails::Application
@@ -27,7 +33,7 @@ end
 
 App.initialize!
 
-module PhlexKit
+module ShadcnPhlexcomponents
   extend Phlex::Kit
 end
 
@@ -38,17 +44,6 @@ Dir.glob(File.expand_path("../lib/shadcn_phlexcomponents/components/*.rb", __dir
 
   require file
 end
-
-# Dir[""].each do |file|
-#   next if file.ends_with?("base.rb")
-
-#   require_relative file
-# end
-
-# Dir.glob("lib/components/**/*.rb").map do |path|
-#   class_name = path.split("/").last.delete_suffix(".rb").split("_").map(&:capitalize).join.to_sym
-#   autoload class_name, path
-# end
 
 # Monkey patch view_context
 module Phlex::Rails::SGML

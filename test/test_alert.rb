@@ -1,133 +1,140 @@
 # frozen_string_literal: true
 
 require "test_helper"
-# require_relative "../lib/shadcn_phlexcomponents/components/base"
-# require_relative "../lib/shadcn_phlexcomponents/components/alert"
 
 class TestAlert < ComponentTest
-  def test_renders_basic_alert
-    component = ShadcnPhlexcomponents::Alert.new
-    output = render(component) { "Alert message" }
+  def test_it_should_render_content_and_attributes
+    component = ShadcnPhlexcomponents::Alert.new { "Alert message" }
+    output = render(component)
+
+    assert_includes(output, 'role="alert"')
+    assert_includes(output, "Alert message")
+    assert_includes(output, "relative w-full rounded-lg border")
   end
-  #   def test_renders_basic_alert
-  #     component = ShadcnPhlexcomponents::Alert.new
 
-  #     output = render(component) { "Alert message" }
+  def test_it_should_render_title
+    component = ShadcnPhlexcomponents::Alert.new do |a|
+      a.title { "Alert title" }
+    end
+    output = render(component)
 
-  #     assert_includes(output, 'role="alert"')
-  #     assert_includes(output, "Alert message")
-  #     assert_includes(output, "relative w-full rounded-lg border")
-  #   end
+    assert_includes(output, "Alert title")
+    assert_includes(output, "col-start-2 line-clamp-1 min-h-4")
+  end
 
-  #   def test_renders_default_variant
-  #     component = ShadcnPhlexcomponents::Alert.new(variant: :default)
+  def test_it_should_render_description
+    component = ShadcnPhlexcomponents::Alert.new do |a|
+      a.description { "Alert description" }
+    end
+    output = render(component)
 
-  #     output = render(component) { "Default alert" }
+    assert_includes(output, "Alert description")
+    assert_includes(output, "text-muted-foreground col-start-2 grid")
+  end
 
-  #     assert_includes(output, "bg-card text-card-foreground")
-  #     assert_includes(output, "Default alert")
-  #   end
+  def test_it_should_render_default_variant
+    component = ShadcnPhlexcomponents::Alert.new(variant: :default)
 
-  #   def test_renders_destructive_variant
-  #     component = ShadcnPhlexcomponents::Alert.new(variant: :destructive)
+    output = render(component)
 
-  #     output = render(component) { "Error alert" }
+    assert_includes(output, "bg-card text-card-foreground")
+  end
 
-  #     assert_includes(output, "text-destructive bg-card")
-  #     assert_includes(output, "Error alert")
-  #   end
+  def test_it_should_render_destructive_variant
+    component = ShadcnPhlexcomponents::Alert.new(variant: :destructive)
 
-  #   def test_merges_custom_classes
-  #     component = ShadcnPhlexcomponents::Alert.new(class: "custom-class")
+    output = render(component)
 
-  #     output = render(component) { "Custom alert" }
+    assert_includes(output, "text-destructive bg-card [&>svg]:text-current")
+  end
 
-  #     assert_includes(output, "custom-class")
-  #     assert_includes(output, "relative w-full rounded-lg border")
-  #   end
+  def test_it_should_render_custom_attributes
+    component = ShadcnPhlexcomponents::Alert.new(class: "alert-class", id: "alert-id", data: { testid: "alert" })
 
-  #   def test_accepts_custom_attributes
-  #     component = ShadcnPhlexcomponents::Alert.new(id: "my-alert", data: { testid: "alert" })
+    output = render(component)
 
-  #     output = render(component) { "Alert with attributes" }
+    assert_includes(output, "alert-class")
+    assert_includes(output, 'id="alert-id"')
+    assert_includes(output, 'data-testid="alert"')
+  end
 
-  #     assert_includes(output, 'id="my-alert"')
-  #     assert_includes(output, 'data-testid="alert"')
-  #   end
+  def test_it_should_render_custom_configuration
+    custom_config = ShadcnPhlexcomponents::Configuration.new
+    custom_config.alert = {
+      root: {
+        base: "custom-alert",
+      },
+      title: {
+        base: "custom-title",
+      },
+      description: {
+        base: "custom-description",
+      },
+    }
 
-  #   def test_includes_shadcn_data_attribute
-  #     component = ShadcnPhlexcomponents::Alert.new
+    # Set configuration
+    ShadcnPhlexcomponents.instance_variable_set(:@configuration, custom_config)
 
-  #     output = render(component) { "Alert" }
+    # Force reload the Alert class to pick up the new configuration
+    ShadcnPhlexcomponents.send(:remove_const, :Alert) if ShadcnPhlexcomponents.const_defined?(:Alert)
+    load(File.expand_path("../lib/shadcn_phlexcomponents/components/alert.rb", __dir__))
 
-  #     assert_includes(output, 'data-shadcn-phlexcomponents="alert"')
-  #   end
+    component = ShadcnPhlexcomponents::Alert.new do |a|
+      a.title { "Alert title" }
+      a.description { "Alert description" }
+    end
 
-  #   def test_alert_with_title_and_description
-  #     component = ShadcnPhlexcomponents::Alert.new
+    output = render(component)
 
-  #     output = render(component) do |alert|
-  #       alert.title { "Alert Title" }
-  #       alert.description { "Alert description text" }
-  #     end
+    assert_includes(output, "custom-alert")
+    assert_includes(output, "custom-title")
+    assert_includes(output, "custom-description")
+  ensure
+    # Restore and reload class
+    ShadcnPhlexcomponents.instance_variable_set(:@configuration, ShadcnPhlexcomponents::Configuration.new)
+    ShadcnPhlexcomponents.send(:remove_const, :Alert) if ShadcnPhlexcomponents.const_defined?(:Alert)
+    load(File.expand_path("../lib/shadcn_phlexcomponents/components/alert.rb", __dir__))
+  end
+end
 
-  #     assert_includes(output, "Alert Title")
-  #     assert_includes(output, "Alert description text")
-  #   end
-  # end
+class TestAlertTitle < ComponentTest
+  def test_it_should_render_content_and_attributes
+    component = ShadcnPhlexcomponents::AlertTitle.new { "Alert title" }
 
-  # class TestAlertTitle < ComponentTest
-  #   def test_renders_alert_title
-  #     component = ShadcnPhlexcomponents::AlertTitle.new
+    output = render(component)
 
-  #     output = render(component) { "Title Text" }
+    assert_includes(output, "Alert title")
+    assert_includes(output, "col-start-2 line-clamp-1")
+  end
 
-  #     assert_includes(output, "Title Text")
-  #     assert_includes(output, "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight")
-  #   end
+  def test_it_should_render_custom_attributes
+    component = ShadcnPhlexcomponents::AlertTitle.new(class: "alert-title-class", id: "alert-title-id", data: { testid: "alert-title" })
 
-  #   def test_alert_title_with_custom_attributes
-  #     component = ShadcnPhlexcomponents::AlertTitle.new(class: "custom-title-class")
+    output = render(component)
 
-  #     output = render(component) { "Custom Title" }
+    assert_includes(output, "alert-title-class")
+    assert_includes(output, 'id="alert-title-id"')
+    assert_includes(output, 'data-testid="alert-title"')
+  end
+end
 
-  #     assert_includes(output, "custom-title-class")
-  #     assert_includes(output, "Custom Title")
-  #   end
+class TestAlertDescription < ComponentTest
+  def test_it_should_render_content_and_attributes
+    component = ShadcnPhlexcomponents::AlertDescription.new { "Alert description" }
 
-  #   def test_alert_title_data_attribute
-  #     component = ShadcnPhlexcomponents::AlertTitle.new
+    output = render(component)
 
-  #     output = render(component) { "Title" }
+    assert_includes(output, "Alert description")
+    assert_includes(output, "text-muted-foreground col-start-2 grid")
+  end
 
-  #     assert_includes(output, 'data-shadcn-phlexcomponents="alert-title"')
-  #   end
-  # end
+  def test_it_should_render_custom_attributes
+    component = ShadcnPhlexcomponents::AlertDescription.new(class: "alert-description-class", id: "alert-description-id", data: { testid: "alert-description" })
 
-  # class TestAlertDescription < ComponentTest
-  #   def test_renders_alert_description
-  #     component = ShadcnPhlexcomponents::AlertDescription.new
+    output = render(component)
 
-  #     output = render(component) { "Description text" }
-
-  #     assert_includes(output, "Description text")
-  #     assert_includes(output, "text-muted-foreground col-start-2 grid justify-items-start gap-1")
-  #   end
-
-  #   def test_alert_description_with_custom_attributes
-  #     component = ShadcnPhlexcomponents::AlertDescription.new(class: "custom-desc-class")
-
-  #     output = render(component) { "Custom description" }
-
-  #     assert_includes(output, "custom-desc-class")
-  #     assert_includes(output, "Custom description")
-  #   end
-
-  #   def test_alert_description_data_attribute
-  #     component = ShadcnPhlexcomponents::AlertDescription.new
-
-  #     output = render(component) { "Description" }
-
-  #     assert_includes(output, 'data-shadcn-phlexcomponents="alert-description"')
-  #   end
+    assert_includes(output, "alert-description-class")
+    assert_includes(output, 'id="alert-description-id"')
+    assert_includes(output, 'data-testid="alert-description"')
+  end
 end
