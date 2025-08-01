@@ -1,17 +1,19 @@
-## [Unreleased] - YYYY-MM-DD
+## [Unreleased] - 2025-08-01
+
 ### Added
+
+- Upgrade task
+- Ability to configure components
+
 ### Changed
-### Deprecated
-### Removed
-### Fixed
-### Security
+
+- Stimulus controllers initialization
 
 ## [0.1.17] - 2025-07-08
 
 ### Fixed
 
 - Combobox search_placeholder_text
-
 
 ## [0.1.16] - 2025-07-08
 
