@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Shadcn Phlexcomponents is a UI Component library built for Ruby on Rails."
   spec.homepage = "https://github.com/sean-yeoh/shadcn_phlexcomponents"
-  spec.required_ruby_version = ">= 3.3.0"
+  spec.required_ruby_version = ">= 3.4.0"
 
   spec.license = "MIT"
   spec.metadata["homepage_uri"] = spec.homepage
