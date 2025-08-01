@@ -79,7 +79,7 @@ module ShadcnPhlexcomponents
     def view_template
       @html_options ||= {}
       @html_options = mix(default_attributes, @html_options)
-      @html_options[:class] = class_variants(clase: @html_options[:class])
+      @html_options[:class] = class_variants(class: @html_options[:class])
       @html_options[:size] = :default
 
       PaginationLink(@options, @html_options) do
@@ -115,7 +115,7 @@ module ShadcnPhlexcomponents
     def view_template
       @html_options ||= {}
       @html_options = mix(default_attributes, @html_options)
-      @html_options[:class] = class_variants(clase: @html_options[:class])
+      @html_options[:class] = class_variants(class: @html_options[:class])
       @html_options[:size] = :default
 
       PaginationLink(@options, @html_options) do

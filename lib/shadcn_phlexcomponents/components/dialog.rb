@@ -143,7 +143,7 @@ module ShadcnPhlexcomponents
       div(style: { display: "none" }, **@attributes) do
         yield
 
-        DialogCloseIcon {}
+        DialogCloseIcon()
       end
     end
   end

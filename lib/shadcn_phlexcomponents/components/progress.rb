@@ -54,8 +54,9 @@ module ShadcnPhlexcomponents
     end
 
     def default_attributes
+      value = @value || 0
       {
-        style: "transform: translateX(-#{100 - @value}%)",
+        style: "transform: translateX(-#{100 - value}%)",
         data: { progress_target: "indicator" },
       }
     end

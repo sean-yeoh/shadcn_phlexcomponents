@@ -84,7 +84,7 @@ module ShadcnPhlexcomponents
 
     def initialize(checked: false, **attributes)
       @checked = checked
-      super(**@attributes)
+      super(**attributes)
     end
 
     def default_attributes
