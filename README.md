@@ -2,156 +2,126 @@
 
 A modern UI component library for Ruby on Rails applications, built with [Phlex](https://www.phlex.fun/) and styled with [Tailwind CSS](https://tailwindcss.com/). Inspired by [shadcn/ui](https://ui.shadcn.com/), this gem provides beautiful, accessible, and highly customizable components for Ruby developers.
 
-## ✨ Features
+## Installation
 
-- 🎨 **50+ Beautiful Components** - Complete UI component library with consistent design
-- ⚡ **Phlex-Powered** - Fast, type-safe Ruby components
-- 🎯 **Stimulus Integration** - Interactive components with modern JavaScript
-- 🎪 **Tailwind CSS** - Utility-first styling with full customization
-- ♿ **Accessibility First** - ARIA-compliant and keyboard navigation support
-- 🌙 **Dark Mode Ready** - Built-in theme switching support
-- 📱 **Responsive Design** - Mobile-first approach
-- 🔧 **Highly Customizable** - Extensive configuration options
-- 🚀 **Easy Installation** - Simple setup with Rails integration
-
-## 📦 Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'shadcn_phlexcomponents'
-```
-
-And then execute:
+Install gem and required gems:
 
 ```bash
-bundle install
+bundle add shadcn_phlexcomponents phlex-rails tailwindcss-rails \
+tailwind_merge lucide-rails class_variants
 ```
 
 Or install it yourself as:
 
-```bash
-gem install shadcn_phlexcomponents
+```ruby
+gem "shadcn_phlexcomponents"
+gem "phlex-rails", "~> 2.1"
+gem "tailwindcss-rails", "~> 4.2"
+gem "tailwind_merge", "~> 1.0"
+gem "lucide-rails", "~> 0.5.1"
+gem "class_variants", "~> 1.1"
 ```
 
-### Rails Integration
-
-After installing the gem, run the installer to set up the necessary files:
+After installing the gems, run the installer to set up the necessary files:
 
 ```bash
-rails generate install:shadcn_phlexcomponents
+rails install:shadcn_phlexcomponents
 ```
 
 This will:
-- Copy JavaScript controllers and utilities
-- Set up Tailwind CSS configuration
-- Add Stimulus integration
-- Configure component stylesheets
 
-## 🚀 Quick Start
+- Copy all Phlex component files to `vendor/shadcn_phlexcomponents/components`
+- Copy all Stimulus controller files (either TypeScript or JavaScript) to `vendor/shadcn_phlexcomponents/javascript`
+- Copy all CSS files to `vendor/shadcn_phlexcomponents/stylesheets`
+- Copy an initializer file to `config/initializers/shadcn_phlexcomponents.rb`
+
+## Upgrading
+
+```bash
+rails upgrade:shadcn_phlexcomponents
+```
+
+This will:
+
+- Copy all Phlex component files to `vendor/shadcn_phlexcomponents/components`
+- Copy all Stimulus controller files (either TypeScript or JavaScript) to `vendor/shadcn_phlexcomponents/javascript`
+- Copy all CSS files to `vendor/shadcn_phlexcomponents/stylesheets`
+
+## Quick Start
 
 ### Basic Usage
-
-```ruby
-# In your view or component
-class MyView < Phlex::HTML
-  def view_template
-    render ShadcnPhlexcomponents::Button.new(variant: :primary) do
-      "Click me!"
-    end
-  end
-end
-```
 
 ### With Rails Helpers
 
 ```erb
-<%# In your ERB templates %>
-<%= render ShadcnPhlexcomponents::Card.new do %>
-  <%= render ShadcnPhlexcomponents::Card::Header.new do %>
-    <h3>Card Title</h3>
-  <% end %>
-  <%= render ShadcnPhlexcomponents::Card::Content.new do %>
-    <p>Card content goes here.</p>
-  <% end %>
-<% end %>
+<%= render Button.new { "Default" } %>
 ```
 
-## 🧩 Available Components
+See [https://shadcn-phlexcomponents.seanysx.com/](https://shadcn-phlexcomponents.seanysx.com/) for more examples.
+
+## Available Components
 
 ### Layout & Structure
-- **Aspect Ratio** - Maintain aspect ratios for media content
-- **Card** - Flexible content containers with header, content, and footer
-- **Separator** - Visual dividers for content sections
-- **Sheet** - Slide-out panels and drawers
-- **Skeleton** - Loading placeholders
+
+- **Aspect Ratio**
+- **Card**
+- **Separator**
+- **Sheet**
+- **Skeleton**
 
 ### Navigation
-- **Breadcrumb** - Navigation hierarchy display
-- **Pagination** - Page navigation controls
-- **Tabs** - Tabbed content organization
+
+- **Breadcrumb**
+- **Pagination**
+- **Tabs**
 
 ### Form Components
-- **Button** - Primary action triggers with multiple variants
-- **Input** - Text input fields with validation states
-- **Textarea** - Multi-line text input
-- **Label** - Accessible form labels
-- **Checkbox** - Single and grouped checkboxes
-- **Radio Group** - Radio button selections
-- **Select** - Dropdown selections
-- **Switch** - Toggle switches
-- **Slider** - Range input controls
-- **Date Picker** - Single date selection
-- **Date Range Picker** - Date range selection
-- **Combobox** - Searchable select dropdowns
+
+- **Button**
+- **Input**
+- **Textarea**
+- **Label**
+- **Checkbox**
+- **Radio Group**
+- **Select**
+- **Switch**
+- **Slider**
+- **Date Picker**
+- **Date Range Picker**
+- **Combobox**
 
 ### Interactive Components
-- **Accordion** - Collapsible content sections
-- **Alert Dialog** - Modal confirmations and alerts
-- **Dialog** - Modal dialogs and overlays
-- **Dropdown Menu** - Context menus and actions
-- **Hover Card** - Contextual information on hover
-- **Popover** - Floating content containers
-- **Tooltip** - Helpful text on hover
-- **Command** - Command palette interface
-- **Collapsible** - Expandable content areas
+
+- **Accordion**
+- **Alert Dialog**
+- **Dialog**
+- **Dropdown Menu**
+- **Hover Card**
+- **Popover**
+- **Tooltip**
+- **Command**
+- **Collapsible**
 
 ### Feedback & Status
-- **Alert** - Status messages and notifications
-- **Badge** - Labels and status indicators
-- **Progress** - Progress bars and indicators
-- **Toast** - Notification messages
-- **Loading Button** - Buttons with loading states
+
+- **Alert**
+- **Badge**
+- **Progress**
+- **Toast**
+- **Loading Button**
 
 ### Display Components
-- **Avatar** - User profile images with fallbacks
-- **Table** - Data tables with sorting and styling
-- **Toggle** - Binary state toggles
+
+- **Avatar**
+- **Table**
+- **Toggle**
 
 ### Utilities
-- **Link** - Styled navigation links
-- **Theme Switcher** - Light/dark mode toggle
 
-## 🎨 Customization
+- **Link**
+- **Theme Switcher**
 
-### Component Variants
-
-Most components support multiple variants for different use cases:
-
-```ruby
-# Button variants
-render ShadcnPhlexcomponents::Button.new(variant: :default) { "Default" }
-render ShadcnPhlexcomponents::Button.new(variant: :destructive) { "Delete" }
-render ShadcnPhlexcomponents::Button.new(variant: :outline) { "Cancel" }
-render ShadcnPhlexcomponents::Button.new(variant: :ghost) { "Ghost" }
-render ShadcnPhlexcomponents::Button.new(variant: :link) { "Link" }
-
-# Button sizes
-render ShadcnPhlexcomponents::Button.new(size: :sm) { "Small" }
-render ShadcnPhlexcomponents::Button.new(size: :default) { "Default" }
-render ShadcnPhlexcomponents::Button.new(size: :lg) { "Large" }
-render ShadcnPhlexcomponents::Button.new(size: :icon) { icon(:plus) }
-```
+## Customization
 
 ### Global Configuration
 
@@ -172,84 +142,20 @@ ShadcnPhlexcomponents.configure do |config|
 end
 ```
 
-### CSS Customization
-
-Override component styles using Tailwind CSS:
-
-```css
-/* app/assets/stylesheets/application.css */
-.shadcn-button {
-  @apply font-semibold transition-all duration-200;
-}
-
-.shadcn-button--primary {
-  @apply bg-brand-primary hover:bg-brand-primary-dark;
-}
-```
-
-## 🎯 Interactive Components
-
-Components with JavaScript functionality automatically include Stimulus controllers:
-
-```ruby
-# Accordion with automatic JavaScript behavior
-render ShadcnPhlexcomponents::Accordion.new do
-  render ShadcnPhlexcomponents::Accordion::Item.new(value: "item-1") do
-    render ShadcnPhlexcomponents::Accordion::Trigger.new { "Section 1" }
-    render ShadcnPhlexcomponents::Accordion::Content.new do
-      "Content for section 1"
-    end
-  end
-end
-
-# Dialog with modal behavior
-render ShadcnPhlexcomponents::Dialog.new do
-  render ShadcnPhlexcomponents::Dialog::Trigger.new do
-    render ShadcnPhlexcomponents::Button.new { "Open Dialog" }
-  end
-  render ShadcnPhlexcomponents::Dialog::Content.new do
-    render ShadcnPhlexcomponents::Dialog::Header.new do
-      render ShadcnPhlexcomponents::Dialog::Title.new { "Dialog Title" }
-    end
-    "Dialog content goes here"
-  end
-end
-```
-
-## 🌙 Dark Mode
-
-Enable dark mode support by adding the theme switcher:
-
-```ruby
-# In your layout
-render ShadcnPhlexcomponents::ThemeSwitcher.new
-```
-
 Components automatically adapt to dark mode using Tailwind's `dark:` classes.
 
-## 📋 Form Integration
+## Form Integration
 
-Components work seamlessly with Rails form helpers:
+Components work with Rails form helpers:
 
-```ruby
-# Using with Rails forms
-form_with model: @user do |form|
-  div(class: "space-y-4") do
-    render ShadcnPhlexcomponents::Form::FormField.new(form: form, name: :name) do
-      render ShadcnPhlexcomponents::Label.new { "Name" }
-      render ShadcnPhlexcomponents::Input.new(
-        name: "user[name]",
-        value: @user.name,
-        placeholder: "Enter your name"
-      )
-    end
-    
-    render ShadcnPhlexcomponents::Button.new(type: :submit) { "Save" }
-  end
-end
+```erb
+<%= render Form.new(model: @user, class: "space-y-6") do |f| %>
+  <%= f.input(:email) %>
+  <%= f.submit %>
+<% end %>
 ```
 
-## 🛠️ Development
+## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
@@ -263,62 +169,34 @@ rake test
 rake rubocop
 rubocop
 
-# Build JavaScript assets
-yarn build
+# Install JavaScript dependencies
+yarn install
 
-# Install gem locally
-bundle exec rake install
-
-# Release new version
-bundle exec rake release
 ```
 
-### Component Development
-
-When creating new components:
-
-1. Inherit from `ShadcnPhlexcomponents::Base`
-2. Use `class_variants` for styling variations
-3. Add Stimulus controllers for interactivity
-4. Include comprehensive tests
-5. Follow existing naming conventions
-
-## 🧪 Testing
-
-The gem includes comprehensive test coverage:
-
-```bash
-# Run all tests
-rake test
-
-# Run specific test file
-ruby test/test_button.rb
-
-# Run with coverage
-rake test
-```
-
-## 📚 Dependencies
+## Dependencies
 
 ### Ruby Dependencies
-- **Rails** (~> 8.0) - Web framework
+
+- **rails** (~> 8.0) - Web framework
 - **Phlex Rails** (~> 2.1) - Component framework
 - **Class Variants** (~> 1.1) - CSS class management
 - **Lucide Rails** (~> 0.5.1) - Icon library
 - **Tailwind Merge** (~> 1.0) - CSS class merging
 
 ### JavaScript Dependencies
-- **Stimulus** (^3.2.2) - JavaScript framework
-- **Floating UI** (^1.7.2) - Positioning library
-- **Day.js** (^1.11.13) - Date manipulation
-- **Fuse.js** (^7.1.0) - Fuzzy searching
-- **DOMPurify** (^3.2.6) - HTML sanitization
 
-## 🤝 Contributing
+- **@hotwired/stimulus** (^3.2.2) - JavaScript framework
+- **@floating-ui/dom** (^1.7.2) - Positioning library
+- **dayjs** (^1.11.13) - Date manipulation
+- **fuse.js** (^7.1.0) - Fuzzy searching
+- **dompurify** (^3.2.6) - HTML sanitization
+- **inputmask** (^5.0.9) - Input masking
+- **hotkeys-js** (^3.13.14) - Keyboard shortcuts
+- **nouislider** (^15.8.1) - Slider input
+- **vanilla-calendar-pro** (^3.0.4) - Calendar component
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/sean-yeoh/shadcn_phlexcomponents. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/sean-yeoh/shadcn_phlexcomponents/blob/main/CODE_OF_CONDUCT.md).
-
-### Contributing Guidelines
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b my-new-feature`)
@@ -329,23 +207,16 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/sean-y
 7. Push to the branch (`git push origin my-new-feature`)
 8. Create a new Pull Request
 
-## 📄 License
+## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Inspired by [shadcn/ui](https://ui.shadcn.com/) - The original React component library
 - Built with [Phlex](https://www.phlex.fun/) - Ruby HTML components
 - Styled with [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
 - Icons provided by [Lucide](https://lucide.dev/) - Beautiful open source icons
-
-## 📞 Support
-
-- 📖 [Documentation](https://github.com/sean-yeoh/shadcn_phlexcomponents)
-- 🐛 [Issues](https://github.com/sean-yeoh/shadcn_phlexcomponents/issues)
-- 💬 [Discussions](https://github.com/sean-yeoh/shadcn_phlexcomponents/discussions)
+- [@JacobAlexander](https://github.com/JacobAlexander) - For testing and providing feedback
 
 ---
-
-Made with ❤️ by [Sean Yeoh](https://github.com/sean-yeoh)
