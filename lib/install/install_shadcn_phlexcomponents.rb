@@ -19,7 +19,7 @@ if ENV["ENVIRONMENT"] == "test"
   directory(css_path, css_install_path)
   copy_file(initializer_file_path, initializer_file_install_path)
 elsif yes?("Do you want to continue? (y/n)")
-  using_typescript = yes?("Are you using Typescript?")
+  using_typescript = yes?("Are you using Typescript? (y/n)")
 
   if using_typescript
     directory(stimulus_ts_controllers_path, stimulus_controllers_install_path)
