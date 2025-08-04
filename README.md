@@ -51,13 +51,15 @@ This will:
 
 ### Basic Usage
 
-### With Rails Helpers
-
 ```erb
 <%= render Button.new { "Default" } %>
 ```
 
 See [https://shadcn-phlexcomponents.seanysx.com/](https://shadcn-phlexcomponents.seanysx.com/) for more examples.
+
+### Demo Rails App
+
+Please follow instructions in [https://github.com/sean-yeoh/shadcn_phlexcomponents_demo](https://github.com/sean-yeoh/shadcn_phlexcomponents_demo).
 
 ## Available Components
 
@@ -158,6 +160,16 @@ Components work with Rails form helpers:
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+### Component Development
+
+When creating new components:
+
+1. Inherit from `ShadcnPhlexcomponents::Base`
+2. Use `class_variants` for styling variations
+3. Add Stimulus controllers for interactivity
+4. Include comprehensive tests
+5. Follow existing naming conventions
 
 ### Available Commands
 
