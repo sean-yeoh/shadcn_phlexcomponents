@@ -59,7 +59,7 @@ See [https://shadcn-phlexcomponents.seanysx.com/](https://shadcn-phlexcomponents
 
 ### Demo Rails App
 
-Please follow instructions in [https://github.com/sean-yeoh/shadcn_phlexcomponents_demo](https://github.com/sean-yeoh/shadcn_phlexcomponents_demo).
+Please follow instructions in [https://github.com/sean-yeoh/shadcn_phlexcomponents_demo](https://github.com/sean-yeoh/shadcn_phlexcomponents_demo) to setup a rails app locally.
 
 ## Available Components
 
