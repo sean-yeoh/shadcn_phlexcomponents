@@ -13,6 +13,7 @@ require "tailwind_merge"
 require "class_variants"
 require "debug"
 require "nokogiri"
+require "active_model"
 
 ENV["RAILS_ENV"] = "test"
 class App < Rails::Application
@@ -53,6 +54,24 @@ module Phlex::Rails::SGML
       controller,
     )
   end
+end
+
+class Book
+  include ActiveModel::Model
+  include ActiveModel::Attributes
+
+  attribute :title, :string
+  attribute :author, :string
+  attribute :read, :boolean
+  attribute :category, :string
+  attribute :published_at, :datetime
+  attribute :sale_starts_at, :datetime
+  attribute :sale_ends_at, :datetime
+  attribute :discount, :integer
+  attribute :min_price, :integer
+  attribute :max_price, :integer
+
+  validates :title, presence: true
 end
 
 class ComponentTest < Minitest::Test
