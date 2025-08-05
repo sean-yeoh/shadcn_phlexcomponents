@@ -348,8 +348,8 @@ class TestFormDatePickerIntegration < ComponentTest
   def test_form_date_picker_with_complex_model
     # Use Book with published_at and sale_starts_at dates
     book = Book.new(
-      published_at: Time.parse("2024-06-15 10:00:00"),
-      sale_starts_at: Time.parse("2024-06-01 00:00:00"),
+      published_at: Time.parse("2024-06-15 10:00:00 UTC"),
+      sale_starts_at: Time.parse("2024-06-01 00:00:00 UTC"),
     )
 
     # Test published_at date picker
@@ -366,7 +366,7 @@ class TestFormDatePickerIntegration < ComponentTest
     # Check proper model integration
     assert_includes(published_output, 'name="book[published_at]"')
     assert_includes(published_output, 'id="book_published_at"')
-    assert_match(/data-value="2024-06-15T\d{2}:\d{2}:\d{2}Z"/, published_output)
+    assert_match(/data-value="2024-06-15T10:00:00Z"/, published_output)
 
     # Sale starts date picker
     sale_component = ShadcnPhlexcomponents::FormDatePicker.new(
@@ -378,7 +378,7 @@ class TestFormDatePickerIntegration < ComponentTest
     sale_output = render(sale_component)
 
     assert_includes(sale_output, 'name="book[sale_starts_at]"')
-    assert_match(/data-value="2024-0[56]-[23]\dT\d{2}:\d{2}:\d{2}Z"/, sale_output)
+    assert_match(/data-value="2024-06-01T00:00:00Z"/, sale_output)
 
     # Check form field structure
     assert_includes(published_output, "publication-date")
