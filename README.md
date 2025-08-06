@@ -25,7 +25,7 @@ gem "class_variants", "~> 1.1"
 After installing the gems, run the installer to set up the necessary files:
 
 ```bash
-rails install:shadcn_phlexcomponents
+./bin/rails shadcn_phlexcomponents:install
 ```
 
 This will:
@@ -38,7 +38,7 @@ This will:
 ## Upgrading
 
 ```bash
-rails upgrade:shadcn_phlexcomponents
+./bin/rails shadcn_phlexcomponents:upgrade
 ```
 
 This will:
