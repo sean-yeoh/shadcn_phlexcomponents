@@ -55,7 +55,7 @@ This will:
 <%= render Button.new { "Default" } %>
 ```
 
-See [https://shadcn-phlexcomponents.seanysx.com/](https://shadcn-phlexcomponents.seanysx.com/) for more examples.
+See [https://shadcn-phlexcomponents.xyz/](https://shadcn-phlexcomponents.xyz/) for more examples.
 
 ### Demo Rails App
 
