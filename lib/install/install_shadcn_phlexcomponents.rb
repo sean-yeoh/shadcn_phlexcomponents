@@ -30,3 +30,8 @@ elsif yes?("Do you want to continue? (y/n)")
   directory(css_path, css_install_path)
   copy_file(initializer_file_path, initializer_file_install_path)
 end
+
+say "Successfully copied Phlex component files to #{components_install_path}", :white
+say "Successfully copied Stimulus controller files to #{stimulus_controllers_install_path}", :white
+say "Successfully copied CSS files to #{css_install_path}", :white
+say "Successfully copied initializer file to #{initializer_file_install_path}", :white

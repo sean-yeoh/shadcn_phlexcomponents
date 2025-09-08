@@ -25,6 +25,7 @@ DropdownMenuSub = ShadcnPhlexcomponents::DropdownMenuSub
 Form = ShadcnPhlexcomponents::Form
 HoverCard = ShadcnPhlexcomponents::HoverCard
 Input = ShadcnPhlexcomponents::Input
+Kbd = ShadcnPhlexcomponents::Kbd
 Label = ShadcnPhlexcomponents::Label
 Link = ShadcnPhlexcomponents::Link
 LoadingButton = ShadcnPhlexcomponents::LoadingButton
