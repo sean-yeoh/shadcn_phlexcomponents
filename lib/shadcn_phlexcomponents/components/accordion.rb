@@ -163,6 +163,9 @@ module ShadcnPhlexcomponents
           state: "closed",
           accordion_target: "content",
         },
+        style: {
+          display: "none"
+        }
       }
     end
 
