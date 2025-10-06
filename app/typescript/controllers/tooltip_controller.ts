@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 import { useHover } from 'stimulus-use'
 import { initFloatingUi } from '../utils/floating_ui'
-import { showContent, hideContent } from '../utils'
+import { showContent, hideContent, getStimulusInstance } from '../utils'
 
 const Tooltip = class extends Controller<HTMLElement> {
   static name = 'tooltip'
@@ -31,6 +31,7 @@ const Tooltip = class extends Controller<HTMLElement> {
 
   open() {
     window.clearTimeout(this.closeTimeout)
+    this.closeOtherTooltips()
     this.isOpenValue = true
   }
 
@@ -52,6 +53,25 @@ const Tooltip = class extends Controller<HTMLElement> {
   // for useHover
   mouseLeave() {
     this.close()
+  }
+
+  closeOtherTooltips() {
+    const otherTooltips = Array.from(
+      document.querySelectorAll(
+        '[data-controller="tooltip"][data-tooltip-is-open-value="true"]',
+      ),
+    ).filter((el) => el !== this.element) as HTMLElement[]
+
+    otherTooltips.forEach((el) => {
+      const tooltip = getStimulusInstance<InstanceType<typeof Tooltip>>(
+        'tooltip',
+        el,
+      )
+
+      if (tooltip) {
+        tooltip.closeImmediately()
+      }
+    })
   }
 
   isOpenValueChanged(isOpen: boolean) {
