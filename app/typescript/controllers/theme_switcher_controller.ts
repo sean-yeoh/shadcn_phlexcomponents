@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const ThemeSwitcherController = class extends Controller {
+const ThemeSwitcher = class extends Controller {
   static name = 'theme-switcher'
 
   initialize() {
@@ -36,7 +36,4 @@ const ThemeSwitcherController = class extends Controller {
   }
 }
 
-type ThemeSwitcher = InstanceType<typeof ThemeSwitcherController>
-
-export { ThemeSwitcherController }
-export type { ThemeSwitcher }
+export default ThemeSwitcher

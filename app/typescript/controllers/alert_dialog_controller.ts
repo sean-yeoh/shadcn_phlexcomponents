@@ -1,6 +1,6 @@
-import { DialogController } from './dialog_controller'
+import Dialog from './dialog_controller'
 
-const AlertDialogController = class extends DialogController {
+const AlertDialog = class extends Dialog {
   static name = 'alert-dialog'
 
   protected onDOMClick() {
@@ -8,7 +8,4 @@ const AlertDialogController = class extends DialogController {
   }
 }
 
-type AlertDialog = InstanceType<typeof AlertDialogController>
-
-export { AlertDialogController }
-export type { AlertDialog }
+export default AlertDialog

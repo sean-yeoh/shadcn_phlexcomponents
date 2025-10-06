@@ -11,7 +11,7 @@ import {
   focusElement,
 } from '../utils'
 
-const PopoverController = class extends Controller<HTMLElement> {
+const Popover = class extends Controller<HTMLElement> {
   static name = 'popover'
 
   // targets
@@ -114,7 +114,4 @@ const PopoverController = class extends Controller<HTMLElement> {
   }
 }
 
-type Popover = InstanceType<typeof PopoverController>
-
-export { PopoverController }
-export type { Popover }
+export default Popover

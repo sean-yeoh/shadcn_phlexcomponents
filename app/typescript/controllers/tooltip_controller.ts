@@ -3,7 +3,7 @@ import { useHover } from 'stimulus-use'
 import { initFloatingUi } from '../utils/floating_ui'
 import { showContent, hideContent } from '../utils'
 
-const TooltipController = class extends Controller<HTMLElement> {
+const Tooltip = class extends Controller<HTMLElement> {
   static name = 'tooltip'
 
   // targets
@@ -106,7 +106,4 @@ const TooltipController = class extends Controller<HTMLElement> {
   }
 }
 
-type Tooltip = InstanceType<typeof TooltipController>
-
-export { TooltipController }
-export type { Tooltip }
+export default Tooltip

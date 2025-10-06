@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const CheckboxController = class extends Controller<HTMLElement> {
+const Checkbox = class extends Controller<HTMLElement> {
   static name = 'checkbox'
 
   // targets
@@ -37,7 +37,4 @@ const CheckboxController = class extends Controller<HTMLElement> {
   }
 }
 
-type Checkbox = InstanceType<typeof CheckboxController>
-
-export { CheckboxController }
-export type { Checkbox }
+export default Checkbox

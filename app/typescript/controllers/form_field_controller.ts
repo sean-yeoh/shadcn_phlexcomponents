@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const FormFieldController = class extends Controller {
+const FormField = class extends Controller {
   static name = 'form-field'
 
   connect() {
@@ -23,7 +23,4 @@ const FormFieldController = class extends Controller {
   }
 }
 
-type FormField = InstanceType<typeof FormFieldController>
-
-export { FormFieldController }
-export type { FormField }
+export default FormField

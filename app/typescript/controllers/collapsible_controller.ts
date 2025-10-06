@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 import { hideContent, showContent } from '../utils'
 
-const CollapsibleController = class extends Controller {
+const Collapsible = class extends Controller {
   static name = 'collapsible'
 
   // targets
@@ -48,7 +48,4 @@ const CollapsibleController = class extends Controller {
   }
 }
 
-type Collapsible = InstanceType<typeof CollapsibleController>
-
-export { CollapsibleController }
-export type { Collapsible }
+export default Collapsible

@@ -1,5 +1,5 @@
-import { DropdownMenuSub } from './dropdown_menu_sub_controller'
-import { Select } from './select_controller'
+import DropdownMenuSub from './dropdown_menu_sub_controller'
+import Select from './select_controller'
 import { Controller } from '@hotwired/stimulus'
 import { useClickOutside } from 'stimulus-use'
 import { initFloatingUi } from '../utils/floating_ui'
@@ -17,7 +17,13 @@ import {
   focusElement,
 } from '../utils'
 
-const onKeydown = (controller: DropdownMenu | Select, event: KeyboardEvent) => {
+type DropdownMenuSubInstance = InstanceType<typeof DropdownMenuSub>
+type SelectInstance = InstanceType<typeof Select>
+
+const onKeydown = (
+  controller: DropdownMenuInstance | SelectInstance,
+  event: KeyboardEvent,
+) => {
   const key = event.key
 
   if (['Tab', 'Enter', ' '].includes(key)) event.preventDefault()
@@ -31,7 +37,7 @@ const onKeydown = (controller: DropdownMenu | Select, event: KeyboardEvent) => {
 }
 
 const focusItemByIndex = (
-  controller: DropdownMenu | Select,
+  controller: DropdownMenuInstance | SelectInstance,
   event: KeyboardEvent | null = null,
   index: number | null = null,
 ) => {
@@ -48,7 +54,7 @@ const focusItemByIndex = (
   }
 }
 
-const DropdownMenuController = class extends Controller<HTMLElement> {
+const DropdownMenu = class extends Controller<HTMLElement> {
   static name = 'dropdown-menu'
 
   // targets
@@ -67,7 +73,7 @@ const DropdownMenuController = class extends Controller<HTMLElement> {
   // custom properties
   declare closestContentSelector: string
   declare items: HTMLElement[]
-  declare subMenuControllers: DropdownMenuSub[]
+  declare subMenuControllers: DropdownMenuSubInstance[]
   declare DOMKeydownListener: (event: KeyboardEvent) => void
   declare cleanup: () => void
 
@@ -97,7 +103,7 @@ const DropdownMenuController = class extends Controller<HTMLElement> {
     // Sub menus are not connected to the DOM yet when dropdown menu is connected.
     // So we initialize them here instead of in connect().
     if (this.subMenuControllers === undefined) {
-      const subMenuControllers = [] as DropdownMenuSub[]
+      const subMenuControllers = [] as DropdownMenuSubInstance[]
 
       const subMenus = Array.from(
         this.contentTarget.querySelectorAll(
@@ -106,7 +112,7 @@ const DropdownMenuController = class extends Controller<HTMLElement> {
       ) as HTMLElement[]
 
       subMenus.forEach((subMenu) => {
-        const subMenuController = getStimulusInstance<DropdownMenuSub>(
+        const subMenuController = getStimulusInstance<DropdownMenuSubInstance>(
           'dropdown-menu-sub',
           subMenu,
         )
@@ -305,7 +311,7 @@ const DropdownMenuController = class extends Controller<HTMLElement> {
   }
 }
 
-type DropdownMenu = InstanceType<typeof DropdownMenuController>
+type DropdownMenuInstance = InstanceType<typeof DropdownMenu>
 
-export { DropdownMenuController, onKeydown, focusItemByIndex }
-export type { DropdownMenu }
+export default DropdownMenu
+export { onKeydown, focusItemByIndex }

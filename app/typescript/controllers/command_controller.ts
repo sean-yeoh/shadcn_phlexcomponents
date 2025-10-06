@@ -30,7 +30,7 @@ declare global {
   }
 }
 
-const CommandController = class extends Controller<HTMLElement> {
+const Command = class extends Controller<HTMLElement> {
   static name = 'command'
 
   // targets
@@ -297,7 +297,4 @@ const CommandController = class extends Controller<HTMLElement> {
   }
 }
 
-type Command = InstanceType<typeof CommandController>
-
-export { CommandController }
-export type { Command }
+export default Command

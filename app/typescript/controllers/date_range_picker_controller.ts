@@ -1,5 +1,5 @@
 import { Calendar, Options } from 'vanilla-calendar-pro'
-import { DatePickerController } from './date_picker_controller'
+import DatePicker from './date_picker_controller'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import utc from 'dayjs/plugin/utc'
@@ -9,7 +9,7 @@ dayjs.extend(utc)
 const DELIMITER = ' - '
 const DAYJS_FORMAT = 'YYYY-MM-DD'
 
-const DateRangePickerController = class extends DatePickerController {
+const DateRangePicker = class extends DatePicker {
   static name = 'date-range-picker'
 
   // targets
@@ -249,7 +249,4 @@ const DateRangePickerController = class extends DatePickerController {
   }
 }
 
-type DateRangePicker = InstanceType<typeof DateRangePickerController>
-
-export { DateRangePickerController }
-export type { DateRangePicker }
+export default DateRangePicker

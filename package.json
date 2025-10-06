@@ -17,6 +17,7 @@
     "hotkeys-js": "^3.13.14",
     "inputmask": "^5.0.9",
     "nouislider": "^15.8.1",
+    "stimulus-controller-resolver": "^3.2.0",
     "stimulus-use": "^0.52.3",
     "vanilla-calendar-pro": "^3.0.4"
   }
