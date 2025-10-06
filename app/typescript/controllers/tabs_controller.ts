@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 import { getNextEnabledIndex, getPreviousEnabledIndex } from '../utils'
 
-const TabsController = class extends Controller {
+const Tabs = class extends Controller {
   static name = 'tabs'
 
   // targets
@@ -83,7 +83,4 @@ const TabsController = class extends Controller {
   }
 }
 
-type Tabs = InstanceType<typeof TabsController>
-
-export { TabsController }
-export type { Tabs }
+export default Tabs

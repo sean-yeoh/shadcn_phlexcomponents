@@ -24,7 +24,7 @@ import {
 
 import { useClickOutside, useDebounce } from 'stimulus-use'
 
-const ComboboxController = class extends Controller<HTMLElement> {
+const Combobox = class extends Controller<HTMLElement> {
   static name = 'combobox'
 
   // targets
@@ -371,7 +371,4 @@ const ComboboxController = class extends Controller<HTMLElement> {
   }
 }
 
-type Combobox = InstanceType<typeof ComboboxController>
-
-export { ComboboxController }
-export type { Combobox }
+export default Combobox

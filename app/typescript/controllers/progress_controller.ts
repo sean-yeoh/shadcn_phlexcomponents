@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const ProgressController = class extends Controller {
+const Progress = class extends Controller {
   static name = 'progress'
 
   // targets
@@ -19,7 +19,4 @@ const ProgressController = class extends Controller {
   }
 }
 
-type Progress = InstanceType<typeof ProgressController>
-
-export { ProgressController }
-export type { Progress }
+export default Progress

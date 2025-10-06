@@ -8,7 +8,7 @@ import {
   getStimulusInstance,
 } from '../utils'
 
-const DropdownMenuSubController = class extends Controller<HTMLElement> {
+const DropdownMenuSub = class extends Controller<HTMLElement> {
   static name = 'dropdown-menu-sub'
 
   // targets
@@ -92,7 +92,7 @@ const DropdownMenuSubController = class extends Controller<HTMLElement> {
       ) as HTMLElement
 
       if (subMenu) {
-        const subMenuController = getStimulusInstance<DropdownMenuSub>(
+        const subMenuController = getStimulusInstance<DropdownMenuSubInstance>(
           'dropdown-menu-sub',
           subMenu,
         )
@@ -148,7 +148,6 @@ const DropdownMenuSubController = class extends Controller<HTMLElement> {
   }
 }
 
-type DropdownMenuSub = InstanceType<typeof DropdownMenuSubController>
+type DropdownMenuSubInstance = InstanceType<typeof DropdownMenuSub>
 
-export { DropdownMenuSubController }
-export type { DropdownMenuSub }
+export default DropdownMenuSub

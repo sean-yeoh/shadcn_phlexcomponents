@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const RadioGroupController = class extends Controller<HTMLElement> {
+const RadioGroup = class extends Controller<HTMLElement> {
   static name = 'radio-group'
 
   // targets
@@ -109,7 +109,4 @@ const RadioGroupController = class extends Controller<HTMLElement> {
   }
 }
 
-type RadioGroup = InstanceType<typeof RadioGroupController>
-
-export { RadioGroupController }
-export type { RadioGroup }
+export default RadioGroup

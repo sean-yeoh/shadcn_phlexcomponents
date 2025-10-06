@@ -27,7 +27,7 @@ const isSmallScreen = () => {
 
 const DAYJS_FORMAT = 'YYYY-MM-DD'
 
-const DatePickerController = class extends Controller<HTMLElement> {
+const DatePicker = class extends Controller<HTMLElement> {
   static name = 'date-picker'
 
   // targets
@@ -348,7 +348,4 @@ const DatePickerController = class extends Controller<HTMLElement> {
   }
 }
 
-type DatePicker = InstanceType<typeof DatePickerController>
-
-export { DatePickerController }
-export type { DatePicker }
+export default DatePicker

@@ -16,7 +16,7 @@ import {
 } from '../utils'
 import { Controller } from '@hotwired/stimulus'
 
-const SelectController = class extends Controller<HTMLElement> {
+const Select = class extends Controller<HTMLElement> {
   static name = 'select'
 
   // targets
@@ -337,7 +337,4 @@ const SelectController = class extends Controller<HTMLElement> {
   }
 }
 
-type Select = InstanceType<typeof SelectController>
-
-export { SelectController }
-export type { Select }
+export default Select

@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const AvatarController = class extends Controller {
+const Avatar = class extends Controller {
   static name = 'avatar'
 
   // targets
@@ -20,7 +20,4 @@ const AvatarController = class extends Controller {
   }
 }
 
-type Avatar = InstanceType<typeof AvatarController>
-
-export { AvatarController }
-export type { Avatar }
+export default Avatar

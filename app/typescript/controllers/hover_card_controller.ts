@@ -3,7 +3,7 @@ import { useHover } from 'stimulus-use'
 import { initFloatingUi } from '../utils/floating_ui'
 import { showContent, hideContent } from '../utils'
 
-const HoverCardController = class extends Controller<HTMLElement> {
+const HoverCard = class extends Controller<HTMLElement> {
   static name = 'hover-card'
 
   // targets
@@ -99,7 +99,4 @@ const HoverCardController = class extends Controller<HTMLElement> {
   }
 }
 
-type HoverCard = InstanceType<typeof HoverCardController>
-
-export { HoverCardController }
-export type { HoverCard }
+export default HoverCard

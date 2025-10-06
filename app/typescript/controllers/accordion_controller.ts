@@ -6,7 +6,7 @@ import {
   getPreviousEnabledIndex,
 } from '../utils'
 
-const AccordionController = class extends Controller<HTMLElement> {
+const Accordion = class extends Controller<HTMLElement> {
   static name = 'accordion'
 
   // targets
@@ -132,7 +132,4 @@ const AccordionController = class extends Controller<HTMLElement> {
   }
 }
 
-type Accordion = InstanceType<typeof AccordionController>
-
-export { AccordionController }
-export type { Accordion }
+export default Accordion

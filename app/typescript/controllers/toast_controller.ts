@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 import { ANIMATION_OUT_DELAY } from '../utils'
 
-const ToastController = class extends Controller<HTMLElement> {
+const Toast = class extends Controller<HTMLElement> {
   static name = 'toast'
 
   // custom properties
@@ -30,7 +30,4 @@ const ToastController = class extends Controller<HTMLElement> {
   }
 }
 
-type Toast = InstanceType<typeof ToastController>
-
-export { ToastController }
-export type { Toast }
+export default Toast

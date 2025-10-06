@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const ToggleController = class extends Controller<HTMLElement> {
+const Toggle = class extends Controller<HTMLElement> {
   static name = 'toggle'
 
   // values
@@ -24,7 +24,4 @@ const ToggleController = class extends Controller<HTMLElement> {
   }
 }
 
-type Toggle = InstanceType<typeof ToggleController>
-
-export { ToggleController }
-export type { Toggle }
+export default Toggle

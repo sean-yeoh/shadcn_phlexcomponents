@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const LoadingButtonController = class extends Controller<HTMLButtonElement> {
+const LoadingButton = class extends Controller<HTMLButtonElement> {
   static name = 'loading-button'
 
   connect() {
@@ -16,7 +16,4 @@ const LoadingButtonController = class extends Controller<HTMLButtonElement> {
   }
 }
 
-type LoadingButton = InstanceType<typeof LoadingButtonController>
-
-export { LoadingButtonController }
-export type { LoadingButton }
+export default LoadingButton

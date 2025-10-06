@@ -164,8 +164,8 @@ module ShadcnPhlexcomponents
           accordion_target: "content",
         },
         style: {
-          display: "none"
-        }
+          display: "none",
+        },
       }
     end
 

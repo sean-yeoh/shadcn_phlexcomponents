@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 import DOMPurify from 'dompurify'
 
-const ToastContainerController = class extends Controller<HTMLElement> {
+const ToastContainer = class extends Controller<HTMLElement> {
   static name = 'toast-container'
 
   addToast({
@@ -63,7 +63,4 @@ const ToastContainerController = class extends Controller<HTMLElement> {
   }
 }
 
-type ToastContainer = InstanceType<typeof ToastContainerController>
-
-export { ToastContainerController }
-export type { ToastContainer }
+export default ToastContainer

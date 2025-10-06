@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 
-const SwitchController = class extends Controller<HTMLElement> {
+const Switch = class extends Controller<HTMLElement> {
   static name = 'switch'
 
   // targets
@@ -33,7 +33,4 @@ const SwitchController = class extends Controller<HTMLElement> {
   }
 }
 
-type Switch = InstanceType<typeof SwitchController>
-
-export { SwitchController }
-export type { Switch }
+export default Switch

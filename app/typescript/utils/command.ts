@@ -1,11 +1,14 @@
-import { Command } from '../controllers/command_controller'
-import {
-  Combobox,
-  ComboboxController,
-} from '../controllers/combobox_controller'
+import Command from '../controllers/command_controller'
+import Combobox from '../controllers/combobox_controller'
 import { getNextEnabledIndex, getPreviousEnabledIndex } from '.'
 
-const scrollToItem = (controller: Command | Combobox, index: number) => {
+type CommandInstance = InstanceType<typeof Command>
+type ComboboxInstance = InstanceType<typeof Combobox>
+
+const scrollToItem = (
+  controller: CommandInstance | ComboboxInstance,
+  index: number,
+) => {
   const item = controller.filteredItems[index]
   const itemRect = item.getBoundingClientRect()
   const listContainerRect =
@@ -52,7 +55,7 @@ const scrollToItem = (controller: Command | Combobox, index: number) => {
 }
 
 const highlightItem = (
-  controller: Command | Combobox,
+  controller: CommandInstance | ComboboxInstance,
   event: MouseEvent | KeyboardEvent | null = null,
   index: number | null = null,
 ) => {
@@ -111,7 +114,7 @@ const highlightItem = (
 }
 
 const highlightItemByIndex = (
-  controller: Command | Combobox,
+  controller: CommandInstance | ComboboxInstance,
   index: number,
 ) => {
   controller.filteredItems.forEach((item, i) => {
@@ -124,7 +127,7 @@ const highlightItemByIndex = (
 }
 
 const filteredItemsChanged = (
-  controller: Command | Combobox,
+  controller: CommandInstance | ComboboxInstance,
   filteredItemIndexes: number[],
 ) => {
   if (controller.orderedItems) {
@@ -233,7 +236,7 @@ const filteredItemsChanged = (
   }
 }
 
-const setItemsGroupId = (controller: Command | Combobox) => {
+const setItemsGroupId = (controller: CommandInstance | ComboboxInstance) => {
   controller.itemTargets.forEach((item) => {
     const parent = item.parentElement
 
@@ -243,7 +246,10 @@ const setItemsGroupId = (controller: Command | Combobox) => {
   })
 }
 
-const search = (controller: Command | Combobox, event: InputEvent) => {
+const search = (
+  controller: CommandInstance | ComboboxInstance,
+  event: InputEvent,
+) => {
   const input = event.target as HTMLInputElement
   const value = input.value.trim()
 
@@ -279,7 +285,7 @@ const search = (controller: Command | Combobox, event: InputEvent) => {
 }
 
 const performRemoteSearch = async (
-  controller: Command | Combobox,
+  controller: CommandInstance | ComboboxInstance,
   query: string,
 ) => {
   // Cancel previous request
@@ -317,7 +323,7 @@ const performRemoteSearch = async (
 }
 
 const renderRemoteResults = (
-  controller: Command | Combobox,
+  controller: CommandInstance | ComboboxInstance,
   data: { html: string; group?: string }[],
 ) => {
   data.forEach((item) => {
@@ -327,7 +333,7 @@ const renderRemoteResults = (
     itemEl.dataset.remote = 'true'
     itemEl.ariaHidden = 'false'
 
-    if (controller instanceof ComboboxController) {
+    if (controller instanceof Combobox) {
       // Don't append same item
       if (controller.selectedValue === itemEl.dataset.value) {
         const item = controller.itemTargets.find(
@@ -397,7 +403,7 @@ const renderRemoteResults = (
   }
 }
 
-const clearRemoteResults = (controller: Command | Combobox) => {
+const clearRemoteResults = (controller: CommandInstance | ComboboxInstance) => {
   const remoteGroups = Array.from(
     controller.element.querySelectorAll(
       `[data-shadcn-phlexcomponents="${controller.identifier}-group"][data-remote='true']`,
@@ -421,7 +427,7 @@ const clearRemoteResults = (controller: Command | Combobox) => {
   remoteItems.forEach((i) => i.remove())
 }
 
-const resetState = (controller: Command | Combobox) => {
+const resetState = (controller: CommandInstance | ComboboxInstance) => {
   controller.searchInputTarget.value = ''
 
   if (controller.searchPath) {
@@ -435,41 +441,43 @@ const resetState = (controller: Command | Combobox) => {
   )
 }
 
-const showLoading = (controller: Command | Combobox) => {
+const showLoading = (controller: CommandInstance | ComboboxInstance) => {
   controller.isLoading = true
   controller.loadingTarget.classList.remove('hidden')
 }
 
-const hideLoading = (controller: Command | Combobox) => {
+const hideLoading = (controller: CommandInstance | ComboboxInstance) => {
   controller.isLoading = false
   controller.loadingTarget.classList.add('hidden')
 }
 
-const showList = (controller: Command | Combobox) => {
+const showList = (controller: CommandInstance | ComboboxInstance) => {
   controller.listTarget.classList.remove('hidden')
 }
 
-const hideList = (controller: Command | Combobox) => {
+const hideList = (controller: CommandInstance | ComboboxInstance) => {
   controller.listTarget.classList.add('hidden')
 }
 
-const showError = (controller: Command | Combobox) => {
+const showError = (controller: CommandInstance | ComboboxInstance) => {
   controller.errorTarget.classList.remove('hidden')
 }
 
-const hideError = (controller: Command | Combobox) => {
+const hideError = (controller: CommandInstance | ComboboxInstance) => {
   controller.errorTarget.classList.add('hidden')
 }
 
-const showEmpty = (controller: Command | Combobox) => {
+const showEmpty = (controller: CommandInstance | ComboboxInstance) => {
   controller.emptyTarget.classList.remove('hidden')
 }
 
-const hideEmpty = (controller: Command | Combobox) => {
+const hideEmpty = (controller: CommandInstance | ComboboxInstance) => {
   controller.emptyTarget.classList.add('hidden')
 }
 
-const showSelectedRemoteItems = (controller: Command | Combobox) => {
+const showSelectedRemoteItems = (
+  controller: CommandInstance | ComboboxInstance,
+) => {
   const remoteItems = Array.from(
     controller.element.querySelectorAll(
       `[data-shadcn-phlexcomponents="${controller.identifier}-item"][data-remote='true']`,
@@ -494,7 +502,9 @@ const showSelectedRemoteItems = (controller: Command | Combobox) => {
   })
 }
 
-const hideSelectedRemoteItems = (controller: Command | Combobox) => {
+const hideSelectedRemoteItems = (
+  controller: CommandInstance | ComboboxInstance,
+) => {
   const remoteItems = Array.from(
     controller.element.querySelectorAll(
       `[data-shadcn-phlexcomponents="${controller.identifier}-item"][data-remote='true']`,

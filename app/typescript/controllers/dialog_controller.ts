@@ -9,7 +9,7 @@ import {
   handleTabNavigation,
 } from '../utils'
 
-const DialogController = class extends Controller<HTMLElement> {
+const Dialog = class extends Controller<HTMLElement> {
   static name = 'dialog'
 
   // targets
@@ -111,7 +111,4 @@ const DialogController = class extends Controller<HTMLElement> {
   }
 }
 
-type Dialog = InstanceType<typeof DialogController>
-
-export { DialogController }
-export type { Dialog }
+export default Dialog
