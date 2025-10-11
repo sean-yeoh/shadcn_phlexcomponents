@@ -129,6 +129,7 @@ module ShadcnPhlexcomponents
         data: {
           side: @side,
           align: @align,
+          state: "closed",
           tooltip_target: "content",
           action: "mouseover->tooltip#open mouseout->tooltip#close",
         },

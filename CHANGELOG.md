@@ -16,6 +16,7 @@
 ### Fixed
 
 - Hide accordion content on initialize to prevent [FOUC](https://en.wikipedia.org/wiki/Flash_of_unstyled_content)
+- Close other tooltips before opening a new tooltip
 
 ### Security
 
